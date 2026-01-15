@@ -16,12 +16,25 @@ kotlin {
     }
     
     listOf(
+        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            binaryOption("bundleId", "com.alpara.beus")
+        }
+    }
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+        binaries.all {
+            // Configuración para cuando no hay variables de Xcode
+            val platformName = System.getenv("PLATFORM_NAME") ?: "iphonesimulator"
+            val archs = System.getenv("ARCHS") ?: "x86_64" // o "arm64" para M1+
+
+            freeCompilerArgs += listOf(
+                "-Xbinary=bundleId=com.alpara.beus"
+            )
         }
     }
     
