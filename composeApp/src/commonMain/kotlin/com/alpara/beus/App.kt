@@ -1,6 +1,7 @@
 package com.alpara.beus
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -58,6 +59,7 @@ fun MainScreen(){
                 NavigationBar (
                     windowInsets = WindowInsets(0),
                 ) {
+                    Spacer(modifier = Modifier.width(8.dp))
                     navItems.forEachIndexed { index, item ->
                         NavigationBarItem(
                             icon = { Icon(painter = painterResource(item.icon), contentDescription = item.label) },
@@ -66,6 +68,7 @@ fun MainScreen(){
                             onClick = {sltItem = index},
                             )
                         }
+                    Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
             }
