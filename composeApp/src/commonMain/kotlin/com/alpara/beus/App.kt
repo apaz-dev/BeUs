@@ -171,7 +171,7 @@ fun MainScreen(){
                                 Icon(
                                     painter = painterResource(Res.drawable.ico_bet),
                                     contentDescription = "Add Bet",
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    //tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(28.dp)
                                 )
                             }
@@ -185,7 +185,7 @@ fun MainScreen(){
                                 Icon(
                                     painter = painterResource(Res.drawable.ico_event),
                                     contentDescription = "Add Event",
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    //tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(28.dp)
                                 )
                             }
