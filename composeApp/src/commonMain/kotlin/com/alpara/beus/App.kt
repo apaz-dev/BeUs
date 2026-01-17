@@ -1,20 +1,28 @@
 package com.alpara.beus
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -61,15 +69,38 @@ fun MainScreen(){
                 ) {
                     Spacer(modifier = Modifier.width(8.dp))
                     navItems.forEachIndexed { index, item ->
+                        val isSelected = sltItem == index
+                        val scale by animateFloatAsState(
+                            targetValue = if (isSelected) 1.5f else 1.3f,
+                            animationSpec = spring(dampingRatio = 0.7f)
+                        )
+                        val offsetY by animateDpAsState(
+                            targetValue = if (isSelected) (-8).dp else 0.dp,
+                            animationSpec = spring(dampingRatio = 0.7f)
+                        )
+
                         NavigationBarItem(
-                            icon = { Icon(painter = painterResource(item.icon), contentDescription = item.label) },
-                            label = { Text(item.label)},
-                            selected = sltItem == index,
+                            icon = {
+                                Icon(
+                                    painter = painterResource(item.icon),
+                                    contentDescription = item.label,
+                                    modifier = Modifier
+                                        .scale(scale)
+                                        .offset(y = offsetY)
+                                )
+                            },
+                            //label = { Text(item.label)},
+                            selected = isSelected,
                             onClick = {sltItem = index},
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                indicatorColor = Color.Transparent
                             )
-                        }
-                    Spacer(modifier = Modifier.width(8.dp))
+                        )
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
                 }
             }
     ) { paddingValues ->
