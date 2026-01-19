@@ -63,7 +63,6 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0F0F0F)),
     ) {
         Column(
             modifier = Modifier
