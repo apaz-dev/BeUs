@@ -44,6 +44,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
+            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10")
+            // SPACE
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
