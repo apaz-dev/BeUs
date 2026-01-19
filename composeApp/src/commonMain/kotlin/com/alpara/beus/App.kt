@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -241,7 +242,10 @@ fun FloatingBottomNavigationBar(
     }
 }
 @Composable
-fun MainNav(navController: NavHostController){
+fun MainNav(
+    navController: NavHostController,
+    onLogout: () -> Unit = {}
+) {
     var showAddMenu by remember { mutableStateOf(false) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -278,20 +282,20 @@ fun MainNav(navController: NavHostController){
                 }
             )
         }
-    ) {
-        paddingValues ->
+    ) { paddingValues ->
         NavigationGraph(
             navController = navController,
+            onLogout = onLogout,
             modifier = Modifier
-                //.padding(paddingValues)
-                //.safeContentPadding()
         )
     }
 }
 
+
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
+    onLogout: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -309,7 +313,7 @@ fun NavigationGraph(
             RankScreen()
         }
         composable(Screen.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(onLogout = onLogout)
         }
         composable(Screen.Event.route) {
             EventScreen()
@@ -320,21 +324,42 @@ fun NavigationGraph(
     }
 }
 
+
 @Composable
 @Preview
 fun App() {
-    val authState = remember { AuthState() }
+    val navController = rememberNavController()
+    val authViewModel = remember { AuthViewModel() }
+    val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
 
     MaterialTheme {
-        if (authState.isLoggedIn) {
-            val navController = rememberNavController()
-            MainNav(navController = navController)
-        } else {
-            LoginScreen(
-                onLoginSuccess = {
-                    authState.login()
-                }
-            )
+        NavHost(
+            navController = navController,
+            startDestination = if (isAuthenticated) "main" else "login"
+        ) {
+            composable("login") {
+                LoginScreen(
+                    onLoginSuccess = {
+                        authViewModel.login()
+                        navController.navigate("main") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable("main") {
+                val mainNavController = rememberNavController()
+                MainNav(
+                    navController = mainNavController,
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
     }
 }
