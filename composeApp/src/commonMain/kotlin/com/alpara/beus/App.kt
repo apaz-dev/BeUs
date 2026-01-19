@@ -79,21 +79,20 @@ fun AddFloatingMenu(
     onEventClick: () -> Unit,
     onBetClick: () -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
-            .padding(bottom = 90.dp)
+            .padding(bottom = 80.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            //.padding(8.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         MenuButton(
             icon = Res.drawable.ico_event,
             label = "Event",
             onClick = onEventClick
         )
-
         MenuButton(
             icon = Res.drawable.ico_bet,
             label = "Bet",
@@ -109,26 +108,28 @@ fun MenuButton(
     label: String,
     onClick: () -> Unit
 ) {
-    Row(
+    Surface(
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+            .shadow(3.dp, RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 3.dp
     ) {
-        Icon(
-            painter = painterResource(icon),
-            contentDescription = label,
-            modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = label,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 
@@ -175,7 +176,7 @@ fun FloatingBottomNavigationBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 20.dp),
+            .padding(horizontal = 16.dp, vertical = 40.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
         AnimatedVisibility(
@@ -213,10 +214,6 @@ fun FloatingBottomNavigationBar(
                             modifier = Modifier
                                 .size(60.dp)
                                 .clip(CircleShape)
-                                .background(
-                                    if (showAddMenu) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.primaryContainer
-                                )
                                 .clickable { onNavigate(item.route) },
                             contentAlignment = Alignment.Center
                         ) {
@@ -248,6 +245,7 @@ fun MainNav(navController: NavHostController){
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
         bottomBar = {
             FloatingBottomNavigationBar(
                 currentRoute = currentRoute ?: Screen.Home.route,
@@ -283,8 +281,8 @@ fun MainNav(navController: NavHostController){
         NavigationGraph(
             navController = navController,
             modifier = Modifier
-                .padding(paddingValues)
-                .safeContentPadding()
+                //.padding(paddingValues)
+                //.safeContentPadding()
         )
     }
 }
@@ -297,7 +295,7 @@ fun NavigationGraph(
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route,
-        modifier = modifier
+        modifier = modifier.fillMaxSize()
     ) {
         composable(Screen.Home.route) {
             HomeScreen()
