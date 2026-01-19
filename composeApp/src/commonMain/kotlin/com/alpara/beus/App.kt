@@ -42,15 +42,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import beus.composeapp.generated.resources.Res
-import beus.composeapp.generated.resources.ico_add
-import beus.composeapp.generated.resources.ico_bet
-import beus.composeapp.generated.resources.ico_calendar
-import beus.composeapp.generated.resources.ico_event
-import beus.composeapp.generated.resources.ico_home
-import beus.composeapp.generated.resources.ico_profile
-import beus.composeapp.generated.resources.ico_rank
-import beus.composeapp.generated.resources.compose_multiplatform
 import com.alpara.beus.Screens.BetScreen
 import com.alpara.beus.Screens.CalendarScreen
 import com.alpara.beus.Screens.EventScreen
@@ -58,6 +49,16 @@ import com.alpara.beus.Screens.HomeScreen
 import com.alpara.beus.Screens.LoginScreen
 import com.alpara.beus.Screens.ProfileScreen
 import com.alpara.beus.Screens.RankScreen
+import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.ico_add
+import com.alpara.beus.resources.ico_bet
+import com.alpara.beus.resources.ico_calendar
+import com.alpara.beus.resources.ico_event
+import com.alpara.beus.resources.ico_home
+import com.alpara.beus.resources.ico_profile
+import com.alpara.beus.resources.ico_rank
+import com.alpara.beus.resources.compose_multiplatform
+
 import org.jetbrains.compose.resources.DrawableResource
 
 

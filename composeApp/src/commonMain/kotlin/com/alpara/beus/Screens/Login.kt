@@ -41,9 +41,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import beus.composeapp.generated.resources.Res
-import beus.composeapp.generated.resources.ico_add
-import beus.composeapp.generated.resources.ico_home
+import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.ico_add
+import com.alpara.beus.resources.ico_bet
+import com.alpara.beus.resources.ico_calendar
+import com.alpara.beus.resources.ico_event
+import com.alpara.beus.resources.ico_home
+import com.alpara.beus.resources.ico_profile
+import com.alpara.beus.resources.ico_rank
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Alignment
@@ -97,9 +102,8 @@ fun LoginScreen(
 
                     Text(
                         text = "BeUs",
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Black,
-                        color = Color.Black
+                        style = AppTypography.heading(),
+                        /**/
                     )
 
                     Spacer(Modifier.height(28.dp))

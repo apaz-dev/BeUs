@@ -88,6 +88,11 @@ android {
     }
 }
 
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.alpara.beus.resources"
+}
+
 dependencies {
     debugImplementation(compose.uiTooling)
 }
