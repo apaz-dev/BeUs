@@ -48,6 +48,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import com.alpara.beus.theme.*
 
 
 @Preview
@@ -63,7 +64,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF3F3F3))
+            .background(BackgroundColor)
     ) {
         Column(
             modifier = Modifier
