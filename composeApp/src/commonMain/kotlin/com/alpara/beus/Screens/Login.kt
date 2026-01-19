@@ -103,7 +103,6 @@ fun LoginScreen(
                     Text(
                         text = "BeUs",
                         style = AppTypography.heading(),
-                        /**/
                     )
 
                     Spacer(Modifier.height(28.dp))
@@ -112,7 +111,8 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("Correo electrónico") },
+                        placeholder = { Text("Correo electrónico", style = AppTypography.body()) },
+                        textStyle = AppTypography.body(),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
@@ -132,7 +132,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("Contraseña") },
+                        placeholder = { Text("Contraseña", style = AppTypography.body()) },
                         singleLine = true,
                         visualTransformation = if (passwordVisible)
                             VisualTransformation.None
@@ -182,7 +182,7 @@ fun LoginScreen(
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
-                        Text("Entrar")
+                        Text("Entrar", style = AppTypography.body().copy(color = Color.White, fontWeight = FontWeight.Bold))
                     }
 
                     Spacer(Modifier.height(22.dp))
@@ -194,7 +194,7 @@ fun LoginScreen(
                         Divider(modifier = Modifier.weight(1f))
                         Text(
                             text = " O ",
-                            color = Color.Gray
+                            style = AppTypography.body().copy(color = Color.Gray)
                         )
                         Divider(modifier = Modifier.weight(1f))
                     }
@@ -211,9 +211,7 @@ fun LoginScreen(
                     ) {
                         Text(
                             text = "Continuar con Google",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Black,
-                            fontWeight = FontWeight.Medium
+                            style = AppTypography.body()
                         )
                     }
 
@@ -221,8 +219,7 @@ fun LoginScreen(
 
                     Text(
                         text = "¿No tienes cuenta?",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.Black
+                        style = AppTypography.body()
                     )
                 }
             }
