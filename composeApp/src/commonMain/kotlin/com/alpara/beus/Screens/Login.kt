@@ -2,6 +2,7 @@ package com.alpara.beus.Screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -47,37 +49,42 @@ import androidx.compose.ui.text.font.FontWeight
 
 @Preview
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit = {}) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit = {},
+    onGoogleClick: () -> Unit = {}
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0F0F0F)), // fondo oscuro para que la tarjeta destaque
+            .safeDrawingPadding()
+            .background(Color(0xFF0F0F0F)),
         contentAlignment = Alignment.Center
     ) {
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
-            color = Color(0xFFF3F3F3) // fondo claro dentro (como tu captura)
+            color = Color(0xFFF3F3F3)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Spacer(Modifier.height(60.dp))
 
-                // ✅ LOGO (aunque sea pequeño o blanco)
+                // LOGO
                 Image(
-                    painter = painterResource(Res.drawable.ico_home), // <-- tu logo
-                    contentDescription = "Logo",
-                    modifier = Modifier.size(56.dp)
+                    painter = painterResource(Res.drawable.ico_home),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp)
                 )
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(12.dp))
 
                 Text(
                     text = "BeUs",
@@ -86,8 +93,9 @@ fun LoginScreen(onLoginClick: () -> Unit = {}) {
                     color = Color.Black
                 )
 
-                Spacer(Modifier.height(36.dp))
+                Spacer(Modifier.height(28.dp))
 
+                // EMAIL
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -105,14 +113,34 @@ fun LoginScreen(onLoginClick: () -> Unit = {}) {
                     )
                 )
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(14.dp))
 
+                // PASSWORD CON OJO
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     placeholder = { Text("Contraseña") },
                     singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible)
+                        VisualTransformation.None
+                    else
+                        PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            passwordVisible = !passwordVisible
+                        }) {
+                            Icon(
+                                painter = painterResource(
+                                    if (passwordVisible)
+                                        Res.drawable.ico_add
+                                    else
+                                        Res.drawable.ico_home
+                                ),
+                                contentDescription = null,
+                                tint = Color.Black
+                            )
+                        }
+                    },
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,10 +153,12 @@ fun LoginScreen(onLoginClick: () -> Unit = {}) {
                     )
                 )
 
-                Spacer(Modifier.height(22.dp))
+                Spacer(Modifier.height(20.dp))
+
+
 
                 Button(
-                    onClick = onLoginClick,
+                    onClick = onLoginSuccess,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(58.dp),
@@ -142,7 +172,39 @@ fun LoginScreen(onLoginClick: () -> Unit = {}) {
                     Text("Entrar")
                 }
 
-                Spacer(Modifier.height(26.dp))
+                Spacer(Modifier.height(22.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Divider(modifier = Modifier.weight(1f))
+                    Text(
+                        text = " O ",
+                        color = Color.Gray
+                    )
+                    Divider(modifier = Modifier.weight(1f))
+                }
+
+                Spacer(Modifier.height(22.dp))
+
+                // GOOGLE COMO TEXTO
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .clickable { onGoogleClick() }
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "Continuar con Google",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(Modifier.height(14.dp))
 
                 Text(
                     text = "¿No tienes cuenta?",
