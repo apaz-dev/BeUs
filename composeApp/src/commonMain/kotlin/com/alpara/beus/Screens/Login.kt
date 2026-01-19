@@ -60,19 +60,15 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .safeDrawingPadding()
             .background(Color(0xFF0F0F0F)),
-        contentAlignment = Alignment.Center
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .padding(
                     top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
-                    start = 7.dp,
-                    end = 7.dp
                 )
         )
         {
