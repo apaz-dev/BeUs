@@ -84,7 +84,7 @@ fun AddFloatingMenu(
             .padding(bottom = 80.dp)
             .clip(RoundedCornerShape(20.dp))
             //.padding(8.dp),
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 12.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
