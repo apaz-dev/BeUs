@@ -63,6 +63,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFFF3F3F3))
     ) {
         Column(
             modifier = Modifier
@@ -74,7 +75,7 @@ fun LoginScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxSize(),
-                color = Color(0xFFF3F3F3)
+                color = androidx.compose.ui.graphics.Color.Transparent
             ) {
                 Column(
                     modifier = Modifier
