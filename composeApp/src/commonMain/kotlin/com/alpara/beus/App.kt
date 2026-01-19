@@ -55,6 +55,7 @@ import com.alpara.beus.Screens.BetScreen
 import com.alpara.beus.Screens.CalendarScreen
 import com.alpara.beus.Screens.EventScreen
 import com.alpara.beus.Screens.HomeScreen
+import com.alpara.beus.Screens.LoginScreen
 import com.alpara.beus.Screens.ProfileScreen
 import com.alpara.beus.Screens.RankScreen
 import org.jetbrains.compose.resources.DrawableResource
@@ -322,7 +323,8 @@ fun NavigationGraph(
 @Preview
 fun App() {
     MaterialTheme {
-        val navController = rememberNavController()
-        MainNav(navController = navController)
+        //val navController = rememberNavController()
+        //MainNav(navController = navController)
+        LoginScreen()
     }
 }
