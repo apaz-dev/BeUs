@@ -322,9 +322,18 @@ fun NavigationGraph(
 @Composable
 @Preview
 fun App() {
+    val authState = remember { AuthState() }
+
     MaterialTheme {
-        //val navController = rememberNavController()
-        //MainNav(navController = navController)
-        LoginScreen()
+        if (authState.isLoggedIn) {
+            val navController = rememberNavController()
+            MainNav(navController = navController)
+        } else {
+            LoginScreen(
+                onLoginSuccess = {
+                    authState.login()
+                }
+            )
+        }
     }
 }
