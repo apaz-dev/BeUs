@@ -42,3 +42,6 @@ replay_pid*
 /backend/pasos_pepe.md
 /backend/.back
 /backend/.venv
+/backend/__pycache__/
+/backend/QUICKSTART.md
+/backend/README.md
