@@ -6,23 +6,12 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
+expect fun createHttpClient(): HttpClient
+
 object ApiClient {
-    private const val BASE_URL = "https://localhost:8443" // Cambia esto
+    private const val BASE_URL = "https://localhost:8443"
 
-    val httpClient = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                prettyPrint = true
-                isLenient = true
-            })
-        }
-
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
-        }
-    }
+    val httpClient = createHttpClient()
 
     fun getBaseUrl() = BASE_URL
 }

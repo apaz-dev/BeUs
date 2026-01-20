@@ -51,6 +51,7 @@ import com.alpara.beus.Screens.LoginScreen
 import com.alpara.beus.Screens.ProfileScreen
 import com.alpara.beus.Screens.RankScreen
 import com.alpara.beus.Screens.SignUpScreen
+import com.alpara.beus.models.AuthViewModel
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_add
 import com.alpara.beus.resources.ico_bet
@@ -342,8 +343,8 @@ fun App() {
         ) {
             composable("login") {
                 LoginScreen(
+                    viewModel = authViewModel,
                     onLoginSuccess = {
-                        authViewModel.login()
                         navController.navigate("main") {
                             popUpTo("login") { inclusive = true }
                         }

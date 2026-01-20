@@ -43,16 +43,15 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            implementation("io.ktor:ktor-client-android:2.3.7")
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
             // SPACE
-            implementation("io.ktor:ktor-client-core:2.3.7")
-            implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
-            implementation("io.ktor:ktor-client-logging:2.3.7")
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.logging)
             // SPACE
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -64,7 +63,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
         iosMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:2.3.7")
+            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

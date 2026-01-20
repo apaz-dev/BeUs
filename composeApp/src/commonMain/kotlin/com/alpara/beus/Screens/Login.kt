@@ -56,11 +56,14 @@ import androidx.compose.ui.text.font.FontWeight
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.theme.*
-
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import com.alpara.beus.models.AuthViewModel
 
 @Preview
 @Composable
 fun LoginScreen(
+    viewModel: AuthViewModel,
     onLoginSuccess: () -> Unit = {},
     onGoogleClick: () -> Unit = {},
     onSignup: () -> Unit = {}
@@ -71,6 +74,16 @@ fun LoginScreen(
     var emailError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
 
+    val isAuthenticated by viewModel.isAuthenticated.collectAsState()
+    val authError by viewModel.authError.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    // Navegar cuando el login sea exitoso
+    LaunchedEffect(isAuthenticated) {
+        if (isAuthenticated) {
+            onLoginSuccess()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -82,8 +95,7 @@ fun LoginScreen(
                 .padding(
                     top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
                 )
-        )
-        {
+        ) {
             Surface(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -112,11 +124,22 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(28.dp))
 
+                    // Mostrar error si existe
+                    authError?.let { error ->
+                        Text(
+                            text = error,
+                            style = AppTypo.body().copy(color = Color.Red),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
                     // EMAIL
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it
-                                        emailError = it.isBlank()},
+                        onValueChange = {
+                            email = it
+                            emailError = it.isBlank()
+                        },
                         placeholder = { Text("Correo electrónico", style = AppTypo.body()) },
                         textStyle = AppTypo.body(),
                         singleLine = true,
@@ -129,16 +152,18 @@ fun LoginScreen(
                             unfocusedBorderColor = Color.Black,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent
-                        )
+                        ),
+                        enabled = !isLoading
                     )
 
                     Spacer(Modifier.height(14.dp))
 
-
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it
-                                        passwordError = it.isBlank()},
+                        onValueChange = {
+                            password = it
+                            passwordError = it.isBlank()
+                        },
                         placeholder = { Text("Contraseña", style = AppTypo.body()) },
                         singleLine = true,
                         visualTransformation = if (passwordVisible)
@@ -170,16 +195,19 @@ fun LoginScreen(
                             unfocusedBorderColor = Color.Black,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent
-                        )
+                        ),
+                        enabled = !isLoading
                     )
 
                     Spacer(Modifier.height(20.dp))
 
-
-
                     Button(
-                        onClick = onLoginSuccess,
-                        enabled = email.isNotBlank() && password.isNotBlank(),
+                        onClick = {
+                            if (email.isNotBlank() && password.isNotBlank()) {
+                                viewModel.login(email, password)
+                            }
+                        },
+                        enabled = email.isNotBlank() && password.isNotBlank() && !isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(58.dp),
@@ -190,7 +218,14 @@ fun LoginScreen(
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
-                        Text("Entrar", style = AppTypo.body().copy(color = Color.White, fontWeight = FontWeight.Bold))
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White
+                            )
+                        } else {
+                            Text("Entrar", style = AppTypo.body().copy(color = Color.White, fontWeight = FontWeight.Bold))
+                        }
                     }
 
                     Spacer(Modifier.height(22.dp))
@@ -198,7 +233,6 @@ fun LoginScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         Divider(modifier = Modifier.weight(1f))
                         Text(
                             text = " O ",
@@ -209,7 +243,6 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(22.dp))
 
-                    // GOOGLE COMO TEXTO
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
