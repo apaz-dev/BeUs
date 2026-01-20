@@ -36,7 +36,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun register(email: String, username: String, password: String, fullName: String?) {
+    /*fun register(email: String, username: String, password: String, fullName: String?) {
         viewModelScope.launch {
             _isLoading.value = true
             _authError.value = null
@@ -52,7 +52,7 @@ class AuthViewModel : ViewModel() {
 
             _isLoading.value = false
         }
-    }
+    }*/
     fun logout() {
         _isAuthenticated.value = false
     }

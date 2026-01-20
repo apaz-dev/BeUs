@@ -12,22 +12,13 @@ class AuthService {
     suspend fun login(email: String, password: String): Result<LoginResponse> {
         return try {
             val response = client.post("$baseUrl/auth/login") {
-                contentType(ContentType.Application.FormUrlEncoded)
-                setBody("username=$email&password=$password")
+                contentType(ContentType.Application.Json)
+                setBody(LoginRequest(
+                    username = email,
+                    password = password
+                ))
             }
             Result.success(response.body<LoginResponse>())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun register(request: RegisterRequest): Result<UserResponse> {
-        return try {
-            val response = client.post("$baseUrl/auth/register") {
-                contentType(ContentType.Application.Json)
-                setBody(request)
-            }
-            Result.success(response.body<UserResponse>())
         } catch (e: Exception) {
             Result.failure(e)
         }
