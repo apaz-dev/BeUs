@@ -102,7 +102,7 @@ fun LoginScreen(
 
                     Text(
                         text = "BeUs",
-                        style = AppTypography.heading(),
+                        style = AppTypo.heading(),
                     )
 
                     Spacer(Modifier.height(28.dp))
@@ -111,8 +111,8 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("Correo electrónico", style = AppTypography.body()) },
-                        textStyle = AppTypography.body(),
+                        placeholder = { Text("Correo electrónico", style = AppTypo.body()) },
+                        textStyle = AppTypo.body(),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
@@ -132,7 +132,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("Contraseña", style = AppTypography.body()) },
+                        placeholder = { Text("Contraseña", style = AppTypo.body()) },
                         singleLine = true,
                         visualTransformation = if (passwordVisible)
                             VisualTransformation.None
@@ -182,7 +182,7 @@ fun LoginScreen(
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
-                        Text("Entrar", style = AppTypography.body().copy(color = Color.White, fontWeight = FontWeight.Bold))
+                        Text("Entrar", style = AppTypo.body().copy(color = Color.White, fontWeight = FontWeight.Bold))
                     }
 
                     Spacer(Modifier.height(22.dp))
@@ -194,7 +194,7 @@ fun LoginScreen(
                         Divider(modifier = Modifier.weight(1f))
                         Text(
                             text = " O ",
-                            style = AppTypography.body().copy(color = Color.Gray)
+                            style = AppTypo.body().copy(color = Color.Gray)
                         )
                         Divider(modifier = Modifier.weight(1f))
                     }
@@ -211,7 +211,7 @@ fun LoginScreen(
                     ) {
                         Text(
                             text = "Continuar con Google",
-                            style = AppTypography.body()
+                            style = AppTypo.body()
                         )
                     }
 
@@ -219,7 +219,7 @@ fun LoginScreen(
 
                     Text(
                         text = "¿No tienes cuenta?",
-                        style = AppTypography.body()
+                        style = AppTypo.body()
                     )
                 }
             }

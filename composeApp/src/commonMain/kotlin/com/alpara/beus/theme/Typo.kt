@@ -13,7 +13,7 @@ import com.alpara.beus.resources.inter_medium
 import com.alpara.beus.resources.poppins_medium
 import org.jetbrains.compose.resources.Font
 
-object AppTypography {
+object AppTypo {
     @Composable
     fun heading() = TextStyle(
         fontSize = 60.sp,
