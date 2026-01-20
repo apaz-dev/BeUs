@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.ico_calendar
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_home
@@ -79,6 +80,20 @@ fun SignUpScreen(
                     .fillMaxSize(),
                 color = androidx.compose.ui.graphics.Color.Transparent
             ) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        .padding(top = 16.dp),
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.ico_calendar),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+
+
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -86,6 +101,8 @@ fun SignUpScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
+
+
                     Image(
                         painter = painterResource(Res.drawable.ico_home),
                         contentDescription = null,
