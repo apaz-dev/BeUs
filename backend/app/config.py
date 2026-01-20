@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     # Seguridad
     SECRET_KEY: str = Field(..., description="Clave secreta para JWT")
     ALGORITHM: str = Field(default="HS256", description="Algoritmo de encriptación")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, description="Minutos de expiración del access token")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60, description="Minutos de expiración del access token")
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, description="Días de expiración del refresh token")
     
     # Base de datos
@@ -32,3 +32,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+print(f"SECRET_KEY cargada: {settings.SECRET_KEY[:10]}...")

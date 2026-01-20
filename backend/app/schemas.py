@@ -65,6 +65,11 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
+class UserPublicInfo(BaseModel):
+    """Esquema de información pública del usuario"""
+    username: str
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 class UserUpdate(BaseModel):
     """Esquema para actualizar usuario"""
@@ -95,3 +100,25 @@ class HealthCheck(BaseModel):
     status: str
     timestamp: datetime
     database: str
+
+class TeamCreate(BaseModel):
+    """Esquema para crear equipo"""
+    name: str = Field(..., min_length=3, max_length=40, description="Nombre del equipo")
+    description: Optional[str] = Field(None, max_length=500, description="Descripción del equipo")
+    owner_id: int = Field(..., description="ID del usuario propietario del equipo")
+
+class TeamResponse(BaseModel):
+    """Esquema de respuesta de equipo"""
+    id: int
+    name: str
+    description: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    owner_id: int
+    class Config:
+        from_attributes = True
+        
+class TeamMembersResponse(BaseModel):
+    """Esquema de respuesta de miembros del equipo"""
+    team_id: int
+    members: list[UserPublicInfo]

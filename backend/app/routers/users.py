@@ -1,6 +1,3 @@
-"""
-Rutas de gestión de usuarios
-"""
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -28,9 +25,13 @@ async def update_current_user(
     db: Session = Depends(get_db)
 ):
     """
-    Actualiza la información del usuario actual
+    Actualiza los datos (solo si el que los actualiza es el usuario actual) como:
+    
+	- nombre completo
+    - biografía 
+    - avatar
     """
-    # Actualizar campos si se proporcionan
+    
     if user_update.full_name is not None:
         current_user.full_name = user_update.full_name
     
@@ -52,7 +53,7 @@ async def delete_current_user(
     db: Session = Depends(get_db)
 ):
     """
-    Desactiva la cuenta del usuario actual (soft delete)
+    Borrar la cuenta del user
     """
     current_user.is_active = False
     db.commit()
@@ -67,7 +68,7 @@ async def get_user_by_username(
     db: Session = Depends(get_db)
 ):
     """
-    Obtiene la información pública de un usuario por su username
+    Informacion de un user por su username
     """
     user = db.query(User).filter(User.username == username.lower()).first()
     
@@ -84,34 +85,3 @@ async def get_user_by_username(
         )
     
     return user
-
-
-@router.get("/", response_model=List[UserResponse])
-async def search_users(
-    query: str = "",
-    skip: int = 0,
-    limit: int = 20,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Busca usuarios por username o nombre completo
-    
-    - **query**: término de búsqueda
-    - **skip**: número de resultados a saltar (paginación)
-    - **limit**: número máximo de resultados (máximo 50)
-    """
-    if limit > 50:
-        limit = 50
-    
-    if query:
-        users = db.query(User).filter(
-            User.is_active == True,
-            (User.username.contains(query.lower()) | User.full_name.contains(query))
-        ).offset(skip).limit(limit).all()
-    else:
-        users = db.query(User).filter(
-            User.is_active == True
-        ).offset(skip).limit(limit).all()
-    
-    return users

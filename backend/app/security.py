@@ -64,6 +64,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         "type": "access"
     })
     
+    # 🔧 Convertir sub a string si es un entero
+    if "sub" in to_encode and isinstance(to_encode["sub"], int):
+        to_encode["sub"] = str(to_encode["sub"])
+    
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
@@ -87,6 +91,10 @@ def create_refresh_token(data: dict) -> str:
         "type": "refresh"
     })
     
+    # 🔧 Convertir sub a string si es un entero
+    if "sub" in to_encode and isinstance(to_encode["sub"], int):
+        to_encode["sub"] = str(to_encode["sub"])
+    
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
@@ -104,10 +112,14 @@ def decode_token(token: str) -> dict:
     Raises:
         HTTPException: Si el token es inválido o ha expirado
     """
+    print(f"🔓 Decodificando token con SECRET_KEY: {settings.SECRET_KEY[:20]}...")
+    print(f"📝 Token recibido: {token[:50]}...")
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        print(f"✅ Payload decodificado: {payload}")
         return payload
-    except JWTError:
+    except JWTError as e:
+        print(f"❌ Error JWT específico: {type(e).__name__}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido o expirado",
@@ -121,16 +133,6 @@ async def get_current_user(
 ) -> User:
     """
     Obtiene el usuario actual desde el token de acceso
-    
-    Args:
-        credentials: Credenciales del token Bearer
-        db: Sesión de base de datos
-    
-    Returns:
-        Usuario autenticado
-    
-    Raises:
-        HTTPException: Si las credenciales son inválidas
     """
     token = credentials.credentials
     payload = decode_token(token)
@@ -143,8 +145,18 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    user_id: int = payload.get("sub")
-    if user_id is None:
+    # 🔧 Convertir sub de string a int
+    user_id_str: str = payload.get("sub")
+    if user_id_str is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    try:
+        user_id = int(user_id_str)
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido",

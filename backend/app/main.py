@@ -15,7 +15,7 @@ import logging
 
 from app.config import settings
 from app.database import engine, get_db, Base
-from app.routers import auth, users
+from app.routers import auth, users, teams
 from app.schemas import HealthCheck
 from app.routers.auth import limiter
 
@@ -97,6 +97,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Incluir routers
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(teams.router)
 
 
 @app.get("/", tags=["General"])
