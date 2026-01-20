@@ -17,7 +17,7 @@ object AppTypo {
     @Composable
     fun heading() = TextStyle(
         fontSize = 60.sp,
-        fontFamily = FontFamily(Font(Res.font.poppins_medium, FontWeight.Bold)),
+        fontFamily = FontFamily(Font(Res.font.poppins_medium, FontWeight.ExtraBold)),
         color = Color.Black
     )
 

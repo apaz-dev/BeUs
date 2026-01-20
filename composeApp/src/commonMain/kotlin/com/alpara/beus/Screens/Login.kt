@@ -68,8 +68,8 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var emailError by remember { mutableStateOf(false) }
-    var passwordError by remember { mutableStateOf(false) }
+    val emailpasswornoblind = email.isNotBlank() && password.isNotBlank()
+
 
 
     Column(
@@ -115,8 +115,9 @@ fun LoginScreen(
                     // EMAIL
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it
-                                        emailError = it.isBlank()},
+                        onValueChange = {
+                            email = it
+                        },
                         placeholder = { Text("Correo electrónico", style = AppTypo.body()) },
                         textStyle = AppTypo.body(),
                         singleLine = true,
@@ -137,8 +138,9 @@ fun LoginScreen(
 
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it
-                                        passwordError = it.isBlank()},
+                        onValueChange = {
+                            password = it
+                        },
                         placeholder = { Text("Contraseña", style = AppTypo.body()) },
                         singleLine = true,
                         visualTransformation = if (passwordVisible)
@@ -173,13 +175,25 @@ fun LoginScreen(
                         )
                     )
 
+                    Spacer(Modifier.height(6.dp))
+
+                    /*if(!emailpasswornoblind){
+                        Text(text = "Ambos campos deben estar completos",
+                            style = AppTypo.body()
+                        )
+                    }*/
+
                     Spacer(Modifier.height(20.dp))
 
 
 
                     Button(
-                        onClick = onLoginSuccess,
-                        enabled = email.isNotBlank() && password.isNotBlank(),
+                        onClick = {
+                            if (emailpasswornoblind) {
+                                onLoginSuccess()
+                            }
+                        },
+
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(58.dp),
@@ -190,7 +204,11 @@ fun LoginScreen(
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
-                        Text("Entrar", style = AppTypo.body().copy(color = Color.White, fontWeight = FontWeight.Bold))
+                        Text(
+                            "Entrar",
+                            style = AppTypo.body()
+                                .copy(color = Color.White, fontWeight = FontWeight.Bold)
+                        )
                     }
 
                     Spacer(Modifier.height(22.dp))
@@ -237,6 +255,7 @@ fun LoginScreen(
                             style = AppTypo.body()
                         )
                     }
+
                 }
             }
         }

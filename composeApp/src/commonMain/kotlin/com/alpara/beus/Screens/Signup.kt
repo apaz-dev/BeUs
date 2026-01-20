@@ -2,8 +2,10 @@ package com.alpara.beus.Screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -13,9 +15,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -56,6 +60,8 @@ fun SignUpScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var passwordVisible2 by remember { mutableStateOf(false) }
     var passwordsMatch by remember { mutableStateOf(true) }
+    var chekbox1 by remember { mutableStateOf(false) }
+
 
     Column(
         modifier = Modifier
@@ -218,24 +224,53 @@ fun SignUpScreen(
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = chekbox1,
+                            onCheckedChange = { chekbox1 = it }
+                        )
+
+                        Spacer(modifier = Modifier.width(2.dp))
+
+                        Text(
+                            text = "Acepto la política de privacidad",
+                            modifier = Modifier.clickable {
+                                chekbox1 = !chekbox1
+                            }
+                        )
+                    }
+
+
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
-                        onClick = onSignupSuccess,
-                        enabled = passwordsMatch,
+                        onClick = {
+                            if (passwordsMatch && chekbox1) {
+                                onSignupSuccess()
+                            }
+                        },
+
+
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(58.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Black,
-                            contentColor = Color.White
+                            containerColor = Color.White,
+                            contentColor = Color.Black,
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
-                        Text("Entrar",
+                        Text(
+                            "Crear cuenta",
                             style = AppTypo.body()
-                                .copy(color = Color.White, fontWeight = FontWeight.Bold)
+                                .copy(color = Color.Black, fontWeight = FontWeight.Bold)
                         )
                     }
 
@@ -246,12 +281,16 @@ fun SignUpScreen(
                         Text(
                             text = "Las contraseñas no coinciden",
                             style = AppTypo.body().copy(color = Color.Red)
+
                         )
 
                     }
+
+
                 }
             }
         }
     }
 }
+
 
