@@ -50,6 +50,7 @@ import com.alpara.beus.Screens.HomeScreen
 import com.alpara.beus.Screens.LoginScreen
 import com.alpara.beus.Screens.ProfileScreen
 import com.alpara.beus.Screens.RankScreen
+import com.alpara.beus.Screens.SignUpScreen
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_add
 import com.alpara.beus.resources.ico_bet
@@ -71,6 +72,7 @@ sealed class Screen(val route: String) {
     object Event : Screen("event")
     object Bet : Screen("bet")
 }
+
 data class BottomNavItem(
     val route: String,
     val icon: DrawableResource,
@@ -241,6 +243,7 @@ fun FloatingBottomNavigationBar(
         }
     }
 }
+
 @Composable
 fun MainNav(
     navController: NavHostController,
@@ -344,6 +347,9 @@ fun App() {
                         navController.navigate("main") {
                             popUpTo("login") { inclusive = true }
                         }
+                    },
+                    onSignup = {
+                        navController.navigate("signup")
                     }
                 )
             }
@@ -360,6 +366,21 @@ fun App() {
                     }
                 )
             }
+
+            composable(route = "signup") {
+                SignUpScreen()
+            }
+
+            composable("signup") {
+                SignUpScreen(
+                     onSignupSuccess = {
+                        navController.navigate("main") {
+                            popUpTo("signup") { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            }
         }
     }
-}
