@@ -367,10 +367,6 @@ fun App() {
                 )
             }
 
-            composable(route = "signup") {
-                SignUpScreen()
-            }
-
             composable("signup") {
                 SignUpScreen(
                      onSignupSuccess = {
