@@ -90,6 +90,7 @@ class AuthViewModel : ViewModel() {
                 _isLoading.value = false
                 _errorMessage.value = e.message ?: "Error al registrarse"
                 _isAuthenticated.value = false
+                println(e.message)
             }
         }
     }
