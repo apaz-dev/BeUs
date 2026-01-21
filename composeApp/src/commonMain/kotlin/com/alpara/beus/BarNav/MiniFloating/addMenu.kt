@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.alpara.beus.MenuButton
+import com.alpara.beus.BarNav.Floating.MenuButton
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_bet
 import com.alpara.beus.resources.ico_event

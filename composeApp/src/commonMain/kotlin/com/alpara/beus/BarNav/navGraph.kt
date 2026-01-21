@@ -5,12 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.alpara.beus.Screens.Add.BetScreen
 import com.alpara.beus.Screens.Add.EventScreen
 import com.alpara.beus.Screens.Main.CalendarScreen
 import com.alpara.beus.Screens.Main.HomeScreen
 import com.alpara.beus.Screens.Main.ProfileScreen
 import com.alpara.beus.Screens.Main.RankScreen
+import com.alpara.beus.Screens.Screen
 
 @Composable
 fun NavigationGraph(
