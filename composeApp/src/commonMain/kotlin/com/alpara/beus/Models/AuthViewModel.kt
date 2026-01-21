@@ -8,6 +8,8 @@ import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class AuthViewModel : ViewModel() {
     private val _isAuthenticated = MutableStateFlow(false)
@@ -70,11 +72,15 @@ class AuthViewModel : ViewModel() {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
-                
+
+                println(email)
+                println(password)
                 SupabaseClient.client.auth.signUpWith(Email) {
                     this.email = email
                     this.password = password
-                    this.data = mapOf("nombre" to nombre)
+                    this.data = buildJsonObject {
+                        put("nombre", nombre)
+                    }
                 }
                 
                 _isAuthenticated.value = true
