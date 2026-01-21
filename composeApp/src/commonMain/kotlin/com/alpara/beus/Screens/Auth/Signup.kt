@@ -338,7 +338,7 @@ fun SignUpScreen(
                     // Mostrar mensaje de error si existe
                     if (errorMessage != null) {
                         Text(
-                            text = errorMessage ?: "",
+                            text = errorMessage,
                             style = AppTypo.body().copy(color = Color.Red),
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
