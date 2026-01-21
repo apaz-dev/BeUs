@@ -43,8 +43,8 @@ import com.alpara.beus.resources.ico_calendar
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_home
-import com.alpara.beus.theme.AppTypo
-import com.alpara.beus.theme.BackgroundColor
+import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.BackgroundColor
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 

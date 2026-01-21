@@ -43,7 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
-import com.alpara.beus.theme.*
+import com.alpara.beus.Themes.*
 
 
 @Preview
