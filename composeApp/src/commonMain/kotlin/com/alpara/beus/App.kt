@@ -26,8 +26,8 @@ fun App() {
         ) {
             composable("login") {
                 LoginScreen(
+                    authViewModel = authViewModel,
                     onLoginSuccess = {
-                        authViewModel.login()
                         navController.navigate("main") {
                             popUpTo("login") { inclusive = true }
                         }
@@ -53,10 +53,14 @@ fun App() {
 
             composable("signup") {
                 SignUpScreen(
-                     onSignupSuccess = {
+                    authViewModel = authViewModel,
+                    onSignupSuccess = {
                         navController.navigate("main") {
                             popUpTo("signup") { inclusive = true }
                         }
+                    },
+                    onBackToLogin = {
+                        navController.popBackStack()
                     }
                 )
             }

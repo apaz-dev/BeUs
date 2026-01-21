@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
+
 }
 
 kotlin {
@@ -24,6 +26,9 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
             binaryOption("bundleId", "com.alpara.beus")
+            
+            // Export kotlinx-datetime for iOS to fix IrLinkageError
+            export("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
         }
     }
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
@@ -42,6 +47,12 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            // Ktor client for Android
+            implementation("io.ktor:ktor-client-android:2.3.7")
+        }
+        iosMain.dependencies {
+            // Ktor client for iOS
+            implementation("io.ktor:ktor-client-darwin:2.3.7")
         }
         commonMain.dependencies {
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
@@ -54,6 +65,21 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            
+            // Supabase dependencies
+            implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.3")
+            implementation("io.github.jan-tennert.supabase:gotrue-kt:2.1.3")
+            
+            // Ktor dependencies
+            implementation("io.ktor:ktor-client-core:2.3.7")
+            implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+            
+            // Kotlinx dependencies
+            // Use api() for kotlinx-datetime so it can be exported to iOS framework
+            api("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

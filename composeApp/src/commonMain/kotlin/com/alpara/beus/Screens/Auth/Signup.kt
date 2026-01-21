@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -27,6 +28,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.alpara.beus.Models.AuthViewModel
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_calendar
 import com.alpara.beus.resources.ico_eye
@@ -52,7 +55,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 
 fun SignUpScreen(
+    authViewModel: AuthViewModel? = null,
     onSignupSuccess: () -> Unit = {},
+    onBackToLogin: () -> Unit = {}
 ) {
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -62,6 +67,12 @@ fun SignUpScreen(
     var passwordVisible2 by remember { mutableStateOf(false) }
     var passwordsMatch by remember { mutableStateOf(true) }
     var chekbox1 by remember { mutableStateOf(false) }
+    
+    val isLoading by (authViewModel?.isLoading?.collectAsState() ?: remember { mutableStateOf(false) })
+    val errorMessage by (authViewModel?.errorMessage?.collectAsState() ?: remember { mutableStateOf<String?>(null) })
+    
+    val isFormComplete = nombre.isNotBlank() && email.isNotBlank() && 
+                         password.isNotBlank() && repeatPassword.isNotBlank()
 
 
     Column(
@@ -89,6 +100,7 @@ fun SignUpScreen(
                         painter = painterResource(Res.drawable.ico_calendar),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
+                            .clickable { onBackToLogin() }
                     )
                 }
 
@@ -120,7 +132,10 @@ fun SignUpScreen(
 
                     OutlinedTextField(
                         value = nombre,
-                        onValueChange = { nombre = it },
+                        onValueChange = { 
+                            nombre = it
+                            authViewModel?.clearError()
+                        },
                         placeholder = { Text("Nombre", style = AppTypo.body()) },
                         textStyle = AppTypo.body(),
                         singleLine = true,
@@ -133,14 +148,18 @@ fun SignUpScreen(
                             unfocusedBorderColor = Color.Black,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent
-                        )
+                        ),
+                        enabled = !isLoading
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = { 
+                            email = it
+                            authViewModel?.clearError()
+                        },
                         placeholder = { Text("Correo electónico", style = AppTypo.body()) },
                         textStyle = AppTypo.body(),
                         singleLine = true,
@@ -153,7 +172,8 @@ fun SignUpScreen(
                             unfocusedBorderColor = Color.Black,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent
-                        )
+                        ),
+                        enabled = !isLoading
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -163,6 +183,7 @@ fun SignUpScreen(
                         onValueChange = {
                             password = it
                             passwordsMatch = password == repeatPassword
+                            authViewModel?.clearError()
                         },
                         placeholder = { Text("Contraseña", style = AppTypo.body()) },
                         singleLine = true,
@@ -195,7 +216,8 @@ fun SignUpScreen(
                             unfocusedBorderColor = Color.Black,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent
-                        )
+                        ),
+                        enabled = !isLoading
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -205,6 +227,7 @@ fun SignUpScreen(
                         onValueChange = {
                             repeatPassword = it
                             passwordsMatch = password == repeatPassword
+                            authViewModel?.clearError()
                         },
                         placeholder = { Text("Repetir contraseña", style = AppTypo.body()) },
                         singleLine = true,
@@ -238,7 +261,8 @@ fun SignUpScreen(
                             unfocusedBorderColor = Color.Black,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent
-                        )
+                        ),
+                        enabled = !isLoading
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -249,7 +273,8 @@ fun SignUpScreen(
                     ) {
                         Checkbox(
                             checked = chekbox1,
-                            onCheckedChange = { chekbox1 = it }
+                            onCheckedChange = { chekbox1 = it },
+                            enabled = !isLoading
                         )
 
                         Spacer(modifier = Modifier.width(2.dp))
@@ -257,19 +282,19 @@ fun SignUpScreen(
                         Text(
                             text = "Acepto la política de privacidad",
                             modifier = Modifier.clickable {
-                                chekbox1 = !chekbox1
+                                if (!isLoading) {
+                                    chekbox1 = !chekbox1
+                                }
                             }
                         )
                     }
-
-
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
                         onClick = {
-                            if (passwordsMatch && chekbox1) {
-                                onSignupSuccess()
+                            if (passwordsMatch && chekbox1 && isFormComplete && !isLoading) {
+                                authViewModel?.signUp(email.trim(), password, nombre.trim(), onSignupSuccess) ?: onSignupSuccess()
                             }
                         },
 
@@ -282,25 +307,41 @@ fun SignUpScreen(
                             containerColor = Color.White,
                             contentColor = Color.Black,
                         ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+                        enabled = passwordsMatch && chekbox1 && isFormComplete && !isLoading
                     ) {
-                        Text(
-                            "Crear cuenta",
-                            style = AppTypo.body()
-                                .copy(color = Color.Black, fontWeight = FontWeight.Bold)
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.Black
+                            )
+                        } else {
+                            Text(
+                                "Crear cuenta",
+                                style = AppTypo.body()
+                                    .copy(color = Color.Black, fontWeight = FontWeight.Bold)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
 
-                    if (!passwordsMatch) {
+                    if (!passwordsMatch && repeatPassword.isNotEmpty()) {
                         Text(
                             text = "Las contraseñas no coinciden",
                             style = AppTypo.body().copy(color = Color.Red)
 
                         )
-
+                    }
+                    
+                    // Mostrar mensaje de error si existe
+                    errorMessage?.let {
+                        Text(
+                            text = it,
+                            style = AppTypo.body().copy(color = Color.Red),
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
 
 
