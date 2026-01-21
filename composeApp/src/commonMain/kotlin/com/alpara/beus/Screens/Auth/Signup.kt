@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +46,7 @@ import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_home
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.BackgroundColor
+import com.alpara.beus.resources.ico_arrowleft
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -53,6 +55,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 fun SignUpScreen(
     onSignupSuccess: () -> Unit = {},
+    onLoginBack: () -> Unit = {},
 ) {
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -62,6 +65,10 @@ fun SignUpScreen(
     var passwordVisible2 by remember { mutableStateOf(false) }
     var passwordsMatch by remember { mutableStateOf(true) }
     var chekbox1 by remember { mutableStateOf(false) }
+    val noBlind =
+        email.isNotBlank() && password.isNotBlank() && repeatPassword.isNotBlank() && nombre.isNotBlank()
+
+
 
 
     Column(
@@ -81,229 +88,234 @@ fun SignUpScreen(
                 color = Color.Transparent
             ) {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-                        .padding(top = 16.dp),
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.ico_calendar),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 28.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-
-
-                    Image(
-                        painter = painterResource(Res.drawable.ico_home),
-                        contentDescription = null,
-                        modifier = Modifier.size(96.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "BeUs",
-                        style = AppTypo.heading(),
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = nombre,
-                        onValueChange = { nombre = it },
-                        placeholder = { Text("Nombre", style = AppTypo.body()) },
-                        textStyle = AppTypo.body(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = { Text("Correo electónico", style = AppTypo.body()) },
-                        textStyle = AppTypo.body(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = {
-                            password = it
-                            passwordsMatch = password == repeatPassword
-                        },
-                        placeholder = { Text("Contraseña", style = AppTypo.body()) },
-                        singleLine = true,
-                        visualTransformation = if (passwordVisible)
-                            VisualTransformation.None
-                        else
-                            PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                passwordVisible = !passwordVisible
-                            }) {
-                                Icon(
-                                    painter = painterResource(
-                                        if (passwordVisible)
-                                            Res.drawable.ico_eyeoff
-                                        else
-                                            Res.drawable.ico_eye
-                                    ),
-                                    contentDescription = null,
-                                    tint = Color.Black
-                                )
-                            }
-                        },
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = repeatPassword,
-                        onValueChange = {
-                            repeatPassword = it
-                            passwordsMatch = password == repeatPassword
-                        },
-                        placeholder = { Text("Repetir contraseña", style = AppTypo.body()) },
-                        singleLine = true,
-                        visualTransformation = if (passwordVisible2)
-                            VisualTransformation.None
-                        else
-                            PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                passwordVisible2 = !passwordVisible2
-                            }) {
-                                Icon(
-                                    painter = painterResource(
-                                        if (passwordVisible2)
-                                            Res.drawable.ico_eyeoff
-                                        else
-                                            Res.drawable.ico_eye
-                                    ),
-                                    contentDescription = null,
-                                    tint = Color.Black
-                                )
-                            }
-                        },
-
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                    IconButton(
+                        onClick = onLoginBack,
+                        modifier = Modifier.align(Alignment.TopStart).padding(top = 20.dp)
+                            .padding(horizontal = 20.dp)
                     ) {
-                        Checkbox(
-                            checked = chekbox1,
-                            onCheckedChange = { chekbox1 = it }
-                        )
 
-                        Spacer(modifier = Modifier.width(2.dp))
-
-                        Text(
-                            text = "Acepto la política de privacidad",
-                            modifier = Modifier.clickable {
-                                chekbox1 = !chekbox1
-                            }
+                        Icon(
+                            painter = painterResource(Res.drawable.ico_arrowleft),
+                            contentDescription = "Ícono personalizado",
+                            modifier = Modifier.size(40.dp),
                         )
                     }
 
 
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            if (passwordsMatch && chekbox1) {
-                                onSignupSuccess()
-                            }
-                        },
-
-
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(58.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black,
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                            .fillMaxSize()
+                            .padding(horizontal = 28.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            "Crear cuenta",
-                            style = AppTypo.body()
-                                .copy(color = Color.Black, fontWeight = FontWeight.Bold)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
 
-                    if (!passwordsMatch) {
-                        Text(
-                            text = "Las contraseñas no coinciden",
-                            style = AppTypo.body().copy(color = Color.Red)
-
+                        Image(
+                            painter = painterResource(Res.drawable.ico_home),
+                            contentDescription = null,
+                            modifier = Modifier.size(96.dp)
                         )
 
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "BeUs",
+                            style = AppTypo.heading(),
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedTextField(
+                            value = nombre,
+                            onValueChange = { nombre = it },
+                            placeholder = { Text("Nombre", style = AppTypo.body()) },
+                            textStyle = AppTypo.body(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Black,
+                                unfocusedBorderColor = Color.Black,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            placeholder = { Text("Correo electónico", style = AppTypo.body()) },
+                            textStyle = AppTypo.body(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Black,
+                                unfocusedBorderColor = Color.Black,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = {
+                                password = it
+                                passwordsMatch = password == repeatPassword
+                            },
+                            placeholder = { Text("Contraseña", style = AppTypo.body()) },
+                            singleLine = true,
+                            visualTransformation = if (passwordVisible)
+                                VisualTransformation.None
+                            else
+                                PasswordVisualTransformation(),
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    passwordVisible = !passwordVisible
+                                }) {
+                                    Icon(
+                                        painter = painterResource(
+                                            if (passwordVisible)
+                                                Res.drawable.ico_eyeoff
+                                            else
+                                                Res.drawable.ico_eye
+                                        ),
+                                        contentDescription = null,
+                                        tint = Color.Black
+                                    )
+                                }
+                            },
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Black,
+                                unfocusedBorderColor = Color.Black,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedTextField(
+                            value = repeatPassword,
+                            onValueChange = {
+                                repeatPassword = it
+                                passwordsMatch = password == repeatPassword
+                            },
+                            placeholder = { Text("Repetir contraseña", style = AppTypo.body()) },
+                            singleLine = true,
+                            visualTransformation = if (passwordVisible2)
+                                VisualTransformation.None
+                            else
+                                PasswordVisualTransformation(),
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    passwordVisible2 = !passwordVisible2
+                                }) {
+                                    Icon(
+                                        painter = painterResource(
+                                            if (passwordVisible2)
+                                                Res.drawable.ico_eyeoff
+                                            else
+                                                Res.drawable.ico_eye
+                                        ),
+                                        contentDescription = null,
+                                        tint = Color.Black
+                                    )
+                                }
+                            },
+
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Black,
+                                unfocusedBorderColor = Color.Black,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Checkbox(
+                                checked = chekbox1,
+                                onCheckedChange = { chekbox1 = it }
+                            )
+
+                            Spacer(modifier = Modifier.width(2.dp))
+
+                            Text(
+                                text = "Acepto la política de privacidad",
+                                modifier = Modifier.clickable {
+                                    chekbox1 = !chekbox1
+                                }
+                            )
+                        }
+
+
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = {
+                                if (passwordsMatch && chekbox1 && noBlind) {
+                                    onSignupSuccess()
+                                }
+                            },
+
+
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(58.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = Color.Black,
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                        ) {
+                            Text(
+                                "Crear cuenta",
+                                style = AppTypo.body()
+                                    .copy(color = Color.Black, fontWeight = FontWeight.Bold)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+
+                        if (!passwordsMatch) {
+                            Text(
+                                text = "Las contraseñas no coinciden",
+                                style = AppTypo.body().copy(color = Color.Red)
+
+                            )
+
+                        }
+
+
                     }
-
-
                 }
             }
         }

@@ -53,14 +53,19 @@ fun App() {
 
             composable("signup") {
                 SignUpScreen(
-                     onSignupSuccess = {
+                    onSignupSuccess = {
                         navController.navigate("main") {
+                            popUpTo("signup") { inclusive = true }
+                        }
+                    },
+                    onLoginBack = {
+                        navController.navigate("login"){
                             popUpTo("signup") { inclusive = true }
                         }
                     }
                 )
             }
 
-            }
         }
     }
+}
