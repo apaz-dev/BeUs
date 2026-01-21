@@ -26,6 +26,9 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
             binaryOption("bundleId", "com.alpara.beus")
+            
+            // Export kotlinx-datetime for iOS to fix IrLinkageError
+            export("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
         }
     }
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
@@ -73,7 +76,8 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
             
             // Kotlinx dependencies
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+            // Use api() for kotlinx-datetime so it can be exported to iOS framework
+            api("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
         }
