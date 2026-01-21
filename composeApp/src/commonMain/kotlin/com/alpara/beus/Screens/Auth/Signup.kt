@@ -294,7 +294,7 @@ fun SignUpScreen(
                     Button(
                         onClick = {
                             if (passwordsMatch && chekbox1 && isFormComplete && !isLoading) {
-                                authViewModel?.signUp(email, password, nombre, onSignupSuccess) ?: onSignupSuccess()
+                                authViewModel?.signUp(email.trim(), password, nombre.trim(), onSignupSuccess) ?: onSignupSuccess()
                             }
                         },
 

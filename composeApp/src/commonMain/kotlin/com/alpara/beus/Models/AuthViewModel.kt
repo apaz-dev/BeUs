@@ -73,8 +73,6 @@ class AuthViewModel : ViewModel() {
                 _isLoading.value = true
                 _errorMessage.value = null
 
-                println(email)
-                println(password)
                 SupabaseClient.client.auth.signUpWith(Email) {
                     this.email = email
                     this.password = password

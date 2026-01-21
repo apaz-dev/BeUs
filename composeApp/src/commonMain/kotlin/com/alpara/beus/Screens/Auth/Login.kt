@@ -194,7 +194,7 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             if (emailpasswornoblind && !isLoading) {
-                                authViewModel?.login(email, password, onLoginSuccess) ?: onLoginSuccess()
+                                authViewModel?.login(email.trim(), password, onLoginSuccess) ?: onLoginSuccess()
                             }
                         },
 
