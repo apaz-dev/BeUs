@@ -1,8 +1,8 @@
-package com.alpara.beus.Screens
+package com.alpara.beus.Screens.Main
 
 import androidx.compose.runtime.Composable
 
 @Composable
-fun EventScreen() {
+fun RankScreen() {
     // Implementation of the Home Screen UI
 }

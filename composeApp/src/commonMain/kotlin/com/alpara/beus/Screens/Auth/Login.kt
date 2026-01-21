@@ -1,4 +1,4 @@
-package com.alpara.beus.Screens
+package com.alpara.beus.Screens.Auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,53 +15,49 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.alpara.beus.resources.Res
-import com.alpara.beus.resources.ico_calendar
-import com.alpara.beus.resources.ico_eye
-import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_home
-import com.alpara.beus.theme.AppTypo
-import com.alpara.beus.theme.BackgroundColor
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import com.alpara.beus.resources.ico_eye
+import com.alpara.beus.resources.ico_eyeoff
+import com.alpara.beus.theme.*
+
 
 @Preview
 @Composable
-
-fun SignUpScreen(
-    onSignupSuccess: () -> Unit = {},
+fun LoginScreen(
+    onLoginSuccess: () -> Unit = {},
+    onGoogleClick: () -> Unit = {},
+    onSignup: () -> Unit = {}
 ) {
-    var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var repeatPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var passwordVisible2 by remember { mutableStateOf(false) }
-    var passwordsMatch by remember { mutableStateOf(true) }
-    var chekbox1 by remember { mutableStateOf(false) }
+    val emailpasswornoblind = email.isNotBlank() && password.isNotBlank()
+
 
 
     Column(
@@ -74,26 +70,13 @@ fun SignUpScreen(
                 .padding(
                     top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
                 )
-        ) {
+        )
+        {
             Surface(
                 modifier = Modifier
                     .fillMaxSize(),
-                color = androidx.compose.ui.graphics.Color.Transparent
+                color = Color.Transparent
             ) {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-                        .padding(top = 16.dp),
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.ico_calendar),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-
-
-
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -102,46 +85,28 @@ fun SignUpScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
 
-
                     Image(
                         painter = painterResource(Res.drawable.ico_home),
                         contentDescription = null,
                         modifier = Modifier.size(96.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     Text(
                         text = "BeUs",
                         style = AppTypo.heading(),
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(28.dp))
 
-                    OutlinedTextField(
-                        value = nombre,
-                        onValueChange = { nombre = it },
-                        placeholder = { Text("Nombre", style = AppTypo.body()) },
-                        textStyle = AppTypo.body(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
+                    // EMAIL
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it },
-                        placeholder = { Text("Correo electónico", style = AppTypo.body()) },
+                        onValueChange = {
+                            email = it
+                        },
+                        placeholder = { Text("Correo electrónico", style = AppTypo.body()) },
                         textStyle = AppTypo.body(),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
@@ -156,13 +121,13 @@ fun SignUpScreen(
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(14.dp))
+
 
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
                             password = it
-                            passwordsMatch = password == repeatPassword
                         },
                         placeholder = { Text("Contraseña", style = AppTypo.body()) },
                         singleLine = true,
@@ -198,116 +163,89 @@ fun SignUpScreen(
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(6.dp))
 
-                    OutlinedTextField(
-                        value = repeatPassword,
-                        onValueChange = {
-                            repeatPassword = it
-                            passwordsMatch = password == repeatPassword
-                        },
-                        placeholder = { Text("Repetir contraseña", style = AppTypo.body()) },
-                        singleLine = true,
-                        visualTransformation = if (passwordVisible2)
-                            VisualTransformation.None
-                        else
-                            PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                passwordVisible2 = !passwordVisible2
-                            }) {
-                                Icon(
-                                    painter = painterResource(
-                                        if (passwordVisible2)
-                                            Res.drawable.ico_eyeoff
-                                        else
-                                            Res.drawable.ico_eye
-                                    ),
-                                    contentDescription = null,
-                                    tint = Color.Black
-                                )
-                            }
-                        },
-
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
+                    /*if(!emailpasswornoblind){
+                        Text(text = "Ambos campos deben estar completos",
+                            style = AppTypo.body()
                         )
-                    )
+                    }*/
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Checkbox(
-                            checked = chekbox1,
-                            onCheckedChange = { chekbox1 = it }
-                        )
-
-                        Spacer(modifier = Modifier.width(2.dp))
-
-                        Text(
-                            text = "Acepto la política de privacidad",
-                            modifier = Modifier.clickable {
-                                chekbox1 = !chekbox1
-                            }
-                        )
-                    }
+                    Spacer(Modifier.height(20.dp))
 
 
-
-                    Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
                         onClick = {
-                            if (passwordsMatch && chekbox1) {
-                                onSignupSuccess()
+                            if (emailpasswornoblind) {
+                                onLoginSuccess()
                             }
                         },
-
 
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(58.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black,
+                            containerColor = Color.Black,
+                            contentColor = Color.White
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
                         Text(
-                            "Crear cuenta",
+                            "Entrar",
                             style = AppTypo.body()
-                                .copy(color = Color.Black, fontWeight = FontWeight.Bold)
+                                .copy(color = Color.White, fontWeight = FontWeight.Bold)
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(22.dp))
 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
 
-                    if (!passwordsMatch) {
+                        Divider(modifier = Modifier.weight(1f))
                         Text(
-                            text = "Las contraseñas no coinciden",
-                            style = AppTypo.body().copy(color = Color.Red)
-
+                            text = " O ",
+                            style = AppTypo.body().copy(color = Color.Gray)
                         )
-
+                        Divider(modifier = Modifier.weight(1f))
                     }
 
+                    Spacer(Modifier.height(22.dp))
+
+                    // GOOGLE COMO TEXTO
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .clickable { onGoogleClick() }
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = "Continuar con Google",
+                            style = AppTypo.body()
+                        )
+                    }
+
+                    Spacer(Modifier.height(14.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .clickable { onSignup() }
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = "¿No tienes cuenta?",
+                            style = AppTypo.body()
+                        )
+                    }
 
                 }
             }
         }
     }
 }
-
-

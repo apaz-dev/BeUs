@@ -1,4 +1,4 @@
-package com.alpara.beus.Screens
+package com.alpara.beus.Screens.Main
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

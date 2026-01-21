@@ -1,8 +1,8 @@
-package com.alpara.beus.Screens
+package com.alpara.beus.Screens.Add
 
 import androidx.compose.runtime.Composable
 
 @Composable
-fun CalendarScreen() {
+fun EventScreen() {
     // Implementation of the Home Screen UI
 }
