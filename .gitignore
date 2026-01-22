@@ -41,3 +41,28 @@ replay_pid*
 .kotlin/
 
 backend/.back
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Variables de entorno
+.env
+
+# Logs
+*.log
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+
+# Python build
+build/
+dist/
+*.egg-info/
