@@ -34,6 +34,22 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun register(username: String, email: String, password: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _authError.value = null
+
+            authService.register(username, email, password)
+                .onSuccess { response ->
+                    _isAuthenticated.value = true
+                }
+                .onFailure { error ->
+                    _authError.value = error.message ?: "Error al iniciar sesión"
+                }
+            _isLoading.value = false
+        }
+    }
+
     fun logout() {
         _isAuthenticated.value = false
     }

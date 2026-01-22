@@ -23,4 +23,20 @@ class AuthService {
             Result.failure(e)
         }
     }
+
+    suspend fun register(username: String, email: String, password: String): Result<RegisterResponse> {
+        return try {
+            val response = client.post("$baseUrl/register/"){
+                contentType(ContentType.Application.Json)
+                setBody(RegisterRequest(
+                    username = username,
+                    email = email,
+                    password = password
+                ))
+            }
+            Result.success(response.body<RegisterResponse>())
+        }catch (e: Exception){
+            Result.failure(e)
+        }
+    }
 }

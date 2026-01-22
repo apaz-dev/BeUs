@@ -23,6 +23,6 @@ data class RegisterRequest(
 )
 
 @Serializable
-data class UserResponse(
+data class RegisterResponse(
     val username: String
 )

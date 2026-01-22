@@ -3,6 +3,7 @@ package com.alpara.beus
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -53,7 +54,8 @@ fun App() {
 
             composable("signup") {
                 SignUpScreen(
-                     onSignupSuccess = {
+                    viewModel = authViewModel,
+                    onSignupSuccess = {
                         navController.navigate("main") {
                             popUpTo("signup") { inclusive = true }
                         }
@@ -61,6 +63,6 @@ fun App() {
                 )
             }
 
-            }
         }
     }
+}

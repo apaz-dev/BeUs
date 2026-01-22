@@ -27,6 +27,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.alpara.beus.Models.AuthViewModel
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_calendar
 import com.alpara.beus.resources.ico_eye
@@ -53,6 +56,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 fun SignUpScreen(
     onSignupSuccess: () -> Unit = {},
+    viewModel: AuthViewModel,
 ) {
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -268,8 +272,8 @@ fun SignUpScreen(
 
                     Button(
                         onClick = {
-                            if (passwordsMatch && chekbox1) {
-                                onSignupSuccess()
+                            if (email.isNotBlank() && password.isNotBlank() && nombre.isNotBlank() && repeatPassword.isNotBlank() && passwordsMatch && chekbox1) {
+                                viewModel.register(nombre, email, password)
                             }
                         },
 
