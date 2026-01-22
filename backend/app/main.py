@@ -55,7 +55,8 @@ app.add_middleware(
 # Esto te protege de ataques de HostHeader Poisonin 
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["localhost", "127.0.0.1", "0.0.0.0"]
+    #allowed_hosts=["localhost", "127.0.0.1", "0.0.0.0", "10.0.2.2"]
+    allowed_hosts=["*"]
 )
 
 app.include_router(login.router)
