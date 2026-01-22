@@ -25,11 +25,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -41,6 +44,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import com.alpara.beus.Models.AuthViewModel
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.Themes.*
@@ -49,6 +53,7 @@ import com.alpara.beus.Themes.*
 @Preview
 @Composable
 fun LoginScreen(
+    viewModel: AuthViewModel,
     onLoginSuccess: () -> Unit = {},
     onGoogleClick: () -> Unit = {},
     onSignup: () -> Unit = {}
@@ -57,7 +62,16 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     val emailpasswornoblind = email.isNotBlank() && password.isNotBlank()
+    val isAuthenticated by viewModel.isAuthenticated.collectAsState()
+    val authError by viewModel.authError.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
+    // Navegar cuando el login sea exitoso
+    LaunchedEffect(isAuthenticated) {
+        if (isAuthenticated) {
+            onLoginSuccess()
+        }
+    }
 
 
     Column(
@@ -99,6 +113,14 @@ fun LoginScreen(
                     )
 
                     Spacer(Modifier.height(28.dp))
+
+                    authError?.let { error ->
+                        Text(
+                            text = error,
+                            style = AppTypo.body().copy(color = Color.Red),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
 
                     // EMAIL
                     OutlinedTextField(
@@ -177,8 +199,8 @@ fun LoginScreen(
 
                     Button(
                         onClick = {
-                            if (emailpasswornoblind) {
-                                onLoginSuccess()
+                            if (email.isNotBlank() && password.isNotBlank()) {
+                                viewModel.login(email, password)
                             }
                         },
 
@@ -192,11 +214,14 @@ fun LoginScreen(
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
-                        Text(
-                            "Entrar",
-                            style = AppTypo.body()
-                                .copy(color = Color.White, fontWeight = FontWeight.Bold)
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White
+                            )
+                        } else {
+                            Text("Entrar", style = AppTypo.body().copy(color = Color.White, fontWeight = FontWeight.Bold))
+                        }
                     }
 
                     Spacer(Modifier.height(22.dp))
