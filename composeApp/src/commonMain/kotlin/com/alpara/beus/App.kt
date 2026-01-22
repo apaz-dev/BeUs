@@ -56,7 +56,7 @@ fun App() {
                 SignUpScreen(
                     viewModel = authViewModel,
                     onSignupSuccess = {
-                        navController.navigate("main") {
+                        navController.navigate("login") {
                             popUpTo("signup") { inclusive = true }
                         }
                     }

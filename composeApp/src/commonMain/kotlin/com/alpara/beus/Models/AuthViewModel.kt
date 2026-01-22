@@ -34,6 +34,9 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    private val _isRegister = MutableStateFlow(false)
+    val isRegister = _isRegister.asStateFlow()
+
     fun register(username: String, email: String, password: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -41,7 +44,7 @@ class AuthViewModel : ViewModel() {
 
             authService.register(username, email, password)
                 .onSuccess { response ->
-                    _isAuthenticated.value = true
+                    _isRegister.value = true
                 }
                 .onFailure { error ->
                     _authError.value = error.message ?: "Error al iniciar sesión"

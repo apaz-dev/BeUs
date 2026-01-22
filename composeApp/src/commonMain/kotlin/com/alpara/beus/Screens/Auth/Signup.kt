@@ -66,7 +66,15 @@ fun SignUpScreen(
     var passwordVisible2 by remember { mutableStateOf(false) }
     var passwordsMatch by remember { mutableStateOf(true) }
     var chekbox1 by remember { mutableStateOf(false) }
+    val isAuthenticated by viewModel.isRegister.collectAsState()
+    val authError by viewModel.authError.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
+    LaunchedEffect(isAuthenticated) {
+        if (isAuthenticated) {
+            onSignupSuccess()
+        }
+    }
 
     Column(
         modifier = Modifier
