@@ -48,3 +48,5 @@ actual fun createHttpClient(): HttpClient {
         }
     }
 }
+
+internal actual val BASE_URL: String = "https://localhost:8443"
