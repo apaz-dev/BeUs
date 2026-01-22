@@ -31,7 +31,7 @@ fun SplashScreen(onNextScreen: () -> Unit = {}){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundColor) // Gris suave
+            .background(BackgroundColor)
             .padding(horizontal = 28.dp)
     ) {
         // Tarjeta principal
@@ -75,8 +75,8 @@ fun SplashScreen(onNextScreen: () -> Unit = {}){
             fontSize = 14.sp,
             color = Color.Gray,
             modifier = Modifier
-                .align(Alignment.BottomCenter) // Aquí ya no hay conflicto
-                .padding(bottom = 40.dp) // Ajustamos el espacio inferior
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 40.dp)
         )
     }
 }
