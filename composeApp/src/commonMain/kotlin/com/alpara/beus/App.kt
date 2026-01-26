@@ -29,6 +29,7 @@ fun App() {
                 LoginScreen(
                     viewModel = authViewModel,
                     onLoginSuccess = {
+                        authViewModel.login()
                         navController.navigate("main") {
                             popUpTo("login") { inclusive = true }
                         }
@@ -59,10 +60,15 @@ fun App() {
                         navController.navigate("login") {
                             popUpTo("signup") { inclusive = true }
                         }
+                    },
+                    onLoginBack = {
+                        navController.navigate("login"){
+                            popUpTo("signup") { inclusive = true }
+                        }
                     }
                 )
             }
 
+            }
         }
     }
-}

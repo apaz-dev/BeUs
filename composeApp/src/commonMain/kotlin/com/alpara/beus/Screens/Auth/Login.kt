@@ -48,6 +48,11 @@ import com.alpara.beus.Models.AuthViewModel
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.Themes.*
+import com.alpara.beus.resources.email
+import com.alpara.beus.resources.login_title
+import com.alpara.beus.resources.no_account
+import com.alpara.beus.resources.password
+import org.jetbrains.compose.resources.stringResource
 
 
 @Preview
@@ -128,7 +133,7 @@ fun LoginScreen(
                         onValueChange = {
                             email = it
                         },
-                        placeholder = { Text("Correo electrónico", style = AppTypo.body()) },
+                        placeholder = { Text(text = stringResource(Res.string.email), style = AppTypo.body()) },
                         textStyle = AppTypo.body(),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
@@ -151,7 +156,7 @@ fun LoginScreen(
                         onValueChange = {
                             password = it
                         },
-                        placeholder = { Text("Contraseña", style = AppTypo.body()) },
+                        placeholder = { Text(text = stringResource(Res.string.password), style = AppTypo.body()) },
                         singleLine = true,
                         visualTransformation = if (passwordVisible)
                             VisualTransformation.None
@@ -238,22 +243,6 @@ fun LoginScreen(
                         Divider(modifier = Modifier.weight(1f))
                     }
 
-                    Spacer(Modifier.height(22.dp))
-
-                    // GOOGLE COMO TEXTO
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .clickable { onGoogleClick() }
-                            .padding(8.dp)
-                    ) {
-                        Text(
-                            text = "Continuar con Google",
-                            style = AppTypo.body()
-                        )
-                    }
-
                     Spacer(Modifier.height(14.dp))
 
                     Row(
@@ -264,7 +253,7 @@ fun LoginScreen(
                             .padding(8.dp)
                     ) {
                         Text(
-                            text = "¿No tienes cuenta?",
+                            text = stringResource(Res.string.no_account),
                             style = AppTypo.body()
                         )
                     }
