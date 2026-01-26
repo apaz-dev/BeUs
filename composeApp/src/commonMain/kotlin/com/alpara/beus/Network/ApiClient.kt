@@ -8,7 +8,9 @@ import kotlinx.serialization.json.Json
 
 expect fun createHttpClient(): HttpClient
 
-internal expect val BASE_URL: String
+//internal expect val BASE_URL: String
+
+val BASE_URL = "https://ripe-seals-lead-beus.loca.lt"
 
 object ApiClient {
     val httpClient = createHttpClient()

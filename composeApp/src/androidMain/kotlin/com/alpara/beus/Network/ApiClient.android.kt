@@ -44,4 +44,4 @@ actual fun createHttpClient(): HttpClient {
     }
 }
 
-internal actual val BASE_URL: String = "https://10.0.2.2:8443"
+//internal actual val BASE_URL: String = "https://10.0.2.2:8443"
