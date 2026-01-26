@@ -46,8 +46,16 @@ import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_home
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.BackgroundColor
+import com.alpara.beus.resources.email
 import com.alpara.beus.resources.ico_arrowleft
+import com.alpara.beus.resources.name
+import com.alpara.beus.resources.password
+import com.alpara.beus.resources.passwordnomatch
+import com.alpara.beus.resources.privacy_policy
+import com.alpara.beus.resources.repeat_password
+import com.alpara.beus.resources.signup
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
@@ -132,7 +140,7 @@ fun SignUpScreen(
                         OutlinedTextField(
                             value = nombre,
                             onValueChange = { nombre = it },
-                            placeholder = { Text("Nombre", style = AppTypo.body()) },
+                            placeholder = { Text(text = stringResource(Res.string.name), style = AppTypo.body()) },
                             textStyle = AppTypo.body(),
                             singleLine = true,
                             shape = RoundedCornerShape(14.dp),
@@ -152,7 +160,7 @@ fun SignUpScreen(
                         OutlinedTextField(
                             value = email,
                             onValueChange = { email = it },
-                            placeholder = { Text("Correo electónico", style = AppTypo.body()) },
+                            placeholder = { Text(text = stringResource(Res.string.email), style = AppTypo.body()) },
                             textStyle = AppTypo.body(),
                             singleLine = true,
                             shape = RoundedCornerShape(14.dp),
@@ -175,7 +183,7 @@ fun SignUpScreen(
                                 password = it
                                 passwordsMatch = password == repeatPassword
                             },
-                            placeholder = { Text("Contraseña", style = AppTypo.body()) },
+                            placeholder = { Text(text = stringResource(Res.string.password), style = AppTypo.body()) },
                             singleLine = true,
                             visualTransformation = if (passwordVisible)
                                 VisualTransformation.None
@@ -217,7 +225,7 @@ fun SignUpScreen(
                                 repeatPassword = it
                                 passwordsMatch = password == repeatPassword
                             },
-                            placeholder = { Text("Repetir contraseña", style = AppTypo.body()) },
+                            placeholder = { Text(text = stringResource(Res.string.repeat_password), style = AppTypo.body()) },
                             singleLine = true,
                             visualTransformation = if (passwordVisible2)
                                 VisualTransformation.None
@@ -266,7 +274,7 @@ fun SignUpScreen(
                             Spacer(modifier = Modifier.width(2.dp))
 
                             Text(
-                                text = "Acepto la política de privacidad",
+                                text = stringResource(Res.string.privacy_policy),
                                 modifier = Modifier.clickable {
                                     chekbox1 = !chekbox1
                                 }
@@ -296,7 +304,7 @@ fun SignUpScreen(
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                         ) {
                             Text(
-                                "Crear cuenta",
+                                text = stringResource(Res.string.signup),
                                 style = AppTypo.body()
                                     .copy(color = Color.Black, fontWeight = FontWeight.Bold)
                             )
@@ -307,7 +315,7 @@ fun SignUpScreen(
 
                         if (!passwordsMatch) {
                             Text(
-                                text = "Las contraseñas no coinciden",
+                                text = stringResource(Res.string.passwordnomatch),
                                 style = AppTypo.body().copy(color = Color.Red)
 
                             )
