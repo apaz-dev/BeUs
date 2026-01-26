@@ -4,6 +4,7 @@ import hashlib
 import bcrypt
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
 
 
 # SPACE
@@ -14,14 +15,7 @@ from app.models.token import RefreshToken
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
     Crea un token JWT de acceso
-    
-    Args:
-        data: Datos a incluir en el token
-        expires_delta: Tiempo de expiración personalizado
-    
-    Returns:
-        Token JWT codificado
-    """
+	"""
     to_encode = data.copy()
     
     if expires_delta:
@@ -80,3 +74,17 @@ def save_refresh_token(db: Session, user_id: int, token: str) -> None:
     )
     db.add(db_token)
     db.commit()
+    
+def decode_token(token: str) -> dict:
+    """
+    Decodifica y valida un token JWT
+    """
+    try:
+        payload = jwt.decode(token, Settings.SECRET_KEY, algorithms=[Settings.ALGORITHM])
+        return payload
+    except JWTError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado",
+            headers={"WWW-Authenticate": "Bearer"},
+            )

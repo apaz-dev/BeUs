@@ -22,7 +22,6 @@ async def register(request: Request, user_data: Register, db: Session = Depends(
     - **email**: correo electrónico único
     - **password**: contraseña (mínimo 8 caracteres, debe incluir mayúsculas, minúsculas, números y caracteres especiales)
     """
-    print(user_data)
     db_user = db.query(User).filter(User.username == user_data.username.lower()).first()
     if db_user:
         raise HTTPException(
