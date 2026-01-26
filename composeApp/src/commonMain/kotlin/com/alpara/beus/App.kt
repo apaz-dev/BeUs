@@ -29,7 +29,6 @@ fun App() {
                 LoginScreen(
                     viewModel = authViewModel,
                     onLoginSuccess = {
-                        authViewModel.login()
                         navController.navigate("main") {
                             popUpTo("login") { inclusive = true }
                         }
