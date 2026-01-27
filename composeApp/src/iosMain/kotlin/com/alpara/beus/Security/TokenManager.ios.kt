@@ -33,15 +33,15 @@ actual class TokenManager {
         // First, try to delete existing value
         deleteFromKeychain(key)
 
-        // Create query dictionary
-        val query = mutableMapOf<CFStringRef?, CFTypeRef?>()
-        query[kSecClass] = kSecClassGenericPassword
-        query[kSecAttrAccount] = key.toNSString()
-        query[kSecAttrService] = SERVICE_NAME.toNSString()
-        query[kSecValueData] = value.toNSData()
-        query[kSecAttrAccessible] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        // Create query dictionary using NSMutableDictionary for easier bridging
+        val query = NSMutableDictionary()
+        query[kSecClass as Any] = kSecClassGenericPassword as Any
+        query[kSecAttrAccount as Any] = key.toNSString()
+        query[kSecAttrService as Any] = SERVICE_NAME.toNSString()
+        query[kSecValueData as Any] = value.toNSData()
+        query[kSecAttrAccessible as Any] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly as Any
 
-        val status = SecItemAdd(query.toCFDictionary(), null)
+        val status = SecItemAdd(query as CFDictionaryRef, null)
         if (status != noErr) {
             println("Failed to save to keychain for key '$key'. Error code: $status (see SecBase.h for error definitions)")
         }
@@ -49,15 +49,15 @@ actual class TokenManager {
 
     private fun getFromKeychain(key: String): String? {
         memScoped {
-            val query = mutableMapOf<CFStringRef?, CFTypeRef?>()
-            query[kSecClass] = kSecClassGenericPassword
-            query[kSecAttrAccount] = key.toNSString()
-            query[kSecAttrService] = SERVICE_NAME.toNSString()
-            query[kSecReturnData] = kCFBooleanTrue
-            query[kSecMatchLimit] = kSecMatchLimitOne
+            val query = NSMutableDictionary()
+            query[kSecClass as Any] = kSecClassGenericPassword as Any
+            query[kSecAttrAccount as Any] = key.toNSString()
+            query[kSecAttrService as Any] = SERVICE_NAME.toNSString()
+            query[kSecReturnData as Any] = kCFBooleanTrue as Any
+            query[kSecMatchLimit as Any] = kSecMatchLimitOne as Any
 
             val result = alloc<CFTypeRefVar>()
-            val status = SecItemCopyMatching(query.toCFDictionary(), result.ptr)
+            val status = SecItemCopyMatching(query as CFDictionaryRef, result.ptr)
 
             if (status == noErr) {
                 val data = result.value as? NSData
@@ -73,12 +73,12 @@ actual class TokenManager {
     }
 
     private fun deleteFromKeychain(key: String) {
-        val query = mutableMapOf<CFStringRef?, CFTypeRef?>()
-        query[kSecClass] = kSecClassGenericPassword
-        query[kSecAttrAccount] = key.toNSString()
-        query[kSecAttrService] = SERVICE_NAME.toNSString()
+        val query = NSMutableDictionary()
+        query[kSecClass as Any] = kSecClassGenericPassword as Any
+        query[kSecAttrAccount as Any] = key.toNSString()
+        query[kSecAttrService as Any] = SERVICE_NAME.toNSString()
 
-        SecItemDelete(query.toCFDictionary())
+        SecItemDelete(query as CFDictionaryRef)
     }
 
     private fun String.toNSString(): NSString {
@@ -99,14 +99,6 @@ actual class TokenManager {
         return ByteArray(this.length.toInt()).apply {
             usePinned {
                 memcpy(it.addressOf(0), this@toByteArray.bytes, this@toByteArray.length)
-            }
-        }
-    }
-
-    private fun Map<CFStringRef?, CFTypeRef?>.toCFDictionary(): CFDictionaryRef? {
-        return CFDictionaryCreateMutable(null, this.size.toLong(), null, null).also { dict ->
-            this.forEach { (key, value) ->
-                CFDictionaryAddValue(dict, key, value)
             }
         }
     }
