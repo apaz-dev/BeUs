@@ -10,16 +10,27 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.alpara.beus.BarNav.MainNav
 import com.alpara.beus.Models.AuthViewModel
+import com.alpara.beus.Network.ApiClient
 import com.alpara.beus.Screens.Auth.LoginScreen
 import com.alpara.beus.Screens.Auth.SignUpScreen
+import com.alpara.beus.Security.createTokenManager
 
 @Composable
 @Preview
 fun App() {
+    val tokenManager = remember { createTokenManager() }
+
+    remember {
+        ApiClient.initialize(tokenManager)
+    }
+
     val navController = rememberNavController()
-    val authViewModel = remember { AuthViewModel() }
+    val authViewModel = remember { AuthViewModel(tokenManager) }
     val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
 
+    LaunchedEffect(Unit) {
+        authViewModel.checkAuthStatus()
+    }
     MaterialTheme {
         NavHost(
             navController = navController,

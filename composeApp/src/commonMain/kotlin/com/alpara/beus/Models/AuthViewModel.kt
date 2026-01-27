@@ -3,13 +3,14 @@ package com.alpara.beus.Models
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alpara.beus.Network.AuthService
+import com.alpara.beus.Security.TokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
-    private val authService = AuthService()
+class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
+    private val authService = AuthService(tokenManager)
     private val _isAuthenticated = MutableStateFlow(false)
     val isAuthenticated = _isAuthenticated.asStateFlow()
 
@@ -54,9 +55,15 @@ class AuthViewModel : ViewModel() {
     }
 
     fun logout() {
-        _isAuthenticated.value = false
+        viewModelScope.launch {
+            tokenManager.clearTokens()
+            _isAuthenticated.value = false
+        }
     }
     fun checkAuthStatus() {
-        // Verificar token guardado
+        viewModelScope.launch {
+            val token = tokenManager.getAccessToken()
+            _isAuthenticated.value = !token.isNullOrEmpty()
+        }
     }
 }

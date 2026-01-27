@@ -1,5 +1,6 @@
 package com.alpara.beus.Network
 
+import com.alpara.beus.Security.TokenManager
 import io.ktor.client.*
 import io.ktor.client.engine.darwin.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -8,9 +9,12 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.serialization.json.Json
 import platform.Foundation.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
+import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun createHttpClient(): HttpClient {
+actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
     return HttpClient(Darwin) {
         engine {
             configureRequest {
@@ -40,6 +44,22 @@ actual fun createHttpClient(): HttpClient {
                 prettyPrint = true
                 isLenient = true
             })
+        }
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    runBlocking {
+                        val accessToken = tokenManager.getAccessToken()
+                        accessToken?.let {
+                            BearerTokens(accessToken = it, refreshToken = "")
+                        }
+                    }
+                }
+
+                sendWithoutRequest { request ->
+                    !shouldExcludeAuth(request.url)
+                }
+            }
         }
 
         install(Logging) {
