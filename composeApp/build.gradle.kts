@@ -45,11 +45,13 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.security.crypto)
         }
         commonMain.dependencies {
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
             // SPACE
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.logging)

@@ -1,11 +1,12 @@
 package com.alpara.beus.Network
 
 import com.alpara.beus.Models.*
+import com.alpara.beus.Security.TokenManager
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 
-class AuthService {
+class AuthService(private val tokenManager: TokenManager) {
     private val client = ApiClient.httpClient
     private val baseUrl = ApiClient.getBaseUrl()
 
@@ -18,7 +19,13 @@ class AuthService {
                     password = password
                 ))
             }
-            Result.success(response.body<LoginResponse>())
+            val loginResponse = response.body<LoginResponse>()
+            
+            // Save tokens
+            tokenManager.saveAccessToken(loginResponse.accessToken)
+            tokenManager.saveRefreshToken(loginResponse.refreshToken)
+            
+            Result.success(loginResponse)
         } catch (e: Exception) {
             Result.failure(e)
         }

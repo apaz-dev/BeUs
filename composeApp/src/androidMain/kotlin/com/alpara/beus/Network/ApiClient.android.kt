@@ -1,16 +1,20 @@
 package com.alpara.beus.Network
 
 
+import com.alpara.beus.Security.TokenManager
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.security.cert.X509Certificate
 import javax.net.ssl.*
 
-actual fun createHttpClient(): HttpClient {
+actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
     val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
         override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
         override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
@@ -40,6 +44,19 @@ actual fun createHttpClient(): HttpClient {
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.ALL
+        }
+
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    runBlocking {
+                        val accessToken = tokenManager.getAccessToken()
+                        accessToken?.let {
+                            BearerTokens(accessToken = it, refreshToken = "")
+                        }
+                    }
+                }
+            }
         }
     }
 }

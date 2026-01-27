@@ -1,16 +1,20 @@
 package com.alpara.beus.Network
 
+import com.alpara.beus.Security.TokenManager
 import io.ktor.client.*
 import io.ktor.client.engine.darwin.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import platform.Foundation.*
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun createHttpClient(): HttpClient {
+actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
     return HttpClient(Darwin) {
         engine {
             configureRequest {
@@ -45,6 +49,19 @@ actual fun createHttpClient(): HttpClient {
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.ALL
+        }
+
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    runBlocking {
+                        val accessToken = tokenManager.getAccessToken()
+                        accessToken?.let {
+                            BearerTokens(accessToken = it, refreshToken = "")
+                        }
+                    }
+                }
+            }
         }
     }
 }
