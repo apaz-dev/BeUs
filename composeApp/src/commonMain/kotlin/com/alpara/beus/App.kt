@@ -12,6 +12,7 @@ import com.alpara.beus.BarNav.MainNav
 import com.alpara.beus.Models.AuthViewModel
 import com.alpara.beus.Screens.Auth.LoginScreen
 import com.alpara.beus.Screens.Auth.SignUpScreen
+import com.alpara.beus.Screens.Splash.SplashScreen
 
 @Composable
 @Preview
@@ -23,7 +24,7 @@ fun App() {
     MaterialTheme {
         NavHost(
             navController = navController,
-            startDestination = if (isAuthenticated) "main" else "login"
+            startDestination = if (isAuthenticated) "main" else "splash"
         ) {
             composable("login") {
                 LoginScreen(
@@ -66,6 +67,16 @@ fun App() {
                         }
                     }
                 )
+            }
+
+            composable("splash") {
+                SplashScreen(
+                    onNextScreen = {
+                        navController.navigate("login"){
+                            popUpTo("splash") { inclusive = true }
+
+                        }
+                })
             }
 
             }
