@@ -67,9 +67,8 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
                 }
                 
                 sendWithoutRequest { request ->
-                    // Only send token for API requests, not for login/register
-                    !request.url.encodedPath.endsWith("/login/") && 
-                    !request.url.encodedPath.endsWith("/register/")
+                    // Use common function to determine if auth should be excluded
+                    !shouldExcludeAuth(request.url)
                 }
             }
         }

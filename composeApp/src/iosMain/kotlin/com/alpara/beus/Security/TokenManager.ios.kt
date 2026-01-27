@@ -42,7 +42,7 @@ actual class TokenManager {
 
         val status = SecItemAdd(query.toCFDictionary(), null)
         if (status != noErr) {
-            println("Failed to save to keychain: $status")
+            println("Failed to save to keychain for key '$key'. Error code: $status (see SecBase.h for error definitions)")
         }
     }
 
@@ -60,7 +60,12 @@ actual class TokenManager {
 
             if (status == noErr) {
                 val data = result.value as? NSData
-                return data?.toByteArray()?.decodeToString()
+                return try {
+                    data?.toByteArray()?.decodeToString()
+                } catch (e: Exception) {
+                    println("Failed to decode keychain data for key $key: ${e.message}")
+                    null
+                }
             }
             return null
         }

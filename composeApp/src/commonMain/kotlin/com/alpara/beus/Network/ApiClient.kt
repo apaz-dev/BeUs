@@ -4,6 +4,7 @@ import com.alpara.beus.Security.TokenManager
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
@@ -26,4 +27,13 @@ object ApiClient {
         get() = _httpClient ?: throw IllegalStateException("ApiClient not initialized. Call initialize() first.")
 
     fun getBaseUrl() = BASE_URL
+}
+
+/**
+ * Determines if a request should exclude the Bearer token.
+ * This prevents authentication loops and unnecessary token sending.
+ */
+internal fun shouldExcludeAuth(url: Url): Boolean {
+    val path = url.encodedPath
+    return path.endsWith("/login/") || path.endsWith("/register/")
 }
