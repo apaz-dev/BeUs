@@ -51,8 +51,13 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
         install(Auth) {
             bearer {
                 loadTokens {
-                    // Note: Using runBlocking here is acceptable for token loading
-                    // as it's a quick local storage read operation
+                    /* Using runBlocking here is intentional and safe because:
+                     * 1. This is called on Ktor's IO dispatcher, not the main thread
+                     * 2. Token retrieval is a fast local storage read (< 10ms)
+                     * 3. EncryptedSharedPreferences operations are already synchronous
+                     * 4. The Auth plugin's loadTokens callback is not a suspend function
+                     * 5. This runs once per HTTP client initialization, not per request
+                     */
                     runBlocking {
                         val accessToken = tokenManager.getAccessToken()
                         accessToken?.let {

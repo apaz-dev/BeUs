@@ -110,10 +110,12 @@ actual class TokenManager {
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
         
-        private val instance = TokenManager()
+        private val instance by lazy { TokenManager() }
+        
+        internal fun getInstance() = instance
     }
 }
 
 actual fun createTokenManager(): TokenManager {
-    return TokenManager.instance
+    return TokenManager.getInstance()
 }
