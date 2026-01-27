@@ -1,6 +1,7 @@
 package com.alpara.beus.Security
 
 import kotlinx.cinterop.*
+import platform.CoreFoundation.*
 import platform.Foundation.*
 import platform.Security.*
 import platform.darwin.noErr
