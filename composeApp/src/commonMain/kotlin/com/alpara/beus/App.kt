@@ -20,8 +20,8 @@ import com.alpara.beus.Security.createTokenManager
 fun App() {
     val tokenManager = remember { createTokenManager() }
     
-    // Initialize ApiClient
-    LaunchedEffect(Unit) {
+    // Initialize ApiClient immediately, not in LaunchedEffect
+    remember {
         ApiClient.initialize(tokenManager)
     }
     
