@@ -65,11 +65,15 @@ actual class TokenManager(private val context: Context) {
                 instance ?: TokenManager(context.applicationContext).also { instance = it }
             }
         }
+        
+        internal fun requireInstance(): TokenManager {
+            return instance ?: throw IllegalStateException(
+                "TokenManager not initialized. Call TokenManager.getInstance(context) first."
+            )
+        }
     }
 }
 
 actual fun createTokenManager(): TokenManager {
-    return TokenManager.instance ?: throw IllegalStateException(
-        "TokenManager not initialized. Call TokenManager.getInstance(context) first."
-    )
+    return TokenManager.requireInstance()
 }

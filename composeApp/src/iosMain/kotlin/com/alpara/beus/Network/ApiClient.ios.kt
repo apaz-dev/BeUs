@@ -7,6 +7,8 @@ import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.runBlocking
@@ -54,12 +56,20 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
         install(Auth) {
             bearer {
                 loadTokens {
+                    // Note: Using runBlocking here is acceptable for token loading
+                    // as it's a quick local storage read operation
                     runBlocking {
                         val accessToken = tokenManager.getAccessToken()
                         accessToken?.let {
                             BearerTokens(accessToken = it, refreshToken = "")
                         }
                     }
+                }
+                
+                sendWithoutRequest { request ->
+                    // Only send token for API requests, not for login/register
+                    !request.url.encodedPath.endsWith("/login/") && 
+                    !request.url.encodedPath.endsWith("/register/")
                 }
             }
         }
