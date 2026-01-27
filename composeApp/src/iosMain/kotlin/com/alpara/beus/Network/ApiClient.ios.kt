@@ -28,12 +28,13 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
                     val trust = protectionSpace.serverTrust
                     if (trust != null) {
                         val credential = NSURLCredential.credentialForTrust(trust)
-                        completionHandler(NSURLSessionAuthChallengeUseCredential.toLong(), credential)
+                        // CAMBIO: No usar .toLong(), pasar directamente el valor enum
+                        completionHandler(NSURLSessionAuthChallengeUseCredential, credential)
                     } else {
-                        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling.toLong(), null)
+                        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, null)
                     }
                 } else {
-                    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling.toLong(), null)
+                    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, null)
                 }
             }
         }
