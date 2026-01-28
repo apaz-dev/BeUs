@@ -22,6 +22,7 @@ import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.BackgroundColor
 import com.alpara.beus.resources.ico_arrowleft
 import com.alpara.beus.resources.ico_home
+import com.alpara.beus.resources.ico_rightarrow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -42,14 +43,14 @@ fun ProfileScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundColor)
-            .padding(16.dp)
+            .padding(20.dp) // Reducir el padding general
     ) {
 
-        // Flecha de retroceso y el texto "Perfil" al lado
+        // Flecha de retroceso y el texto "Perfil"
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp),
+                .padding(top = 8.dp), // Ajustar top padding
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -57,21 +58,21 @@ fun ProfileScreen(
                 painter = painterResource(Res.drawable.ico_arrowleft),
                 contentDescription = "Flecha",
                 modifier = Modifier
-                    .size(35.dp)
+                    .size(30.dp) // Ajustar el tamaño del icono
                     .clickable(onClick = onHomeBack)
             )
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(10.dp)) // Reducir espacio
 
             Text(
                 text = "Perfil",
                 style = AppTypo.heading(),
-                fontSize = 24.sp,
+                fontSize = 22.sp, // Reducir tamaño de texto
                 fontWeight = FontWeight.Bold
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp)) // Reducir espacio general
 
         // Imagen de perfil (círculo)
         Row(
@@ -83,41 +84,42 @@ fun ProfileScreen(
                 painter = painterResource(Res.drawable.ico_home),
                 contentDescription = "User Icon",
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(90.dp) // Reducir tamaño de la imagen
                     .clip(CircleShape)
                     .background(Color.Gray)
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(10.dp)) // Reducir espacio
 
         // Nombre del usuario
         Text(
             text = "PEPE",
             style = AppTypo.heading(),
-            fontSize = 32.sp,
+            fontSize = 26.sp, // Reducir tamaño del texto
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp)) // Reducir espacio
 
         // Correo electrónico del usuario
         Text(
             text = "pepe_email@correo.com",
             style = AppTypo.body(),
+            fontSize = 14.sp, // Reducir tamaño del texto
             color = Color.Gray,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(14.dp)) // Reducir espacio
 
         // Agrupar opciones de "Editar datos" en un Box más compacto
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(8.dp))  // Solo borde exterior
-                .padding(vertical = 4.dp, horizontal = 8.dp)  // Reducir el padding
+                .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(8.dp))
+                .padding(vertical = 4.dp, horizontal = 12.dp)  // Ajustar padding
         ) {
             ProfileCard(
                 text = "Editar datos",
@@ -125,14 +127,14 @@ fun ProfileScreen(
             )
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp)) // Aumentar espacio entre las cajas
 
-        // Agrupar opciones de "Cambiar contraseña" en un Box más compacto
+        // Cambiar contraseña
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(8.dp))  // Solo borde exterior
-                .padding(vertical = 4.dp, horizontal = 8.dp)  // Reducir el padding
+                .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(8.dp))
+                .padding(vertical = 4.dp, horizontal = 12.dp)
         ) {
             ProfileCard(
                 text = "Cambiar contraseña",
@@ -140,14 +142,14 @@ fun ProfileScreen(
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp)) // Reducir espacio
 
-        // Agrupar opciones de Configuración, Idioma, Notificaciones y Modo Oscuro dentro de un Box con bordes
+        // Opciones de configuración con menor espacio entre ellas
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(8.dp))  // Solo borde exterior
-                .padding(8.dp)  // Mantener el padding para que no se pegue al texto
+                .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(8.dp))
+                .padding(6.dp) // Ajustar padding
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -157,14 +159,14 @@ fun ProfileScreen(
                     onClick = { /* Acción de configuración */ }
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(2.dp)) // Reducir espacio entre elementos
 
                 ProfileCard(
                     text = "Idioma: $selectedLanguage",
                     onClick = { /* Lógica para cambiar idioma */ }
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(2.dp)) // Reducir espacio entre elementos
 
                 ProfileCardSwitch(
                     text = "Notificaciones",
@@ -172,7 +174,7 @@ fun ProfileScreen(
                     onCheckedChange = { notificationsEnabled = it }
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(2.dp)) // Reducir espacio entre elementos
 
                 ProfileCardSwitch(
                     text = "Modo oscuro",
@@ -182,20 +184,31 @@ fun ProfileScreen(
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(14.dp)) // Reducir espacio
 
-        // Agrupar opciones de Cerrar sesión y Cerrar cuenta en Card individuales
-        ProfileCard(
-            text = "Cerrar sesión",
-            onClick = onLogout
-        )
+        // Cerrar sesión y cerrar cuenta
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(8.dp))
+                .padding(6.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ProfileCard(
+                    text = "Cerrar sesión",
+                    onClick = onLogout
+                )
 
-        Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(4.dp))
 
-        ProfileCard(
-            text = "Cerrar cuenta",
-            onClick = onDeleteAccount
-        )
+                ProfileCard(
+                    text = "Cerrar cuenta",
+                    onClick = onDeleteAccount
+                )
+            }
+        }
     }
 }
 
@@ -214,7 +227,7 @@ fun ProfileCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp),  // Reducir el padding dentro de las tarjetas
+                .padding(9.dp),  // Reducir el padding dentro de las tarjetas
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -224,7 +237,7 @@ fun ProfileCard(
             )
 
             Icon(
-                painter = painterResource(Res.drawable.ico_home),  // Usar icono adecuado
+                painter = painterResource(Res.drawable.ico_rightarrow),  // Usar icono adecuado
                 contentDescription = null,
                 modifier = Modifier.size(24.dp)
             )
@@ -246,7 +259,7 @@ fun ProfileCardSwitch(
     ) {
         Row(
             modifier = Modifier
-                .padding(8.dp),  // Reducir el padding dentro de las tarjetas
+                .padding(2.dp),  // Reducir el padding dentro de las tarjetas
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -262,6 +275,11 @@ fun ProfileCardSwitch(
         }
     }
 }
+
+
+
+
+
 
 
 
