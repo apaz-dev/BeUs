@@ -98,3 +98,33 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+async def check_access_token(
+	credentials: HTTPAuthorizationCredentials = Depends(security),
+	db: Session = Depends(get_db)
+) -> User:
+	"""
+	Verifica el token de acceso y retorna el usuario asociado
+	"""
+	token = credentials.credentials
+	try:
+		payload = decode_token(token)
+		user_id: int = payload.get("sub")
+		if user_id is None:
+			raise HTTPException(
+				status_code=status.HTTP_401_UNAUTHORIZED,
+				detail="Token inválido"
+			)
+	except JWTError:
+		raise HTTPException(
+			status_code=status.HTTP_401_UNAUTHORIZED,
+			detail="Token inválido"
+		)
+
+	user = db.query(User).filter(User.id == user_id).first()
+	if user is None:
+		raise HTTPException(
+			status_code=status.HTTP_401_UNAUTHORIZED,
+			detail="Usuario no encontrado"
+		)
+	return user

@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from app.routers import login, register, team
+from app.routers import login, register, team, token
 from contextlib import asynccontextmanager
 from app.db import engine, Base
 
@@ -62,6 +62,7 @@ app.add_middleware(
 app.include_router(login.router)
 app.include_router(register.router)
 app.include_router(team.router)
+app.include_router(token.router)
 
 
 @app.get("/", tags=["General"])
