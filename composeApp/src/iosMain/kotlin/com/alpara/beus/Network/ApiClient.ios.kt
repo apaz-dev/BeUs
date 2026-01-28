@@ -47,7 +47,7 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
                 isLenient = true
             })
         }
-        install(Auth) {
+        /*install(Auth) {
             bearer {
                 loadTokens {
                     runBlocking {
@@ -62,7 +62,7 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
                     !shouldExcludeAuth(request.url)
                 }
             }
-        }
+        }*/
 
         install(Logging) {
             logger = Logger.DEFAULT

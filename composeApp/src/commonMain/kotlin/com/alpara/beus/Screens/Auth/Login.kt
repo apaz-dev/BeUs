@@ -83,183 +83,176 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundColor)
+            .padding(
+                top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
+                start = 28.dp,
+                end = 28.dp
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            modifier = Modifier
-                .padding(
-                    top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
-                )
+
+        Image(
+            painter = painterResource(Res.drawable.ico_home),
+            contentDescription = null,
+            modifier = Modifier.size(96.dp)
         )
-        {
+
+        Spacer(Modifier.height(12.dp))
+
+        Text(
+            text = "BeUs",
+            style = AppTypo.heading(),
+        )
+
+        Spacer(Modifier.height(28.dp))
+
+        // MOSTRAR ERROR SI EXISTE
+        authError?.let { error ->
             Surface(
                 modifier = Modifier
-                    .fillMaxSize(),
-                color = Color.Transparent
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                color = Color.Red.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 28.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-
-                    Image(
-                        painter = painterResource(Res.drawable.ico_home),
-                        contentDescription = null,
-                        modifier = Modifier.size(96.dp)
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    Text(
-                        text = "BeUs",
-                        style = AppTypo.heading(),
-                    )
-
-                    Spacer(Modifier.height(28.dp))
-
-                    authError?.let { error ->
-                        Text(
-                            text = error,
-                            style = AppTypo.body().copy(color = Color.Red),
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
-
-                    // EMAIL
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = {
-                            email = it
-                        },
-                        placeholder = { Text(text = stringResource(Res.string.email), style = AppTypo.body()) },
-                        textStyle = AppTypo.body(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
-                    )
-
-                    Spacer(Modifier.height(14.dp))
-
-
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = {
-                            password = it
-                        },
-                        placeholder = { Text(text = stringResource(Res.string.password), style = AppTypo.body()) },
-                        singleLine = true,
-                        visualTransformation = if (passwordVisible)
-                            VisualTransformation.None
-                        else
-                            PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                passwordVisible = !passwordVisible
-                            }) {
-                                Icon(
-                                    painter = painterResource(
-                                        if (passwordVisible)
-                                            Res.drawable.ico_eyeoff
-                                        else
-                                            Res.drawable.ico_eye
-                                    ),
-                                    contentDescription = null,
-                                    tint = Color.Black
-                                )
-                            }
-                        },
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
-                    )
-
-                    Spacer(Modifier.height(6.dp))
-
-                    /*if(!emailpasswornoblind){
-                        Text(text = "Ambos campos deben estar completos",
-                            style = AppTypo.body()
-                        )
-                    }*/
-
-                    Spacer(Modifier.height(20.dp))
-
-
-
-                    Button(
-                        onClick = {
-                            if (email.isNotBlank() && password.isNotBlank()) {
-                                viewModel.login(email, password)
-                            }
-                        },
-
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(58.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Black,
-                            contentColor = Color.White
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = Color.White
-                            )
-                        } else {
-                            Text("Entrar", style = AppTypo.body().copy(color = Color.White, fontWeight = FontWeight.Bold))
-                        }
-                    }
-
-                    Spacer(Modifier.height(22.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Divider(modifier = Modifier.weight(1f))
-                        Text(
-                            text = " O ",
-                            style = AppTypo.body().copy(color = Color.Gray)
-                        )
-                        Divider(modifier = Modifier.weight(1f))
-                    }
-
-                    Spacer(Modifier.height(14.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .clickable { onSignup() }
-                            .padding(8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.no_account),
-                            style = AppTypo.body()
-                        )
-                    }
-
-                }
+                Text(
+                    text = error,
+                    style = AppTypo.body().copy(
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.padding(12.dp)
+                )
             }
+        }
+
+        // EMAIL
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            placeholder = { Text(text = stringResource(Res.string.email), style = AppTypo.body()) },
+            textStyle = AppTypo.body(),
+            singleLine = true,
+            enabled = !isLoading, // Deshabilitar durante carga
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Black,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledBorderColor = Color.Gray,
+                disabledTextColor = Color.Gray
+            )
+        )
+
+        Spacer(Modifier.height(14.dp))
+
+        // PASSWORD
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            placeholder = { Text(text = stringResource(Res.string.password), style = AppTypo.body()) },
+            singleLine = true,
+            enabled = !isLoading, // Deshabilitar durante carga
+            visualTransformation = if (passwordVisible)
+                VisualTransformation.None
+            else
+                PasswordVisualTransformation(),
+            trailingIcon = {
+                if (!isLoading) {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            painter = painterResource(
+                                if (passwordVisible) Res.drawable.ico_eyeoff
+                                else Res.drawable.ico_eye
+                            ),
+                            contentDescription = null,
+                            tint = Color.Black
+                        )
+                    }
+                }
+            },
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Black,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledBorderColor = Color.Gray,
+                disabledTextColor = Color.Gray
+            )
+        )
+
+        Spacer(Modifier.height(20.dp))
+
+        Button(
+            onClick = {
+                if (email.isNotBlank() && password.isNotBlank() && !isLoading) {
+                    viewModel.login(email, password)
+                }
+            },
+            enabled = email.isNotBlank() && password.isNotBlank() && !isLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.White
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                )
+            } else {
+                Text(
+                    "Entrar",
+                    style = AppTypo.body().copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+        }
+
+        Spacer(Modifier.height(22.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Divider(modifier = Modifier.weight(1f))
+            Text(
+                text = " O ",
+                style = AppTypo.body().copy(color = Color.Gray)
+            )
+            Divider(modifier = Modifier.weight(1f))
+        }
+
+        Spacer(Modifier.height(14.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .clickable(enabled = !isLoading) { onSignup() }
+                .padding(8.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.no_account),
+                style = AppTypo.body().copy(
+                    color = if (isLoading) Color.Gray else Color.Black
+                )
+            )
         }
     }
 }
