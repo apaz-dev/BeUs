@@ -10,6 +10,14 @@ class AuthService(private val tokenManager: TokenManager) {
     private val client = ApiClient.httpClient
     private val baseUrl = ApiClient.getBaseUrl()
 
+    /*
+        Login function: Mediante el email (tmb username) y una password realiza una peticion
+        POST al endpoint /login/ del backend para autenticar al usuario. Si la autenticacion es
+        exitosa, guarda los tokens de acceso y refresco utilizando el TokenManager.
+
+        Se usa una clase serializada LoginRequest para validad el formato
+         en el que los datos del cuerpo se envian
+    */
     suspend fun login(email: String, password: String): Result<LoginResponse> {
         return try {
             val response = client.post("$baseUrl/login/") {
@@ -31,6 +39,13 @@ class AuthService(private val tokenManager: TokenManager) {
         }
     }
 
+    /*
+        Register function: Mediante el email, username y una password realiza una peticion
+        POST al endpoint /register/ del backend para registrar al usuario.
+
+        Se usa una clase serializada RegisterRequest para validad el formato
+         en el que los datos del cuerpo se envian
+    */
     suspend fun register(username: String, email: String, password: String): Result<RegisterResponse> {
         return try {
             val response = client.post("$baseUrl/register/"){

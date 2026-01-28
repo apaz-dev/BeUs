@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
     private val authService = AuthService(tokenManager)
-    private val _isAuthenticated = MutableStateFlow(false)
-    val isAuthenticated = _isAuthenticated.asStateFlow()
+    private val _isAuthenticated = MutableStateFlow(false) // Es como una "estructura" que almacena una valor mutable
+    val isAuthenticated = _isAuthenticated.asStateFlow() // Lo convierte en solo de lectura para el exterior
 
     private val _authError = MutableStateFlow<String?>(null)
     val authError: StateFlow<String?> = _authError
@@ -24,6 +24,7 @@ class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
             _isLoading.value = true
             _authError.value = null
 
+            // Llama al servicio de autenticacion para iniciar sesion
             authService.login(email, password)
                 .onSuccess { response ->
                     _isAuthenticated.value = true

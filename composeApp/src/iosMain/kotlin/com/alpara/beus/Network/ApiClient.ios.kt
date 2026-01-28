@@ -18,23 +18,24 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
     return HttpClient(Darwin) {
         engine {
             configureRequest {
-                setAllowsExpensiveNetworkAccess(true)
-                setAllowsConstrainedNetworkAccess(true)
+                setAllowsExpensiveNetworkAccess(true) // Permitir acceso usando datos
+                setAllowsConstrainedNetworkAccess(true) // Permitir acceso en redes con restricciones
             }
 
             handleChallenge { _, _, challenge, completionHandler ->
-                val protectionSpace = challenge.protectionSpace
+                val protectionSpace = challenge.protectionSpace // Obtener info del certificado
+                // Es un reto de confianza del servidor?? (SPOILER: SI)
                 if (protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust) {
-                    val trust = protectionSpace.serverTrust
+                    val trust = protectionSpace.serverTrust // Obtener el objeto de confianza
                     if (trust != null) {
-                        val credential = NSURLCredential.credentialForTrust(trust)
-                        // CAMBIO: No usar .toLong(), pasar directamente el valor enum
+                        val credential = NSURLCredential.credentialForTrust(trust) // Dice: "si confiamos"
+                        // No usar .toLong(), pasar directamente el valor enum
                         completionHandler(NSURLSessionAuthChallengeUseCredential, credential)
                     } else {
-                        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, null)
+                        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, null) // No confiar
                     }
                 } else {
-                    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, null)
+                    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, null) // No confiar
                 }
             }
         }

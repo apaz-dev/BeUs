@@ -15,6 +15,8 @@ import io.ktor.client.plugins.auth.providers.*
 import kotlinx.coroutines.runBlocking
 
 actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
+    // Configurar un TrustManager que confíe en todos los certificados
+    // (Al principio teniamos el backend con un certificado autofirmado)
     val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
         override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
         override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
@@ -46,6 +48,7 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
             level = LogLevel.ALL
         }
 
+        // Añade el token de auth en todas las peticiones
         install(Auth) {
             bearer {
                 loadTokens {
@@ -57,6 +60,7 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
                     }
                 }
 
+                // /login/ y /register/ no necesitan token de authenticacion
                 sendWithoutRequest { request ->
                     !shouldExcludeAuth(request.url)
                 }

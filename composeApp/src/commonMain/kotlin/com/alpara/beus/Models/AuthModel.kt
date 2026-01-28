@@ -2,6 +2,10 @@ package com.alpara.beus.Models
 
 import kotlinx.serialization.Serializable
 
+/*
+    @Serializable -> Se usa para decirle al compilador que tiene que ser serializado (convertido a JSON)
+*/
+
 @Serializable
 data class LoginRequest(
     val username: String,

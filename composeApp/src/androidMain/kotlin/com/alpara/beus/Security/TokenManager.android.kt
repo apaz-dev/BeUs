@@ -7,19 +7,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 actual class TokenManager(private val context: Context) {
+
+    //Clave maestra para cifrar en las "SharedPreferences"
     private val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
 
+
     private val sharedPreferences = EncryptedSharedPreferences.create(
         context,
-        PREFS_NAME,
+        PREFS_NAME, // Nombre del baul seguro
         masterKey,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
     actual suspend fun saveAccessToken(token: String) {
+        // Usar el un hilo especifico para operaciones de IO
         withContext(Dispatchers.IO) {
             sharedPreferences.edit().putString(KEY_ACCESS_TOKEN, token).apply()
         }
@@ -60,6 +64,7 @@ actual class TokenManager(private val context: Context) {
         @Volatile
         private var instance: TokenManager? = null
 
+        // Si existe devuelve la instancia, si no la crea de forma segura
         fun getInstance(context: Context): TokenManager {
             return instance ?: synchronized(this) {
                 instance ?: TokenManager(context.applicationContext).also { instance = it }

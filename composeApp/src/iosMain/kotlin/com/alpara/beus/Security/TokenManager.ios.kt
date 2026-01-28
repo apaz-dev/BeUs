@@ -5,12 +5,13 @@ import kotlinx.coroutines.withContext
 import platform.Foundation.NSUserDefaults
 
 actual class TokenManager {
-    private val userDefaults = NSUserDefaults.standardUserDefaults
+
+    private val userDefaults = NSUserDefaults.standardUserDefaults // AlmacenSimple en iOS
 
     actual suspend fun saveAccessToken(token: String) {
         withContext(Dispatchers.Main) {
             userDefaults.setObject(token, KEY_ACCESS_TOKEN)
-            userDefaults.synchronize()
+            userDefaults.synchronize() // Actualiza el Almacen (equivalente a un commit en bd)
         }
     }
 
