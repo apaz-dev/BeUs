@@ -32,8 +32,6 @@ import com.alpara.beus.resources.ico_profile
 import com.alpara.beus.resources.ico_rightarrow
 import com.alpara.beus.resources.ico_pencil
 import com.alpara.beus.resources.ico_padlock
-import com.alpara.beus.resources.ico_gear
-import com.alpara.beus.resources.ico_world
 import com.alpara.beus.resources.ico_bell
 import com.alpara.beus.resources.ico_moon
 import com.alpara.beus.resources.ico_notes
@@ -51,7 +49,7 @@ fun ConfigurationScreen(
     onDeleteAccount: () -> Unit = {},
     onHomeBack: () -> Unit = {},
 
-    // ✅ IMPORTANTE: ahora viene desde arriba (App)
+    // viene desde arriba (App)
     darkModeEnabled: Boolean = false,
     onDarkModeChange: (Boolean) -> Unit = {}
 ) {
@@ -188,28 +186,11 @@ fun ConfigurationScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Configuración
+        // ✅ SOLO NOTIFICACIONES + MODO OSCURO (sin Configuración ni Idioma)
         ProfileSectionLikeReference(
             borderColor = outline,
             backgroundColor = surface
         ) {
-            ProfileRowLikeReference(
-                text = "Configuración",
-                leftIconRes = Res.drawable.ico_gear,
-                onClick = {},
-                showChevron = true
-            )
-            SectionDividerLikeReference()
-
-            ProfileRowLikeReference(
-                text = "Idioma",
-                leftIconRes = Res.drawable.ico_world,
-                onClick = {},
-                trailingText = "Español",
-                showChevron = true
-            )
-            SectionDividerLikeReference()
-
             ProfileRowSwitchLikeReference(
                 text = "Notificaciones",
                 leftIconRes = Res.drawable.ico_bell,
@@ -218,7 +199,6 @@ fun ConfigurationScreen(
             )
             SectionDividerLikeReference()
 
-            // ✅ ESTE ES EL SWITCH QUE CAMBIA EL THEME DE TODA LA APP
             ProfileRowSwitchLikeReference(
                 text = "Modo oscuro",
                 leftIconRes = Res.drawable.ico_moon,
@@ -382,6 +362,7 @@ fun ProfileRowSwitchLikeReference(
             color = MaterialTheme.colorScheme.onSurface
         )
 
+        // Switch blanco/negro como lo tenías
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
@@ -395,7 +376,6 @@ fun ProfileRowSwitchLikeReference(
                 uncheckedBorderColor = Color.Black
             )
         )
-
     }
 }
 
@@ -407,3 +387,4 @@ fun SectionDividerLikeReference() {
         modifier = Modifier.padding(start = 62.dp)
     )
 }
+
