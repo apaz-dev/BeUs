@@ -65,7 +65,7 @@ class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
     fun checkAuthStatus() {
         viewModelScope.launch {
             val token = tokenManager.getAccessToken()
-            _isAuthenticated.value = !token.isNullOrEmpty()
+            _isAuthenticated.value = authService.checkAuthStatus()
         }
     }
 }

@@ -7,6 +7,7 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.serialization.JsonConvertException
 import kotlin.text.get
 
 class AuthService(private val tokenManager: TokenManager) {
@@ -30,11 +31,16 @@ class AuthService(private val tokenManager: TokenManager) {
                     password = password
                 ))
             }
+
+
+            if (response.status == HttpStatusCode.Unauthorized) {
+                return Result.failure(Exception("Usuario o Contraseña Incorrectos"))
+            }
             val loginResponse = response.body<LoginResponse>()
 
             // Save tokens
-            //tokenManager.saveAccessToken(loginResponse.accessToken)
-            //tokenManager.saveRefreshToken(loginResponse.refreshToken)
+            tokenManager.saveAccessToken(loginResponse.accessToken)
+            tokenManager.saveRefreshToken(loginResponse.refreshToken)
 
             Result.success(loginResponse)
         } catch (e: Exception) {
