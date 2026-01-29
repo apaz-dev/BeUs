@@ -16,7 +16,7 @@ UPLOAD_DIR = Path("uploads/avatars")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 ALLOWED = {"image/png", "image/jpeg", "image/webp"}
-MAX_MB = 5
+MAX_MB = 3
 
 router = APIRouter(prefix="/avatar", tags=["Avatar"])
 

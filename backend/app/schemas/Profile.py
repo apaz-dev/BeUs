@@ -6,7 +6,7 @@ import re
 class ProfilePrivate(BaseModel):
 	username: str
 	email: EmailStr
-	avatar: str
+	avatar_url: str
 
 class ProfilePublic(BaseModel):
 	username: str

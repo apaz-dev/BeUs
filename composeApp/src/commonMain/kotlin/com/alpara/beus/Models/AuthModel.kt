@@ -30,3 +30,39 @@ data class RegisterRequest(
 data class RegisterResponse(
     val username: String
 )
+
+@Serializable
+data class ProfilePublic(
+    val username: String,
+    val avatar_url: String
+)
+
+@Serializable
+data class ProfilePrivate(
+    val username: String,
+    val email: String,
+    val avatar_url: String
+)
+
+@Serializable
+data class TeamResponse(
+    val name: String,
+    val join_code: String
+)
+
+@Serializable
+data class TeamMembersResponse(
+    val name: String,
+    val members: List<ProfilePublic>
+)
+
+@Serializable
+data class TeamJoinRequest(
+    val join_code: String
+)
+
+@Serializable
+data class TeamCreateRequest(
+    val name: String,
+    val owner_id: Int
+)

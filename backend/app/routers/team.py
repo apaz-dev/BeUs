@@ -100,3 +100,28 @@ async def join_team(request: Request, join_data: TeamJoin, db: Session = Depends
         name=team.name,
         members=[ProfilePublic(username=member.username) for member in team.members]
     )
+
+@router.put("/leave", status_code=status.HTTP_200_OK)
+async def leave_team(request: Request, leave_data: TeamLeave, db: Session = Depends(get_db),
+				   current_user: User = Depends(get_current_user)):
+	team = db.query(Team).filter(Team.id == leave_data.team_id).first()
+	if not team:
+		raise HTTPException(
+			status_code=status.HTTP_404_NOT_FOUND,
+			detail="Equipo no encontrado."
+		)
+	if team not in current_user.teams:
+		raise HTTPException(
+			status_code=status.HTTP_400_BAD_REQUEST,
+			detail="No eres miembro de este equipo."
+		)
+	
+	if team.owner_id == current_user.id:
+		raise HTTPException(
+			status_code=status.HTTP_400_BAD_REQUEST,
+			detail="El propietario del equipo no puede abandonar el equipo."
+		)
+	
+	team.members.remove(current_user)
+	db.commit()
+	return {"detail": "Has abandonado el equipo correctamente."}
