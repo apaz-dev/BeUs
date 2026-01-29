@@ -9,33 +9,33 @@ actual class TokenManager {
     private val userDefaults = NSUserDefaults.standardUserDefaults // AlmacenSimple en iOS
 
     actual suspend fun saveAccessToken(token: String) {
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Default) {
             userDefaults.setObject(token, KEY_ACCESS_TOKEN)
             userDefaults.synchronize() // Actualiza el Almacen (equivalente a un commit en bd)
         }
     }
 
     actual suspend fun getAccessToken(): String? {
-        return withContext(Dispatchers.Main) {
+        return withContext(Dispatchers.Default) {
             userDefaults.stringForKey(KEY_ACCESS_TOKEN)
         }
     }
 
     actual suspend fun saveRefreshToken(token: String) {
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Default) {
             userDefaults.setObject(token, KEY_REFRESH_TOKEN)
             userDefaults.synchronize()
         }
     }
 
     actual suspend fun getRefreshToken(): String? {
-        return withContext(Dispatchers.Main) {
+        return withContext(Dispatchers.Default) {
             userDefaults.stringForKey(KEY_REFRESH_TOKEN)
         }
     }
 
     actual suspend fun clearTokens() {
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Default) {
             userDefaults.removeObjectForKey(KEY_ACCESS_TOKEN)
             userDefaults.removeObjectForKey(KEY_REFRESH_TOKEN)
             userDefaults.synchronize()

@@ -11,8 +11,10 @@ import androidx.navigation.compose.rememberNavController
 import com.alpara.beus.BarNav.MainNav
 import com.alpara.beus.Models.AuthViewModel
 import com.alpara.beus.Network.ApiClient
+import com.alpara.beus.Screens.Add.EventScreen
 import com.alpara.beus.Screens.Auth.LoginScreen
 import com.alpara.beus.Screens.Auth.SignUpScreen
+import com.alpara.beus.Screens.Main.HomeScreen
 import com.alpara.beus.Security.createTokenManager
 
 @Composable
@@ -72,13 +74,26 @@ fun App() {
                         }
                     },
                     onLoginBack = {
-                        navController.navigate("login"){
+                        navController.navigate("login") {
                             popUpTo("signup") { inclusive = true }
                         }
                     }
                 )
             }
+            composable("event") {
+                EventScreen(
+                    onHomeBack = {
+                        navController.navigate("home") {
+                            popUpTo("event") { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable("home") {
+                HomeScreen()
+
 
             }
         }
     }
+}
