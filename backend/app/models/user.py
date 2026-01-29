@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     teams = relationship('Team', secondary=user_teams, back_populates='members')
+    avatar_url = Column(String(255), nullable=True)
     
     
     def __repr__(self):

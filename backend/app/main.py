@@ -2,10 +2,10 @@ import logging
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from app.routers import login, register, team, token
+from app.routers import login, register, team, token, avatar, profile
 from contextlib import asynccontextmanager
 from app.db import engine, Base
-
+from fastapi.staticfiles import StaticFiles
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -63,7 +63,11 @@ app.include_router(login.router)
 app.include_router(register.router)
 app.include_router(team.router)
 app.include_router(token.router)
+app.include_router(avatar.router)
+app.include_router(profile.router)
 
+# Montar el directorio de archivos subidos
+app.mount("/avatars", StaticFiles(directory="uploads/avatars"), name="avatars")
 
 @app.get("/", tags=["General"])
 async def root():

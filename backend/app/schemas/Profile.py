@@ -10,3 +10,4 @@ class ProfilePrivate(BaseModel):
 
 class ProfilePublic(BaseModel):
 	username: str
+	avatar_url: str
