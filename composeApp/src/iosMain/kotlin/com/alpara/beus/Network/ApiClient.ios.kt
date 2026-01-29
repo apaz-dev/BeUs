@@ -47,22 +47,24 @@ actual fun createHttpClient(tokenManager: TokenManager): HttpClient {
                 isLenient = true
             })
         }
-        /*install(Auth) {
-            bearer {
-                loadTokens {
-                    runBlocking {
-                        val accessToken = tokenManager.getAccessToken()
-                        accessToken?.let {
-                            BearerTokens(accessToken = it, refreshToken = "")
-                        }
+        install(Auth) {
+        bearer {
+            loadTokens {
+                runBlocking {
+                    val accessToken = tokenManager.getAccessToken()
+                    if (!accessToken.isNullOrBlank()) {
+                        BearerTokens(accessToken = accessToken, refreshToken = "")
+                    } else {
+                        null
                     }
                 }
-
-                sendWithoutRequest { request ->
-                    !shouldExcludeAuth(request.url)
-                }
             }
-        }*/
+
+            sendWithoutRequest { request ->
+                !shouldExcludeAuth(request.url)
+            }
+        }
+    }
 
         install(Logging) {
             logger = Logger.DEFAULT

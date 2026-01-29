@@ -36,7 +36,7 @@ fun App() {
     MaterialTheme {
         NavHost(
             navController = navController,
-            startDestination = if (isAuthenticated) "main" else "main"
+            startDestination = if (isAuthenticated) "main" else "login"
         ) {
             composable("login") {
                 LoginScreen(

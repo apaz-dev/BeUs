@@ -30,6 +30,8 @@ class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
                 }
                 .onFailure { error ->
                     _authError.value = error.message ?: "Error al iniciar sesión"
+                    _isAuthenticated.value = false
+
                 }
             _isLoading.value = false
         }
