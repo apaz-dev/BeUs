@@ -16,6 +16,7 @@
 - [ ] Fotos @alvaro
   - [ ] Añadir endpoints en el backend para subir fotos
   - [ ] Gestionar esos endpoints en el backend para subir fotos
+  - [ ] Crear logo
 
 
 ====== TFG =========
