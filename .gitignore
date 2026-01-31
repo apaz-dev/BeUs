@@ -67,3 +67,5 @@ build/
 dist/
 *.egg-info/
 /backend/uploads/avatars/
+/backend/beus.db
+/.clang-tidy
