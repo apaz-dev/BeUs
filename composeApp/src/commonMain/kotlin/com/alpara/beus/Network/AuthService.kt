@@ -36,6 +36,9 @@ class AuthService(private val tokenManager: TokenManager) {
             if (response.status == HttpStatusCode.Unauthorized) {
                 return Result.failure(Exception("Usuario o Contraseña Incorrectos"))
             }
+            if (response.status == HttpStatusCode.ServiceUnavailable) {
+                return Result.failure(Exception("Servidor no disponible, intentalo mas tarde"))
+            }
             val loginResponse = response.body<LoginResponse>()
 
             // Save tokens

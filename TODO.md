@@ -1,5 +1,6 @@
 ====== INTEGRADOR =========
-- [ ] Arreglar inicio de sesion con tokens @paz
+- [X] Arreglar inicio de sesion con tokens @paz
+- [ ] Mientras esta apareciendo el splash que checkee si hay sesion inciada
 - [ ] Modo oscuro @raul
 - [ ] Equipos @paz
   - [ ] Añadir endpoints en el backend (
