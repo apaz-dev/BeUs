@@ -18,3 +18,6 @@ class TeamMembersResponse(BaseModel):
 
 class TeamJoin(BaseModel):
 	join_code: str
+
+class TeamLeave(BaseModel):
+	team_id: int
