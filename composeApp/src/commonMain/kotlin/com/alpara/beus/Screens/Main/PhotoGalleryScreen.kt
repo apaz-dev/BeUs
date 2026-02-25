@@ -1,6 +1,8 @@
 package com.alpara.beus.Screens.Main
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -37,14 +40,11 @@ fun PhotoGalleryScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentUserId = remember { viewModel.getCurrentUserId() }
 
-    // Estado para el diálogo de confirmación de borrado
     var photoToDelete by remember { mutableStateOf<PhotoModel?>(null) }
-    // Estado para el diálogo de descripción al subir
     var showCaptionDialog by remember { mutableStateOf(false) }
     var pendingImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     var captionText by remember { mutableStateOf("") }
 
-    // Image picker
     val imagePicker = rememberImagePickerLauncher { bytes ->
         if (bytes != null) {
             pendingImageBytes = bytes
@@ -52,12 +52,7 @@ fun PhotoGalleryScreen(
         }
     }
 
-    // Cargar fotos al entrar
-    LaunchedEffect(teamId, eventId) {
-        viewModel.loadPhotos(teamId, eventId)
-    }
-
-    // Limpiar mensajes tras mostrarlos
+    LaunchedEffect(teamId, eventId) { viewModel.loadPhotos(teamId, eventId) }
     LaunchedEffect(uiState.successMessage) {
         if (uiState.successMessage != null) {
             kotlinx.coroutines.delay(2000)
@@ -65,30 +60,130 @@ fun PhotoGalleryScreen(
         }
     }
 
+    val bgRed       = MaterialTheme.colorScheme.background.red
+    val isDark      = bgRed < 0.5f
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2= if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+    val glassBase   = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+    val bgColor     = MaterialTheme.colorScheme.background
+    val onSurface   = MaterialTheme.colorScheme.onSurface
+
     Scaffold(
+        containerColor = bgColor,
         topBar = {
-            TopAppBar(
-                title = { Text(eventName) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                accentColor.copy(alpha = if (isDark) 0.45f else 0.28f),
+                                accentColor2.copy(alpha = if (isDark) 0.35f else 0.18f),
+                                glassBase.copy(alpha = if (isDark) 0.25f else 0.5f)
+                            ),
+                            start = Offset(0f, 0f),
+                            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                        )
+                    )
+                    .padding(horizontal = 12.dp, vertical = 12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Botón back glass
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(glassBase.copy(alpha = 0.5f))
+                            .border(1.dp, borderGlass, CircleShape)
+                            .clickable { onBack() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = if (isDark) Color.White.copy(alpha = 0.85f) else accentColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    // Título con gradiente
+                    Text(
+                        text = eventName,
+                        style = AppTypo.heading().copy(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(accentColor, accentColor2)
+                            )
+                        ),
+                        fontSize = 22.sp,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1
+                    )
+
+                    // Badge de fotos
+                    if (uiState.photos.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(accentColor.copy(alpha = 0.12f))
+                                .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                                .padding(horizontal = 10.dp, vertical = 5.dp)
+                        ) {
+                            Text(
+                                text = "${uiState.photos.size} fotos",
+                                color = accentColor,
+                                style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                                fontSize = 12.sp
+                            )
+                        }
                     }
                 }
-            )
+                // Línea decorativa inferior
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(Color.Transparent, borderGlass, Color.Transparent)
+                            )
+                        )
+                )
+            }
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { imagePicker.launch() },
-                shape = CircleShape
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(accentColor, accentColor2)
+                        )
+                    )
+                    .border(1.dp, borderGlass, CircleShape)
+                    .clickable { imagePicker.launch() },
+                contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Subir foto")
-            }
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Subir foto",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )            }
         }
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(bgColor)
         ) {
             when {
                 uiState.isLoading || uiState.isUploading -> {
