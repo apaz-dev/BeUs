@@ -13,19 +13,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.alpara.beus.Models.PhotoModel
 import com.alpara.beus.Models.View.PhotoViewModel
+import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.Utils.rememberImagePickerLauncher
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -187,41 +193,91 @@ fun PhotoGalleryScreen(
         ) {
             when {
                 uiState.isLoading || uiState.isUploading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        CircularProgressIndicator(color = accentColor)
+                        if (uiState.isUploading) {
+                            Text(
+                                "Subiendo foto…",
+                                style = AppTypo.body(),
+                                fontSize = 13.sp,
+                                color = textSecondary
+                            )
+                        }
+                    }
                 }
 
                 uiState.photos.isEmpty() -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(32.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                            .border(1.dp, borderGlass, RoundedCornerShape(24.dp))
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        glassBase.copy(alpha = 0.75f),
+                                        glassBase.copy(alpha = 0.55f)
+                                    )
+                                )
+                            )
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            "No hay fotos todavía",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            "Pulsa + para subir la primera",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(CircleShape)
+                                    .background(accentColor.copy(alpha = 0.12f))
+                                    .border(1.dp, accentColor.copy(alpha = 0.3f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Image,
+                                    contentDescription = null,
+                                    tint = accentColor,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                            Text(
+                                "Sin fotos aún",
+                                style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                                fontSize = 16.sp,
+                                color = onSurface
+                            )
+                            Text(
+                                "Pulsa + para subir la primera",
+                                style = AppTypo.body(),
+                                fontSize = 13.sp,
+                                color = textSecondary
+                            )
+                        }
                     }
                 }
 
                 else -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
-                        contentPadding = PaddingValues(4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(3.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                        contentPadding = PaddingValues(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(uiState.photos) { photo ->
                             PhotoGridItem(
                                 photo = photo,
                                 isOwner = currentUserId == photo.uploadedBy,
-                                onDeleteClick = { photoToDelete = photo }
+                                onDeleteClick = { photoToDelete = photo },
+                                accentColor = accentColor,
+                                borderGlass = borderGlass
                             )
                         }
                     }
@@ -230,26 +286,47 @@ fun PhotoGalleryScreen(
 
             // Snackbar de error
             uiState.error?.let { error ->
-                Snackbar(
+                Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    action = {
-                        TextButton(onClick = { viewModel.clearMessages() }) {
-                            Text("Cerrar")
-                        }
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.4f), RoundedCornerShape(14.dp))
+                        .background(
+                            if (isDark) Color(0xFF2A1A1A).copy(alpha = 0.9f)
+                            else Color(0xFFFFF0F0).copy(alpha = 0.95f)
+                        )
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(error, color = Color(0xFFFF6B6B), fontSize = 13.sp, style = AppTypo.body(), modifier = Modifier.weight(1f))
+                        Text(
+                            "Cerrar",
+                            color = Color(0xFFFF6B6B),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.clickable { viewModel.clearMessages() }
+                        )
                     }
-                ) { Text(error) }
+                }
             }
 
             // Snackbar de éxito
             uiState.successMessage?.let { msg ->
-                Snackbar(
+                Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ) { Text(msg) }
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .border(1.dp, accentColor.copy(alpha = 0.4f), RoundedCornerShape(14.dp))
+                        .background(accentColor.copy(alpha = if (isDark) 0.2f else 0.1f))
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Text(msg, color = accentColor, fontSize = 13.sp, style = AppTypo.body())
+                }
             }
         }
     }
@@ -262,35 +339,64 @@ fun PhotoGalleryScreen(
                 pendingImageBytes = null
                 captionText = ""
             },
-            title = { Text("Añadir descripción") },
+            containerColor = glassBase,
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    "Añadir descripción",
+                    color = onSurface,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            },
             text = {
                 OutlinedTextField(
                     value = captionText,
                     onValueChange = { captionText = it },
-                    label = { Text("Descripción (opcional)") },
+                    label = { Text("Descripción (opcional)", fontSize = 13.sp) },
                     maxLines = 3,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = accentColor,
+                        unfocusedBorderColor = borderGlass,
+                        focusedLabelColor = accentColor,
+                        cursorColor = accentColor
+                    )
                 )
             },
             confirmButton = {
-                Button(onClick = {
-                    pendingImageBytes?.let { bytes ->
-                        viewModel.uploadPhoto(bytes, teamId, eventId, captionText)
-                    }
-                    showCaptionDialog = false
-                    pendingImageBytes = null
-                    captionText = ""
-                }) {
-                    Text("Subir")
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(accentColor.copy(alpha = 0.15f))
+                        .border(1.dp, accentColor.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                        .clickable {
+                            pendingImageBytes?.let { bytes ->
+                                viewModel.uploadPhoto(bytes, teamId, eventId, captionText)
+                            }
+                            showCaptionDialog = false
+                            pendingImageBytes = null
+                            captionText = ""
+                        }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text("Subir", color = accentColor, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    showCaptionDialog = false
-                    pendingImageBytes = null
-                    captionText = ""
-                }) {
-                    Text("Cancelar")
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(borderGlass.copy(alpha = 0.3f))
+                        .clickable {
+                            showCaptionDialog = false
+                            pendingImageBytes = null
+                            captionText = ""
+                        }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text("Cancelar", color = textSecondary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
                 }
             }
         )
@@ -300,8 +406,23 @@ fun PhotoGalleryScreen(
     photoToDelete?.let { photo ->
         AlertDialog(
             onDismissRequest = { photoToDelete = null },
-            title = { Text("Borrar foto") },
-            text = { Text("¿Seguro que quieres eliminar esta foto? Esta acción no se puede deshacer.") },
+            containerColor = glassBase,
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    "¿Borrar foto?",
+                    color = onSurface,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            },
+            text = {
+                Text(
+                    "Esta acción no se puede deshacer.",
+                    color = textSecondary,
+                    fontSize = 14.sp
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = {
@@ -328,7 +449,8 @@ fun PhotoGalleryScreen(
 private fun PhotoGridItem(
     photo: PhotoModel,
     isOwner: Boolean,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    accentColor: Color
 ) {
     Box(
         modifier = Modifier
