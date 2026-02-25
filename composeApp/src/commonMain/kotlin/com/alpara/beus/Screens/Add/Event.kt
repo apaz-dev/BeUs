@@ -2,62 +2,54 @@ package com.alpara.beus.Screens.Add
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.alpara.beus.Models.View.EventListViewModel
-import com.alpara.beus.Themes.AppTypo.body
-import com.alpara.beus.Themes.AppTypo.heading
-import com.alpara.beus.Themes.BackgroundColor
-import com.alpara.beus.Themes.ColorBlack
-import com.alpara.beus.Themes.ColorWhite
+import com.alpara.beus.Screens.Auth.GlassTextField
+import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.Utils.EventType
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_arrowleft
-import com.alpara.beus.resources.ico_calendar
-import com.alpara.beus.resources.ico_search
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+
+// Metadatos por tipo de evento
+private data class EventOption(
+    val type: EventType,
+    val emoji: String,
+    val title: String,
+    val subtitle: String
+)
+
+private val eventOptions = listOf(
+    EventOption(EventType.FIESTA,     "🎉", "Fiesta",              "Celebra con los tuyos"),
+    EventOption(EventType.BAR,        "🍻", "Quedada",             "Salir con amigos"),
+    EventOption(EventType.MONTANA,    "🏔️", "Día de montaña",      "Aventura al aire libre"),
+    EventOption(EventType.CENA,       "🍽️", "Cena o tapas",        "Buena mesa, mejor compañía"),
+    EventOption(EventType.VIAJE,      "✈️", "Viaje o vacaciones",  "Nuevos destinos, nuevos recuerdos"),
+    EventOption(EventType.COMPETICION,"🏆", "Competición",         "Que gane el mejor"),
+)
 
 @Composable
 @Preview
 fun EventScreenPreview() {
-    EventScreen(
-        onHomeBack = {},
-        search = {},
-        onAddEvent = { _, _ -> },
-    )
+    EventScreen(onHomeBack = {}, search = {}, onAddEvent = { _, _ -> })
 }
 
 @Composable
@@ -82,186 +74,320 @@ fun EventScreen(
     search: () -> Unit = {},
     onAddEvent: (EventType, String) -> Unit
 ) {
-    // Estado para el diálogo de nombre
     var pendingEventType by remember { mutableStateOf<EventType?>(null) }
     var eventName by remember { mutableStateOf("") }
 
-    Column(
+    // ── Glassmorphism palette ──────────────────────────────────────────────
+    val bgRed       = MaterialTheme.colorScheme.background.red
+    val isDark      = bgRed < 0.5f
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2= if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+    val glassBase   = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+    val bgColor     = MaterialTheme.colorScheme.background
+    val onSurface   = MaterialTheme.colorScheme.onSurface
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundColor)
+            .background(bgColor)
     ) {
-        Column(
+        // ── TopBar glass ──────────────────────────────────────────────────
+        Box(
             modifier = Modifier
-                .padding(
-                    top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
-                )
-        ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize(),
-                color = Color.Transparent
-            ) {
-
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
-                    IconButton(
-                        onClick = onHomeBack,
-                        modifier = Modifier.align(Alignment.TopStart).padding(top = 30.dp)
-                            .padding(horizontal = 25.dp)
-                    ) {
-
-                        Icon(
-                            painter = painterResource(Res.drawable.ico_arrowleft),
-                            contentDescription = "Flecha",
-                            modifier = Modifier.size(35.dp),
-                        )
-                    }
-                    IconButton(
-                        onClick = search,
-                        modifier = Modifier.align(Alignment.TopEnd).padding(top = 30.dp)
-                            .padding(horizontal = 25.dp)
-                    ) {
-
-                        Icon(
-                            painter = painterResource(Res.drawable.ico_search),
-                            contentDescription = "Lupa",
-                            modifier = Modifier.size(35.dp),
-                        )
-                    }
-
-                    Text(
-                        text = "BeUs",
-                        style = heading(),
-                        modifier = Modifier.align(Alignment.TopCenter).padding(top = 16.dp)
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            accentColor.copy(alpha = if (isDark) 0.45f else 0.28f),
+                            accentColor2.copy(alpha = if (isDark) 0.35f else 0.18f),
+                            glassBase.copy(alpha = if (isDark) 0.25f else 0.5f)
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                     )
-
-                    Text(
-                        text = "¿Que evento vais a elegir hoy?",
-                        style = body(),
-                        modifier = Modifier.align(Alignment.TopCenter).padding(top = 96.dp)
+                )
+                .padding(horizontal = 12.dp, vertical = 12.dp)
+                .align(Alignment.TopCenter)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Botón back glass
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(glassBase.copy(alpha = 0.5f))
+                        .border(1.dp, borderGlass, CircleShape)
+                        .clickable { onHomeBack() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ico_arrowleft),
+                        contentDescription = "Volver",
+                        tint = if (isDark) Color.White.copy(alpha = 0.85f) else accentColor,
+                        modifier = Modifier.size(18.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(Modifier.weight(1f))
 
+                // Título con gradiente centrado
+                Text(
+                    text = "Nuevo evento",
+                    style = AppTypo.heading().copy(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(accentColor, accentColor2)
+                        )
+                    ),
+                    fontSize = 22.sp
+                )
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(top = 150.dp, bottom = 140.dp).background(ColorBlack)
-                ) {
-                    item {
-                        EventOption(
-                            onClick = { pendingEventType = EventType.FIESTA; eventName = "" },
-                            icon = Res.drawable.ico_calendar,
-                            text = "¿Fiesta?"
+                Spacer(Modifier.weight(1f))
+                // Espacio simétrico al botón back
+                Spacer(Modifier.size(38.dp))
+            }
+
+            // Línea decorativa inferior
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .align(Alignment.BottomCenter)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(Color.Transparent, borderGlass, Color.Transparent)
                         )
-                    }
-                    item {
-                        EventOption(
-                            onClick = { pendingEventType = EventType.BAR; eventName = "" },
-                            icon = Res.drawable.ico_calendar,
-                            text = "Quedada con amigos",
+                    )
+            )
+        }
+
+        // ── Contenido ─────────────────────────────────────────────────────
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 66.dp
+                )
+        ) {
+            // Subtítulo
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+            ) {
+                Text(
+                    text = "¿Qué vais a hacer hoy?",
+                    style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                    fontSize = 18.sp,
+                    color = onSurface
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = "Elige el tipo de evento para empezar",
+                    style = AppTypo.body(),
+                    fontSize = 13.sp,
+                    color = textSecondary
+                )
+            }
+
+            // Lista de opciones
+            val navBarInsets = WindowInsets.navigationBars.asPaddingValues()
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 16.dp, end = 16.dp,
+                    top = 4.dp,
+                    bottom = 80.dp + navBarInsets.calculateBottomPadding()
+                ),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                itemsIndexed(eventOptions) { index, option ->
+                    // Acento alternado: accentColor y accentColor2
+                    val itemAccent = if (index % 2 == 0) accentColor else accentColor2
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(18.dp))
+                            .border(
+                                width = 1.dp,
+                                brush = Brush.linearGradient(
+                                    colors = listOf(borderGlass, Color.Transparent, borderGlass)
+                                ),
+                                shape = RoundedCornerShape(18.dp)
+                            )
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        glassBase.copy(alpha = 0.78f),
+                                        glassBase.copy(alpha = 0.55f)
+                                    )
+                                )
+                            )
+                            .clickable {
+                                pendingEventType = option.type
+                                eventName = ""
+                            }
+                    ) {
+                        // Barra de acento izquierda
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(4.dp)
+                                .clip(RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp))
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(itemAccent, itemAccent.copy(alpha = 0.3f))
+                                    )
+                                )
                         )
-                    }
-                    item {
-                        EventOption(
-                            onClick = { pendingEventType = EventType.MONTANA; eventName = "" },
-                            icon = Res.drawable.ico_calendar,
-                            text = "¿Día de montaña?"
-                        )
-                    }
-                    item {
-                        EventOption(
-                            onClick = { pendingEventType = EventType.CENA; eventName = "" },
-                            icon = Res.drawable.ico_calendar,
-                            text = "¿Tomando algo?"
-                        )
-                    }
-                    item {
-                        EventOption(
-                            onClick = { pendingEventType = EventType.VIAJE; eventName = "" },
-                            icon = Res.drawable.ico_calendar,
-                            text = "¿Vacaciones de playa?"
-                        )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            // Emoji en caja glass
+                            Box(
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(itemAccent.copy(alpha = 0.12f))
+                                    .border(1.dp, itemAccent.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = option.emoji, fontSize = 22.sp)
+                            }
+
+                            // Título y subtítulo
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = option.title,
+                                    style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                                    fontSize = 15.sp,
+                                    color = onSurface
+                                )
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    text = option.subtitle,
+                                    style = AppTypo.body(),
+                                    fontSize = 12.sp,
+                                    color = textSecondary
+                                )
+                            }
+
+                            // Chevron
+                            Text(
+                                text = "›",
+                                fontSize = 24.sp,
+                                color = itemAccent.copy(alpha = 0.6f),
+                                fontWeight = FontWeight.Light
+                            )
+                        }
                     }
                 }
             }
         }
     }
 
-    // Diálogo para introducir el nombre del evento
+    // ── Diálogo: nombre del evento ─────────────────────────────────────────
     pendingEventType?.let { selectedType ->
+        val meta = eventOptions.find { it.type == selectedType }
+
         AlertDialog(
             onDismissRequest = { pendingEventType = null },
-            title = { Text("Nombre del evento") },
-            text = {
-                Column {
+            containerColor = glassBase,
+            shape = RoundedCornerShape(24.dp),
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    if (meta != null) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(accentColor.copy(alpha = 0.12f))
+                                .border(1.dp, accentColor.copy(alpha = 0.25f), RoundedCornerShape(10.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(meta.emoji, fontSize = 20.sp)
+                        }
+                    }
                     Text(
-                        text = "Dale un nombre a tu evento:",
-                        style = body()
+                        text = meta?.title ?: "Nuevo evento",
+                        style = AppTypo.heading().copy(
+                            brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
+                        ),
+                        fontSize = 22.sp
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    OutlinedTextField(
+                }
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "Dale un nombre al evento:",
+                        style = AppTypo.body(),
+                        fontSize = 13.sp,
+                        color = textSecondary
+                    )
+                    GlassTextField(
                         value = eventName,
                         onValueChange = { eventName = it },
-                        placeholder = { Text("Ej: Cumple de Carlos") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        placeholder = "Ej: Cumple de Carlos",
+                        accentColor = accentColor,
+                        borderGlass = borderGlass,
+                        glassBase = glassBase,
+                        onSurface = onSurface
                     )
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = {
-                        val finalName = eventName.trim().ifBlank { selectedType.name }
-                        onAddEvent(selectedType, finalName)
-                        pendingEventType = null
-                    }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            brush = Brush.linearGradient(colors = listOf(accentColor, accentColor2))
+                        )
+                        .clickable {
+                            val finalName = eventName.trim().ifBlank { selectedType.name }
+                            onAddEvent(selectedType, finalName)
+                            pendingEventType = null
+                        }
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Crear evento")
+                    Text(
+                        "Crear evento",
+                        color = Color.White,
+                        style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                        fontSize = 14.sp
+                    )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingEventType = null }) {
-                    Text("Cancelar")
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(accentColor.copy(alpha = 0.10f))
+                        .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .clickable { pendingEventType = null }
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                ) {
+                    Text(
+                        "Cancelar",
+                        color = accentColor,
+                        style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
+                        fontSize = 14.sp
+                    )
                 }
             }
         )
-    }
-}
-
-@Composable
-fun EventOption(
-    onClick: () -> Unit = {},
-    icon: DrawableResource,
-    text: String
-) {
-    Card (
-        modifier = Modifier
-            .fillMaxWidth().background(ColorWhite)
-            .padding(vertical = 24.dp, horizontal = 32.dp)
-            .border(2.dp, Color.Black, shape = RoundedCornerShape(6.dp))
-            .height(56.dp),
-        onClick = onClick
-    ) {
-        Row (
-            modifier = Modifier
-                .fillMaxSize()
-                .background(ColorWhite),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ){
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = text,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Text(
-                text = text,
-                style = body(),
-                modifier = Modifier.padding(start = 4.dp)
-            )
-        }
     }
 }
