@@ -1,7 +1,5 @@
 package com.alpara.beus.Screens.Main
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,6 +9,11 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -18,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,11 +31,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.alpara.beus.Models.ProfilePrivate
 import com.alpara.beus.Models.ProfileTeam
 import com.alpara.beus.Models.View.ProfileState
 import com.alpara.beus.Models.View.ProfileViewModel
 import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.textSecondary
+
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_arrowleft
 import com.alpara.beus.resources.ico_profile
@@ -63,26 +70,43 @@ fun ConfigurationScreen(
 ) {
     val profileState by viewModel.profileState.collectAsState()
 
+    val bgRed = MaterialTheme.colorScheme.background.red
+    val isDark = bgRed < 0.5f
+    val accentColor  = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val glassBase    = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass  = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+
     when (profileState) {
         is ProfileState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = accentColor)
             }
         }
         is ProfileState.Error -> {
             val message = (profileState as ProfileState.Error).message
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = message, color = MaterialTheme.colorScheme.error)
-                    Spacer(Modifier.height(12.dp))
-                    TextButton(onClick = { viewModel.loadProfile() }) {
-                        Text("Reintentar")
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .border(1.dp, borderGlass, RoundedCornerShape(20.dp))
+                        .background(glassBase.copy(alpha = 0.7f))
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("⚠ $message", color = Color(0xFFFF6B6B), style = AppTypo.body(), fontSize = 14.sp)
+                        Spacer(Modifier.height(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(accentColor.copy(alpha = 0.15f))
+                                .border(1.dp, accentColor.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                                .clickable { viewModel.loadProfile() }
+                                .padding(horizontal = 20.dp, vertical = 10.dp)
+                        ) {
+                            Text("Reintentar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold), fontSize = 14.sp)
+                        }
                     }
                 }
             }
@@ -116,26 +140,43 @@ fun ConfigurationScreenContent(
 ) {
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
 
-    val bg = MaterialTheme.colorScheme.background
-    val surface = MaterialTheme.colorScheme.surface
-    val onSurface = MaterialTheme.colorScheme.onSurface
-    val outline = MaterialTheme.colorScheme.outline
+    val bgRed       = MaterialTheme.colorScheme.background.red
+    val isDark      = bgRed < 0.5f
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2= if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+    val glassBase   = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+    val bgColor     = MaterialTheme.colorScheme.background
+    val onSurface   = MaterialTheme.colorScheme.onSurface
 
     if (showDeleteAccountDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteAccountDialog = false },
-            title = { Text("Confirmación", color = onSurface) },
-            text = { Text("Estas apunto de eliminar tu cuenta estas seguro de esto?", color = onSurface) },
+            containerColor = glassBase,
+            shape = RoundedCornerShape(20.dp),
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteAccountDialog = false
-                        onDeleteAccount()
-                    }
-                ) { Text("Sí") }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFFFF6B6B).copy(alpha = 0.15f))
+                        .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                        .clickable { showDeleteAccountDialog = false; onDeleteAccount() }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text("Eliminar", color = Color(0xFFFF6B6B), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteAccountDialog = false }) { Text("Cancelar") }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(accentColor.copy(alpha = 0.12f))
+                        .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                        .clickable { showDeleteAccountDialog = false }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text("Cancelar", color = accentColor, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                }
             }
         )
     }
@@ -143,286 +184,311 @@ fun ConfigurationScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(bgColor)
             .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(12.dp)
     ) {
-
-        // Header
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .height(200.dp)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            accentColor.copy(alpha = if (isDark) 0.55f else 0.35f),
+                            accentColor2.copy(alpha = if (isDark) 0.45f else 0.25f),
+                            glassBase.copy(alpha = if (isDark) 0.3f else 0.6f)
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                    )
+                )
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.ico_arrowleft),
-                contentDescription = null,
+            Box(
                 modifier = Modifier
-                    .size(32.dp)
-                    .clickable(onClick = onHomeBack),
-                tint = onSurface
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .align(Alignment.BottomCenter)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(Color.Transparent, borderGlass, Color.Transparent)
+                        )
+                    )
             )
 
-            Spacer(Modifier.width(8.dp))
-
-            Text(
-                text = "Perfil",
-                style = AppTypo.heading(),
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = onSurface
-            )
-        }
-
-        Spacer(Modifier.height(25.dp))
-
-        // Foto perfil
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Image(
-                painter = painterResource(Res.drawable.ico_profile),
-                contentDescription = "User Icon",
+            // Botón back glass
+            Box(
                 modifier = Modifier
-                    .size(120.dp)
+                    .padding(top = 16.dp, start = 16.dp)
+                    .size(38.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
+                    .background(glassBase.copy(alpha = 0.5f))
+                    .border(1.dp, borderGlass, CircleShape)
+                    .clickable { onHomeBack() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ico_arrowleft),
+                    contentDescription = "Volver",
+                    tint = if (isDark) Color.White.copy(alpha = 0.85f) else accentColor,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+
+            // Avatar con gradiente centrado en el header
+            Box(
+                modifier = Modifier
+                    .size(90.dp)
+                    .align(Alignment.BottomCenter)
+                    .offset(y = 45.dp)
+                    .clip(CircleShape)
+                    .background(brush = Brush.linearGradient(colors = listOf(accentColor, accentColor2)))
+                    .border(3.dp, bgColor, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                val initials = profile.username.take(2).uppercase()
+                Text(
+                    text = initials,
+                    style = AppTypo.heading(),
+                    fontSize = 28.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
-        Spacer(Modifier.height(20.dp))
+        // Espaciado para el avatar que sobresale
+        Spacer(Modifier.height(52.dp))
 
+        //mail y nombre
         Text(
             text = profile.username,
-            style = AppTypo.heading(),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            color = onSurface
+            style = AppTypo.heading().copy(
+                brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
+            ),
+            fontSize = 26.sp,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(4.dp))
 
         Text(
             text = profile.email,
             style = AppTypo.body(),
-            fontSize = 10.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 13.sp,
+            color = textSecondary,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        Spacer(Modifier.height(25.dp))
+        Spacer(Modifier.height(28.dp))
 
-        // Editar datos
-        ProfileSingleBox(
-            borderColor = outline,
-            backgroundColor = surface
+        //secciones
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            ProfileRowLikeReference(
-                text = "Editar datos",
-                leftIconRes = Res.drawable.ico_pencil,
-                onClick = onEditClick,
-                trailingText = null,
-                showChevron = true
-            )
-        }
+            // Cuenta
+            GlassSectionLabel("Cuenta", accentColor)
+            GlassSection(glassBase, borderGlass) {
+                GlassRow(
+                    icon = Icons.Filled.Edit,
+                    text = "Editar datos",
+                    accentColor = accentColor,
+                    onSurface = onSurface,
+                    showChevron = true,
+                    onClick = onEditClick
+                )
+            }
 
-        Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(4.dp))
 
-        // Modo oscuro
-        ProfileSingleBox(
-            borderColor = outline,
-            backgroundColor = surface
-        ) {
+            // Preferencias
+            GlassSectionLabel("Preferencias", accentColor)
+            GlassSection(glassBase, borderGlass) {
+                GlassSwitchRow(
+                    icon = Icons.Filled.DarkMode,
+                    text = "Modo oscuro",
+                    accentColor = accentColor,
+                    onSurface = onSurface,
+                    checked = darkModeEnabled,
+                    onCheckedChange = onDarkModeChange,
+                    isDark = isDark
+                )
+            }
 
-            ProfileRowSwitchLikeReference(
-                text = "Modo oscuro",
-                leftIconRes = Res.drawable.ico_moon,
-                checked = darkModeEnabled,
-                onCheckedChange = onDarkModeChange
-            )
-        }
+            Spacer(Modifier.height(4.dp))
 
-        Spacer(Modifier.height(14.dp))
-
-        // Cerrar sesión / Borrar cuenta
-        ProfileSectionLikeReference(
-            borderColor = outline,
-            backgroundColor = surface
-        ) {
-            ProfileRowLikeReference(
-                text = "Cerrar sesion",
-                leftIconRes = Res.drawable.ico_notes,
-                onClick = onLogout,
-                showChevron = false
-            )
-            SectionDividerLikeReference()
-
-            ProfileRowLikeReference(
-                text = "Borrar cuenta",
-                leftIconRes = Res.drawable.ico_bin,
-                onClick = { showDeleteAccountDialog = true },
-                showChevron = false
-            )
+            // Peligro
+            GlassSectionLabel("Sesión", accentColor)
+            GlassSection(glassBase, borderGlass) {
+                GlassRow(
+                    icon = Icons.Filled.Logout,
+                    text = "Cerrar sesión",
+                    accentColor = accentColor,
+                    onSurface = onSurface,
+                    showChevron = false,
+                    onClick = onLogout
+                )
+                GlassDivider(borderGlass)
+                GlassRow(
+                    icon = Icons.Filled.Delete,
+                    text = "Borrar cuenta",
+                    accentColor = Color(0xFFFF6B6B),
+                    onSurface = Color(0xFFFF6B6B),
+                    showChevron = false,
+                    onClick = { showDeleteAccountDialog = true }
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ProfileSingleBox(
-    borderColor: Color,
-    backgroundColor: Color,
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 6.dp)
-            .border(BorderStroke(1.6.dp, borderColor), RoundedCornerShape(12.dp))
-            .clip(RoundedCornerShape(12.dp))
-            .background(backgroundColor)
-    ) { content() }
+private fun GlassSectionLabel(text: String, accentColor: Color) {
+    Text(
+        text = text.uppercase(),
+        color = accentColor.copy(alpha = 0.7f),
+        style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold, letterSpacing = 1.2.sp),
+        fontSize = 11.sp,
+        modifier = Modifier.padding(start = 6.dp, bottom = 2.dp)
+    )
 }
 
 @Composable
-fun ProfileSectionLikeReference(
-    borderColor: Color,
-    backgroundColor: Color,
+private fun GlassSection(
+    glassBase: Color,
+    borderGlass: Color,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 6.dp)
-            .border(BorderStroke(1.6.dp, borderColor), RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
-            .background(backgroundColor)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) { content() }
-    }
+            .clip(RoundedCornerShape(16.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(colors = listOf(borderGlass, Color.Transparent, borderGlass)),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(glassBase.copy(alpha = 0.75f), glassBase.copy(alpha = 0.55f))
+                )
+            ),
+        content = content
+    )
 }
 
 @Composable
-fun ProfileRowLikeReference(
+private fun GlassRow(
+    icon: ImageVector,
     text: String,
-    leftIconRes: DrawableResource,
-    onClick: () -> Unit,
-    trailingText: String? = null,
-    showChevron: Boolean = true
+    accentColor: Color,
+    onSurface: Color,
+    showChevron: Boolean,
+    onClick: () -> Unit
 ) {
-    val leftSlotWidth = 46.dp
-    val rowMinHeight = 54.dp
+
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = rowMinHeight)
+            .heightIn(min = 54.dp)
             .clickable(onClick = onClick)
-            .padding(start = 16.dp, end = 14.dp),
+            .padding(start = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier.width(leftSlotWidth),
-            contentAlignment = Alignment.CenterStart
+            modifier = Modifier
+                .size(34.dp)
+                .clip(RoundedCornerShape(9.dp))
+                .background(accentColor.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(leftIconRes),
+                imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = accentColor,
+                modifier = Modifier.size(18.dp)
             )
         }
+
+        Spacer(Modifier.width(12.dp))
 
         Text(
             text = text,
-            fontSize = 18.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onSurface
+            color = onSurface
         )
 
-        if (trailingText != null) {
-            Text(
-                text = trailingText,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(end = if (showChevron) 10.dp else 0.dp)
-            )
-        }
 
         if (showChevron) {
-            Icon(
-                painter = painterResource(Res.drawable.ico_rightarrow),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurface
+            Text(
+                text = "›",
+                fontSize = 22.sp,
+                color = onSurface.copy(alpha = 0.4f),
+                fontWeight = FontWeight.Light
             )
         }
     }
 }
 
 @Composable
-fun ProfileRowSwitchLikeReference(
+private fun GlassSwitchRow(
+    icon: ImageVector,
     text: String,
-    leftIconRes: DrawableResource,
+    accentColor: Color,
+    onSurface: Color,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    isDark: Boolean
 ) {
-    val leftSlotWidth = 46.dp
-    val rowMinHeight = 54.dp
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = rowMinHeight)
-            .padding(start = 16.dp, end = 14.dp),
+            .heightIn(min = 54.dp)
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier.width(leftSlotWidth),
-            contentAlignment = Alignment.CenterStart
+            modifier = Modifier
+                .size(34.dp)
+                .clip(RoundedCornerShape(9.dp))
+                .background(accentColor.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                painter = painterResource(leftIconRes),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onSurface
-            )
+            Icon(imageVector = icon, contentDescription = null, tint = accentColor, modifier = Modifier.size(18.dp))
         }
 
-        Text(
-            text = text,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Spacer(Modifier.width(12.dp))
 
-        // Switch blanco/negro como lo tenías
+        Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f), color = onSurface)
+
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier.scale(1.05f),
+            modifier = Modifier.scale(0.9f),
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White,
-                checkedTrackColor = Color.Black,
-                checkedBorderColor = Color.Black,
-                uncheckedThumbColor = Color.Black,
-                uncheckedTrackColor = Color.White,
-                uncheckedBorderColor = Color.Black
+                checkedTrackColor = accentColor,
+                checkedBorderColor = accentColor,
+                uncheckedThumbColor = if (isDark) Color(0xFFAAAAAA) else Color(0xFF888888),
+                uncheckedTrackColor = if (isDark) Color(0xFF2C2F3A) else Color(0xFFE5E7EB),
+                uncheckedBorderColor = if (isDark) Color(0xFF44475A) else Color(0xFFD1D5DB)
             )
         )
     }
 }
 
 @Composable
-fun SectionDividerLikeReference() {
+private fun GlassDivider(borderGlass: Color) {
     HorizontalDivider(
         thickness = 1.dp,
-        color = MaterialTheme.colorScheme.outlineVariant,
-        modifier = Modifier.padding(start = 62.dp)
+        color = borderGlass,
+        modifier = Modifier.padding(start = 62.dp, end = 16.dp)
     )
 }
 
@@ -438,9 +504,5 @@ fun ConfigurationScreenPreview() {
             ProfileTeam(name = "Backend", join_code = "BE002")
         )
     )
-    ConfigurationScreenContent(
-        profile = fakeProfile,
-        darkModeEnabled = false
-    )
+    ConfigurationScreenContent(profile = fakeProfile, darkModeEnabled = false)
 }
-
