@@ -2,8 +2,10 @@ package com.alpara.beus.Screens.Auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,9 +14,11 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,13 +40,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.alpara.beus.Models.View.AuthViewModel
 import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
@@ -72,75 +81,90 @@ fun LoginScreen(
         }
     }
 
-    Column(
+    val bgRed       = MaterialTheme.colorScheme.background.red
+    val isDark      = bgRed < 0.5f
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2= if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+    val borderGlass = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(
-                top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
-                start = 28.dp,
-                end = 28.dp
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
 
-        Image(
-            painter = painterResource(Res.drawable.ico_home),
-            contentDescription = null,
-            modifier = Modifier.size(96.dp)
+        Box(
+            modifier = Modifier
+                .size(320.dp)
+                .offset(x = (-80).dp, y = (-60).dp)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            accentColor.copy(alpha = if (isDark) 0.25f else 0.15f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = CircleShape
+                )
         )
 
-        Spacer(Modifier.height(12.dp))
 
-        Text(
-            text = "BeUs",
-            style = AppTypo.heading(),
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
+                    start = 28.dp,
+                    end = 28.dp
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
 
-        Spacer(Modifier.height(28.dp))
-
-        // MOSTRAR ERROR SI EXISTE
-        authError?.let { error ->
-            Surface(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                color = Color.Red.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(8.dp)
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(accentColor, accentColor2),
+                            start = Offset(0f, 0f),
+                            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                        )
+                    )
+                    .border(1.dp, borderGlass, RoundedCornerShape(22.dp)),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = error,
-                    style = AppTypo.body().copy(
-                        color = Color.Red,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.padding(12.dp)
+                    text = "B",
+                    style = AppTypo.heading(),
+                    fontSize = 38.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
 
-        // EMAIL
-        OutlinedTextField(
-            value = emailText,
-            onValueChange = { emailText = it },
-            placeholder = { Text(text = "Email", style = AppTypo.body()) },
-            textStyle = AppTypo.body(),
-            singleLine = true,
-            enabled = !isLoading,
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        Spacer(Modifier.height(16.dp))
+
+        // Título con gradiente
+        Text(
+            text = "BeUs",
+            style = AppTypo.heading().copy(
+                brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
+            ),
+            fontSize = 38.sp
         )
+
+        Spacer(Modifier.height(6.dp))
+
+        Text(
+            text = "Bienvenido de nuevo",
+            style = AppTypo.body(),
+            fontSize = 14.sp,
+            color = textSecondary
+            )
+
 
         Spacer(Modifier.height(14.dp))
 
