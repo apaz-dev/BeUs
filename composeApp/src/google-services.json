@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "11293923250",
+    "project_id": "beus-45147",
+    "storage_bucket": "beus-45147.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:11293923250:android:6f61ab8fcaea9eb02976ab",
+        "android_client_info": {
+          "package_name": "com.alpara.beus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaJtrfNBQcd3lC_M7Izrh7G6UDk5gLo5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

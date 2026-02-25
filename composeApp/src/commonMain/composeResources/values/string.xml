@@ -1,0 +1,16 @@
+<resources>
+    <string name="login_title">Iniciar sesión</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="repeat_password">Repetir contraseña</string>
+    <string name="privacy_policy">Acepto la política de privacidad</string>
+    <string name="signup">Crear cuenta</string>
+    <string name="no_account">¿No tienes una cuenta?</string>
+    <string name="name">Nombre de usuario</string>
+    <string name="passwordnomatch">Las contraseñas no coinciden</string>
+    <string name="profile">Perfil</string>
+    <string name="calendar">Calendario</string>
+    <string name="rank">Clasificación</string>
+
+
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<!-- Permiso de acceso a la galería de fotos -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>BeUs necesita acceso a tu galería para subir fotos a los eventos del equipo.</string>
+	<!-- Claves de Supabase Storage (reemplaza con tus valores reales) -->
+	<key>SUPABASE_URL</key>
+	<string>https://bfbldhlzncpngclymfaj.supabase.co</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYmxkaGx6bmNwbmdjbHltZmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5Mjg1ODYsImV4cCI6MjA4NzUwNDU4Nn0.OyRFdTde18r0I_7zPjJHryzkkSTVG3zZzSUhOTNLlaY</string>
+</dict>
+</plist>
