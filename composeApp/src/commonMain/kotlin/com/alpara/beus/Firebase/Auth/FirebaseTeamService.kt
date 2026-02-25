@@ -109,6 +109,11 @@ class FirebaseTeamService {
     /** Obtiene los detalles del equipo y sus miembros enriquecidos con username */
     suspend fun getTeamDetail(currentUserId: String, teamId: String): Result<TeamDetail> {
         return try {
+            // Validar que el teamId no esté vacío (puede ocurrir con datos migrados)
+            if (teamId.isBlank()) {
+                return Result.failure(Exception("El ID del equipo está vacío. Sal y vuelve a entrar al equipo."))
+            }
+
             val teamRef = firestore.collection("teams").document(teamId)
             val teamSnap = teamRef.get()
             if (!teamSnap.exists) return Result.failure(Exception("Equipo no encontrado"))

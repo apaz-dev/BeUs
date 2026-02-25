@@ -61,7 +61,7 @@ fun ProfileScreenSuccessPreview() {
         onOpenConfiguration = {},
         onRetry = {},
         onAddteam = {},
-        onClickTeam = {}
+        onClickTeam = { _, _ -> }
     )
 }
 
@@ -73,7 +73,7 @@ fun ProfileScreenLoadingPreview() {
         onOpenConfiguration = { },
         onRetry = {},
         onAddteam = {},
-        onClickTeam = {}
+        onClickTeam = { _, _ -> }
     )
 }
 
@@ -85,7 +85,7 @@ fun ProfileScreenErrorPreview() {
         onOpenConfiguration = {},
         onRetry = {},
         onAddteam = {},
-        onClickTeam = {}
+        onClickTeam = { _, _ -> }
     )
 }
 
@@ -104,14 +104,14 @@ fun ProfileScreenNoTeamsPreview() {
         onOpenConfiguration = {},
         onRetry = {},
         onAddteam = {},
-        onClickTeam = {}
+        onClickTeam = { _, _ -> }
     )
 }
 
 @Composable
 fun ProfileScreen(
     onOpenConfiguration: () -> Unit,
-    onOpenTeamDetail: (teamId: String) -> Unit = {},
+    onOpenTeamDetail: (teamId: String, joinCode: String) -> Unit = { _, _ -> },
     viewModel: ProfileViewModel = remember { ProfileViewModel() }
 ) {
     val profileState by viewModel.profileState.collectAsState()
@@ -137,7 +137,7 @@ fun ProfileScreen(
             onOpenConfiguration = onOpenConfiguration,
             onRetry = { viewModel.loadProfile() },
             onAddteam = { showTeamModal = true },
-            onClickTeam = { teamId -> onOpenTeamDetail(teamId) }
+            onClickTeam = { teamId, joinCode -> onOpenTeamDetail(teamId, joinCode) }
         )
     }
 
@@ -169,7 +169,7 @@ fun ProfileScreenContent(
     onOpenConfiguration: () -> Unit,
     onRetry: () -> Unit,
     onAddteam: () -> Unit,
-    onClickTeam: (teamId: String) -> Unit
+    onClickTeam: (teamId: String, joinCode: String) -> Unit
 ) {
     val headerHeight = 150.dp
     val avatarSize = 92.dp
@@ -469,7 +469,7 @@ fun ProfileScreenContent(
 @Composable
 fun AddTeamCard(add: Boolean,
                 profile: ProfilePrivate? = null,
-                onClickTeam: (teamId: String) -> Unit,
+                onClickTeam: (teamId: String, joinCode: String) -> Unit,
                 onAddTeam: () -> Unit
 ) {
     if (!add && profile != null) {
@@ -483,7 +483,11 @@ fun AddTeamCard(add: Boolean,
                 items = profile.teams,
                 key = { team -> team.join_code }
             ) { team ->
-                TeamCard(team = team, cardColor = cardColor, onClick = { onClickTeam(team.team_id) })
+                TeamCard(
+                    team = team,
+                    cardColor = cardColor,
+                    onClick = { onClickTeam(team.team_id, team.join_code) }
+                )
             }
         }
     } else {

@@ -27,7 +27,12 @@ class TeamDetailViewModel : ViewModel() {
     private val _actionResult = MutableStateFlow<String?>(null)
     val actionResult: StateFlow<String?> = _actionResult.asStateFlow()
 
-    fun loadTeamDetail(teamId: String) {
+    /**
+     * Carga el detalle del equipo.
+     * Si [teamId] está vacío (datos antiguos sin team_id), resuelve el ID real
+     * usando [joinCode] como fallback a través de la colección teamCodes.
+     */
+    fun loadTeamDetail(teamId: String, joinCode: String = "") {
         viewModelScope.launch {
             _state.value = TeamDetailState.Loading
             val userId = authService.getCurrentUserId()
@@ -35,7 +40,21 @@ class TeamDetailViewModel : ViewModel() {
                 _state.value = TeamDetailState.Error("Usuario no autenticado")
                 return@launch
             }
-            teamService.getTeamDetail(userId, teamId).fold(
+
+            // Si teamId está vacío, intentar resolverlo desde el joinCode
+            val resolvedId = if (teamId.isNotBlank()) {
+                teamId
+            } else if (joinCode.isNotBlank()) {
+                teamService.resolveTeamId(joinCode).getOrElse {
+                    _state.value = TeamDetailState.Error("No se pudo encontrar el equipo: ${it.message}")
+                    return@launch
+                }
+            } else {
+                _state.value = TeamDetailState.Error("ID de equipo no disponible")
+                return@launch
+            }
+
+            teamService.getTeamDetail(userId, resolvedId).fold(
                 onSuccess = { _state.value = TeamDetailState.Success(it) },
                 onFailure = { _state.value = TeamDetailState.Error(it.message ?: "Error desconocido") }
             )

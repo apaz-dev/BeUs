@@ -38,6 +38,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun TeamDetailScreen(
     teamId: String,
+    joinCode: String = "",
     onBack: () -> Unit,
     viewModel: TeamDetailViewModel = remember { TeamDetailViewModel() }
 ) {
@@ -45,8 +46,8 @@ fun TeamDetailScreen(
     val actionResult by viewModel.actionResult.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Cargar detalles al entrar
-    LaunchedEffect(teamId) { viewModel.loadTeamDetail(teamId) }
+    // Cargar detalles al entrar — pasa joinCode como fallback si teamId está vacío
+    LaunchedEffect(teamId, joinCode) { viewModel.loadTeamDetail(teamId, joinCode) }
 
     // Mostrar resultados de acciones
     LaunchedEffect(actionResult) {

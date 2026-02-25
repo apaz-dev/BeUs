@@ -55,9 +55,10 @@ fun NavigationGraph(
                 onOpenConfiguration = {
                     navController.navigate(Screen.Configuration.route)
                 },
-                onOpenTeamDetail = { teamId ->
+                onOpenTeamDetail = { teamId, joinCode ->
                     TeamDetailNavArgs.teamId = teamId
-                    navController.navigate(Screen.TeamDetail.createRoute(teamId))
+                    TeamDetailNavArgs.joinCode = joinCode
+                    navController.navigate(Screen.TeamDetail.createRoute(teamId.ifBlank { joinCode }))
                 }
             )
         }
@@ -94,6 +95,7 @@ fun NavigationGraph(
         ) {
             TeamDetailScreen(
                 teamId = TeamDetailNavArgs.teamId,
+                joinCode = TeamDetailNavArgs.joinCode,
                 onBack = { navController.popBackStack() }
             )
         }
