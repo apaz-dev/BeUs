@@ -19,8 +19,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -49,12 +51,15 @@ import androidx.compose.ui.unit.dp
 import com.alpara.beus.Models.View.AuthViewModel
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.sp
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_home
 import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.email
 import com.alpara.beus.resources.ico_arrowleft
 import com.alpara.beus.resources.name
@@ -162,136 +167,163 @@ fun SignUpScreen(
                     end = 28.dp,
                     bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 16.dp
                 )
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Surface(
+            Spacer(Modifier.height(64.dp))
+
+            Box(
                 modifier = Modifier
-                    .fillMaxSize(),
-                color = Color.Transparent
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(accentColor, accentColor2),
+                            start = Offset(0f, 0f),
+                            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                        )
+                    )
+                    .border(1.dp, borderGlass, RoundedCornerShape(20.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "B",
+                    style = AppTypo.heading(),
+                    fontSize = 32.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            Text(
+                text = "BeUs",
+                style = AppTypo.heading().copy(
+                    brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
+                ),
+                fontSize = 34.sp
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = "Crea tu cuenta",
+                style = AppTypo.body(),
+                fontSize = 14.sp,
+                color = textSecondary
+            )
+
+            Spacer(Modifier.height(28.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(borderGlass, Color.Transparent, borderGlass)
+                        ),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(glassBase.copy(alpha = 0.78f), glassBase.copy(alpha = 0.55f))
+                        )
+                    )
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
-                    IconButton(
-                        onClick = onLoginBack,
-                        modifier = Modifier.align(Alignment.TopStart).padding(top = 20.dp)
-                            .padding(horizontal = 20.dp)
-                    ) {
-
-                        Icon(
-                            painter = painterResource(Res.drawable.ico_arrowleft),
-                            contentDescription = "Ícono personalizado",
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-
-
-
-                    Column(
+                authError?.let { error ->
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 28.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFFF6B6B).copy(alpha = 0.12f))
+                            .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-
-
-                        Image(
-                            painter = painterResource(Res.drawable.ico_home),
-                            contentDescription = null,
-                            modifier = Modifier.size(96.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
-                            text = "BeUs",
-                            style = AppTypo.heading(),
+                            text = error,
+                            style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
+                            color = Color(0xFFFF6B6B),
+                            fontSize = 13.sp
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
 
-                        OutlinedTextField(
+
+                        GlassTextField(
                             value = nombre,
                             onValueChange = { nombre = it },
-                            placeholder = { Text(text = stringResource(Res.string.name), style = AppTypo.body()) },
-                            textStyle = AppTypo.body(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            placeholder = "Nombre",
+                            enabled = !isLoading,
+                            accentColor = accentColor,
+                            borderGlass = borderGlass,
+                            glassBase = glassBase,
+                            onSurface = MaterialTheme.colorScheme.onSurface
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
 
-                        OutlinedTextField(
+
+                        GlassTextField(
                             value = email,
                             onValueChange = { email = it },
-                            placeholder = { Text(text = stringResource(Res.string.email), style = AppTypo.body()) },
-                            textStyle = AppTypo.body(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            placeholder = "Email",
+                            enabled = !isLoading,
+                            accentColor = accentColor,
+                            borderGlass = borderGlass,
+                            glassBase = glassBase,
+                            onSurface = MaterialTheme.colorScheme.onSurface
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
+                        GlassTextField(
                             value = password,
                             onValueChange = {
                                 password = it
-                                passwordsMatch = password == repeatPassword
+                                passwordsMatch = it == repeatPassword || repeatPassword.isEmpty()
                             },
-                            placeholder = { Text(text = stringResource(Res.string.password), style = AppTypo.body()) },
-                            singleLine = true,
-                            visualTransformation = if (passwordVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    passwordVisible = !passwordVisible
-                                }) {
-                                    Icon(
-                                        painter = painterResource(
-                                            if (passwordVisible)
-                                                Res.drawable.ico_eyeoff
-                                            else
-                                                Res.drawable.ico_eye
-                                        ),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onBackground
-                                    )
-                                }
-                            },
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            placeholder = "Contraseña",
+                            enabled = !isLoading,
+                            isPassword = true,
+                            passwordVisible = passwordVisible,
+                            onTogglePassword = { passwordVisible = !passwordVisible },
+                            accentColor = accentColor,
+                            borderGlass = borderGlass,
+                            glassBase = glassBase,
+                            onSurface = MaterialTheme.colorScheme.onSurface
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        GlassTextField(
+                            value = repeatPassword,
+                            onValueChange = {
+                                repeatPassword = it
+                                passwordsMatch = password == it
+                            },
+                            placeholder = "Repetir contraseña",
+                            enabled = !isLoading,
+                            isPassword = true,
+                            passwordVisible = passwordVisible2,
+                            onTogglePassword = { passwordVisible2 = !passwordVisible2 },
+                            accentColor = if (!passwordsMatch && repeatPassword.isNotEmpty())
+                                Color(0xFFFF6B6B) else accentColor,
+                            borderGlass = if (!passwordsMatch && repeatPassword.isNotEmpty())
+                                Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
+                            glassBase = glassBase,
+                            onSurface = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        if (!passwordsMatch && repeatPassword.isNotEmpty()) {
+                            Text(
+                                text = stringResource(Res.string.passwordnomatch),
+                                style = AppTypo.body(),
+                                color = Color(0xFFFF6B6B),
+                                fontSize = 12.sp
+                            )
+                        }
 
                         OutlinedTextField(
                             value = repeatPassword,
@@ -430,5 +462,6 @@ fun SignUpScreen(
         }
     }
 }
+
 
 
