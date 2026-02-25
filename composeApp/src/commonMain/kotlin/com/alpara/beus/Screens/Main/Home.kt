@@ -35,7 +35,10 @@ import com.alpara.beus.Models.View.EventListViewModel
 import com.alpara.beus.Models.View.ProfileViewModel
 import com.alpara.beus.Models.View.ProfileState
 import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.AppTheme
 import com.alpara.beus.Themes.textSecondary
+import org.jetbrains.compose.ui.tooling.preview.Preview
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -335,7 +338,6 @@ fun HomeScreen(
                 }
             }
 
-            // ── Snackbar error ─────────────────────────────────────────────
             if (uiState.error != null) {
                 Box(
                     modifier = Modifier
@@ -353,7 +355,6 @@ fun HomeScreen(
                 }
             }
 
-            // ── Snackbar éxito ─────────────────────────────────────────────
             if (uiState.successMessage != null) {
                 Box(
                     modifier = Modifier
@@ -380,14 +381,41 @@ fun EventCard(
     borderGlass: Color = Color(0x55FFFFFF),
     isDark: Boolean = false
 ) {
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(borderGlass, Color.Transparent, borderGlass)
+                ),
+                shape = RoundedCornerShape(18.dp)
+            )
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        glassBase.copy(alpha = 0.78f),
+                        glassBase.copy(alpha = 0.55f)
+                    )
+                )
+            )
+            .clickable { onClick() }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        // Barra de acento izquierda
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(4.dp)
+                .clip(RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp))
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(accentColor, accentColor2.copy(alpha = 0.4f))
+                    )
+                )
+        )
+
+        Column(modifier = Modifier.padding(start = 16.dp, end = 14.dp, top = 14.dp, bottom = 14.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -396,27 +424,34 @@ fun EventCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = event.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(Modifier.height(2.dp))
                     Text(
                         text = event.type,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        style = AppTypo.body(),
+                        fontSize = 12.sp,
+                        color = textSecondary
                     )
                 }
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.padding(start = 8.dp)
+
+                // Chip de fotos glass
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(accentColor.copy(alpha = 0.12f))
+                        .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                        .padding(horizontal = 9.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "${event.previewPhotos.size} fotos",
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                        fontSize = 11.sp,
+                        color = accentColor
                     )
                 }
             }
@@ -434,42 +469,45 @@ fun EventCard(
                             modifier = Modifier
                                 .weight(1f)
                                 .aspectRatio(1f)
-                                .clip(RoundedCornerShape(10.dp)),
+                                .clip(RoundedCornerShape(12.dp)),
                             contentScale = ContentScale.Crop
                         )
                     }
-                    // Rellenar huecos si hay menos de 3 fotos para mantener tamaño uniforme
                     repeat(3 - event.previewPhotos.size) {
                         Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .aspectRatio(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(accentColor.copy(alpha = 0.07f))
+                                .border(1.dp, borderGlass, RoundedCornerShape(12.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 Icons.Default.Add,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                tint = accentColor.copy(alpha = 0.4f),
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
                 }
             } else {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .height(72.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(accentColor.copy(alpha = 0.07f))
+                        .border(1.dp, borderGlass, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         "Sin fotos aún — toca para añadir",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        style = AppTypo.body(),
+                        fontSize = 12.sp,
+                        color = textSecondary
                     )
                 }
             }
@@ -477,3 +515,144 @@ fun EventCard(
     }
 }
 
+private val previewEvents = listOf(
+    EventData(
+        id = "1", teamId = "t1",
+        name = "Fiesta de cumpleaños",
+        type = "FIESTA",
+        previewPhotos = listOf(
+            "https://picsum.photos/seed/a/200",
+            "https://picsum.photos/seed/b/200"
+        )
+    ),
+    EventData(
+        id = "2", teamId = "t1",
+        name = "Cena de Navidad",
+        type = "CENA",
+        previewPhotos = emptyList()
+    ),
+    EventData(
+        id = "3", teamId = "t1",
+        name = "Viaje a la montaña",
+        type = "VIAJE",
+        previewPhotos = listOf(
+            "https://picsum.photos/seed/c/200",
+            "https://picsum.photos/seed/d/200",
+            "https://picsum.photos/seed/e/200"
+        )
+    )
+)
+
+@Preview(name = "Home — Con eventos (Light)")
+@Composable
+fun HomeEventCardLightPreview() {
+    AppTheme(darkMode = false) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                previewEvents.forEach { event ->
+                    EventCard(
+                        event = event,
+                        onClick = {},
+                        isDark = false
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(name = "Home — Con eventos (Dark)")
+@Composable
+fun HomeEventCardDarkPreview() {
+    AppTheme(darkMode = true) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                previewEvents.forEach { event ->
+                    EventCard(
+                        event = event,
+                        onClick = {},
+                        isDark = true,
+                        accentColor = Color(0xFF7C8BFF),
+                        accentColor2 = Color(0xFFB06EFF),
+                        glassBase = Color(0xFF1C1E26),
+                        borderGlass = Color(0x44FFFFFF)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(name = "Home — Sin eventos (Light)")
+@Composable
+fun HomeEmptyLightPreview() {
+    AppTheme(darkMode = false) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            val accentColor  = Color(0xFF4F5BFF)
+            val accentColor2 = Color(0xFF8B5CF6)
+            val glassBase    = Color(0xFFFFFFFF)
+            val borderGlass  = Color(0x55FFFFFF)
+            Box(
+                modifier = Modifier
+                    .padding(32.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .border(1.dp, borderGlass, RoundedCornerShape(24.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(glassBase.copy(alpha = 0.75f), glassBase.copy(alpha = 0.55f))
+                        )
+                    )
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(accentColor.copy(alpha = 0.12f))
+                            .border(1.dp, accentColor.copy(alpha = 0.3f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Event,
+                            contentDescription = null,
+                            modifier = Modifier.size(30.dp),
+                            tint = accentColor
+                        )
+                    }
+                    Text(
+                        "Sin eventos aún",
+                        style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        "Pulsa + en la barra para crear el primero",
+                        style = AppTypo.body(),
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
