@@ -1,14 +1,13 @@
 package com.alpara.beus.Screens.Main
 
-
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.*
@@ -52,12 +51,11 @@ fun ProfileScreenSuccessPreview() {
                 email = "ana@example.com",
                 avatar_url = "default",
                 teams = listOf(
-                    ProfileTeam(name = "Frontend", join_code = "FE001"),
-                    ProfileTeam(name = "Frontend2", join_code = "FE002"),
-                    ProfileTeam(name = "Frontend3", join_code = "FE003"),
-                    ProfileTeam(name = "Frontend4", join_code = "FE004"),
-                    ProfileTeam(name = "Backend", join_code = "BE002")
-
+                    ProfileTeam(name = "Frontend", join_code = "FE001", members_count = 5),
+                    ProfileTeam(name = "Frontend2", join_code = "FE002", members_count = 1),
+                    ProfileTeam(name = "Frontend3", join_code = "FE003", members_count = 12),
+                    ProfileTeam(name = "Frontend4", join_code = "FE004", members_count = 0),
+                    ProfileTeam(name = "Backend", join_code = "BE002", members_count = 3)
                 )
             )
         ),
@@ -68,7 +66,7 @@ fun ProfileScreenSuccessPreview() {
     )
 }
 
-@Preview(name = "Profile Loading")
+//@Preview(name = "Profile Loading")
 @Composable
 fun ProfileScreenLoadingPreview() {
     ProfileScreenContent(
@@ -80,7 +78,7 @@ fun ProfileScreenLoadingPreview() {
     )
 }
 
-@Preview(name = "Profile Error")
+//@Preview(name = "Profile Error")
 @Composable
 fun ProfileScreenErrorPreview() {
     ProfileScreenContent(
@@ -92,7 +90,7 @@ fun ProfileScreenErrorPreview() {
     )
 }
 
-@Preview(name = "Profile Sin Equipos")
+//@Preview(name = "Profile Sin Equipos")
 @Composable
 fun ProfileScreenNoTeamsPreview() {
     ProfileScreenContent(
@@ -173,15 +171,13 @@ fun ProfileScreenContent(
     onAddteam: () -> Unit,
     onClickTeam: () -> Unit
 ) {
-
-    // Medidas
     val headerHeight = 150.dp
     val avatarSize = 92.dp
     val avatarRadius = avatarSize / 2
     val avatarLeft = 16.dp
     val avatarCenterX = avatarLeft + avatarRadius
 
-    // Colores del nuevo tema
+    // Glassmorphism palette (igual que TeamCard)
     val bgRed = MaterialTheme.colorScheme.background.red
     val isDark = bgRed < 0.5f
     val accentColor   = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
@@ -190,28 +186,19 @@ fun ProfileScreenContent(
     val borderGlass   = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
     val bgColor       = MaterialTheme.colorScheme.background
 
-
-    val headerColor = MaterialTheme.colorScheme.surfaceVariant
-    val bodyColor   = MaterialTheme.colorScheme.background
-    val outlineColor = MaterialTheme.colorScheme.outline
-
-
-    val avatarBg = Color(0xFF3A3D44)
-
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(bgColor)
     ) {
         Box(
             modifier = Modifier
-                .padding(
-                    top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
-                )
+                .padding(top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding())
                 .fillMaxSize()
                 .background(bgColor)
         ) {
             when (val state = profileState) {
+                // ── Loading ──────────────────────────────────────────────
                 is ProfileState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -219,6 +206,7 @@ fun ProfileScreenContent(
                     )
                 }
 
+                // ── Error ────────────────────────────────────────────────
                 is ProfileState.Error -> {
                     Box(
                         modifier = Modifier
@@ -257,9 +245,11 @@ fun ProfileScreenContent(
                     }
                 }
 
+                // ── Success ──────────────────────────────────────────────
                 is ProfileState.Success -> {
                     val profile = state.profile
 
+                    // ── Header con gradiente glass ────────────────────────
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -276,6 +266,7 @@ fun ProfileScreenContent(
                                 )
                             )
                     ) {
+                        // Líneas decorativas sutiles
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -292,7 +283,9 @@ fun ProfileScreenContent(
                                 )
                         )
                     }
-                    Box (
+
+                    // ── Botón configuración ───────────────────────────────
+                    Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(top = 12.dp, end = 16.dp)
@@ -306,10 +299,13 @@ fun ProfileScreenContent(
                         Icon(
                             painter = painterResource(Res.drawable.ico_gear),
                             contentDescription = "Configuración",
-                            tint = if (isDark) Color.White.copy(alpha = 0.85f) else accentColor,
+                            tint = if (isDark) Color.White.copy(alpha = 0.85f)
+                            else accentColor,
                             modifier = Modifier.size(20.dp)
                         )
                     }
+
+                    // ── Body con mordisco para el avatar ─────────────────
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -337,6 +333,7 @@ fun ProfileScreenContent(
                                 ),
                             verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
+                            // ── Nombre ────────────────────────────────────
                             Text(
                                 text = profile.username,
                                 style = AppTypo.heading().copy(
@@ -346,6 +343,7 @@ fun ProfileScreenContent(
                                 ),
                                 fontSize = 30.sp
                             )
+                            // ── Email ─────────────────────────────────────
                             Text(
                                 text = profile.email,
                                 style = AppTypo.body(),
@@ -355,6 +353,8 @@ fun ProfileScreenContent(
 
                             Spacer(Modifier.height(20.dp))
 
+                            // ── Sección equipos ───────────────────────────
+                            // Cabecera de sección glass
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -410,9 +410,11 @@ fun ProfileScreenContent(
                                     }
                                 }
                             }
+
+                            // Divisor
                             Box(
                                 modifier = Modifier
-                                   .fillMaxWidth()
+                                    .fillMaxWidth()
                                     .height(1.dp)
                                     .background(borderGlass)
                             )
@@ -430,16 +432,12 @@ fun ProfileScreenContent(
                                     onAddTeam = onAddteam
                                 )
                                 Spacer(Modifier.height(6.dp))
-                                AddTeamCard(
-                                    add = true,
-                                    onAddTeam = onAddteam,
-                                    onClickTeam = onClickTeam
-                                )
+                                AddTeamCard(add = true, onAddTeam = onAddteam, onClickTeam = onClickTeam)
                             }
                         }
                     }
 
-                    // Avatar
+                    // ── Avatar ────────────────────────────────────────────
                     Box(
                         modifier = Modifier
                             .size(avatarSize)
@@ -473,7 +471,7 @@ fun AddTeamCard(add: Boolean,
                 profile: ProfilePrivate? = null,
                 onClickTeam: () -> Unit,
                 onAddTeam: () -> Unit
-                ) {
+) {
     if (!add && profile != null) {
         LazyColumn(
             modifier = Modifier
@@ -493,59 +491,176 @@ fun AddTeamCard(add: Boolean,
     }
 }
 @Composable
-private fun TeamCard(team: ProfileTeam,
-                     cardColor: Color,
-                     onClick: () -> Unit
-                    ) {
-    Card(
+private fun TeamCard(
+    team: ProfileTeam,
+    cardColor: Color,
+    onClick: () -> Unit
+) {
+    // Detectar modo oscuro: si el fondo es oscuro, el canal rojo es bajo
+    val bgRed = MaterialTheme.colorScheme.background.red
+    val isDark = bgRed < 0.5f
+    val glassBase = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(75.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
-        onClick = onClick
+            .height(80.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(borderGlass, Color.Transparent, borderGlass)
+                ),
+                shape = RoundedCornerShape(18.dp)
+            )
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        glassBase.copy(alpha = 0.75f),
+                        glassBase.copy(alpha = 0.55f)
+                    ),
+                    start = Offset(0f, 0f),
+                    end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                )
+            )
     ) {
-        Column(
+        // Acento decorativo en la parte izquierda
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+                .fillMaxHeight()
+                .width(4.dp)
+                .clip(RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp))
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(accentColor, accentColor.copy(alpha = 0.3f))
+                    )
+                )
+        )
+
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 14.dp)
         ) {
-            Text(
-                text = "• ${team.name}",
-                color = textPrimary,
-                style = AppTypo.body(),
-                fontSize = 16.sp
-            )
-            Text(
-                text = "Código: ${team.join_code}",
-                color = textSecondary,
-                style = AppTypo.body(),
-                fontSize = 14.sp
-            )
+            // Nombre e icono de grupo
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = team.name.uppercase(),
+                    color = textPrimary,
+                    style = AppTypo.body().copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
+                    ),
+                    fontSize = 15.sp,
+                    maxLines = 1
+                )
+                Spacer(Modifier.height(3.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Group,
+                        contentDescription = "Participantes",
+                        tint = textSecondary,
+                        modifier = Modifier.size(12.dp)
+                    )
+                    Text(
+                        text = if (team.members_count > 0)
+                            "${team.members_count} participante${if (team.members_count != 1) "s" else ""}"
+                        else
+                            "Sin participantes",
+                        color = textSecondary,
+                        style = AppTypo.body(),
+                        fontSize = 11.sp
+                    )
+                }
+            }
+
+            // Código de unión — chip glass
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(accentColor.copy(alpha = 0.15f))
+                    .border(1.dp, accentColor.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 10.dp, vertical = 5.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = team.join_code,
+                    style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                    fontSize = 13.sp,
+                    color = accentColor,
+                    letterSpacing = 1.sp
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun AddCard(cardColor: Color, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().height(75.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-                Icon(
-                painter = painterResource(Res.drawable.ico_plus),
-                contentDescription = "Add",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(75.dp)
+    val bgRed = MaterialTheme.colorScheme.background.red
+    val isDark = bgRed < 0.5f
+    val glassBase = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass = if (isDark) Color(0x33FFFFFF) else Color(0x44FFFFFF)
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(62.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(borderGlass, Color.Transparent, borderGlass)
+                ),
+                shape = RoundedCornerShape(18.dp)
             )
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        glassBase.copy(alpha = 0.55f),
+                        glassBase.copy(alpha = 0.35f)
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Transparent,
+            onClick = onClick
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ico_plus),
+                    contentDescription = "Añadir equipo",
+                    tint = accentColor.copy(alpha = 0.8f),
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "Unirse o crear equipo",
+                    style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
+                    fontSize = 13.sp,
+                    color = accentColor.copy(alpha = 0.9f),
+                    letterSpacing = 0.3.sp
+                )
+            }
         }
     }
 }
