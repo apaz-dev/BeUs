@@ -325,48 +325,6 @@ fun SignUpScreen(
                             )
                         }
 
-                        OutlinedTextField(
-                            value = repeatPassword,
-                            onValueChange = {
-                                repeatPassword = it
-                                passwordsMatch = password == repeatPassword
-                            },
-                            placeholder = { Text(text = stringResource(Res.string.repeat_password), style = AppTypo.body()) },
-                            singleLine = true,
-                            visualTransformation = if (passwordVisible2)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    passwordVisible2 = !passwordVisible2
-                                }) {
-                                    Icon(
-                                        painter = painterResource(
-                                            if (passwordVisible2)
-                                                Res.drawable.ico_eyeoff
-                                            else
-                                                Res.drawable.ico_eye
-                                        ),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onBackground
-                                    )
-                                }
-                            },
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
@@ -375,56 +333,56 @@ fun SignUpScreen(
                                 checked = chekbox1,
                                 onCheckedChange = { chekbox1 = it },
                                 colors = CheckboxDefaults.colors(
-                                    checkedColor = MaterialTheme.colorScheme.onBackground,
-                                    uncheckedColor = MaterialTheme.colorScheme.onBackground,
-                                    checkmarkColor = MaterialTheme.colorScheme.background
+                                    checkedColor = accentColor,
+                                    uncheckedColor = borderGlass,
+                                    checkmarkColor = Color.White
                                 )
                             )
-
-                            Spacer(modifier = Modifier.width(2.dp))
-
+                            Spacer(Modifier.width(4.dp))
                             Text(
                                 text = stringResource(Res.string.privacy_policy),
                                 style = AppTypo.body(),
-                                modifier = Modifier.clickable {
-                                    chekbox1 = !chekbox1
-                                }
+                                fontSize = 13.sp,
+                                color = textSecondary,
+                                modifier = Modifier.clickable { chekbox1 = !chekbox1 }
                             )
                         }
+                        val canSignup = !isLoading && email.isNotBlank() && password.isNotBlank()
+                                && nombre.isNotBlank() && repeatPassword.isNotBlank()
+                                && passwordsMatch && chekbox1
 
-
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            if (!isLoading && email.isNotBlank() && password.isNotBlank() && nombre.isNotBlank() && repeatPassword.isNotBlank() && passwordsMatch && chekbox1) {
-                                viewModel.register(nombre, email, password)
-                            }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(
+                                    brush = if (canSignup)
+                                        Brush.linearGradient(colors = listOf(accentColor, accentColor2))
+                            else
+                                        Brush.linearGradient(colors = listOf(
+                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                                        ))
+                            )
+                        ).clickable(enabled = canSignup) {
+                            viewModel.register(nombre, email, password)
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(58.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onBackground,
-                            contentColor = MaterialTheme.colorScheme.background,
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-                    ) {
+                        contentAlignment = Alignment.Center
+                        ) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = Color.Black,
+                                modifier = Modifier.size(22.dp),
+                                color = Color.White,
                                 strokeWidth = 2.dp
                             )
                         } else {
                             Text(
                                 text = stringResource(Res.string.signup),
-                                style = AppTypo.body()
-                                    .copy(color = MaterialTheme.colorScheme.background, fontWeight = FontWeight.Bold)
+                                style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                                color = Color.White,
+                                fontSize = 15.sp
                             )
-                        }
                     }
 
                         Spacer(modifier = Modifier.height(12.dp))
