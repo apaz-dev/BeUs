@@ -205,7 +205,6 @@ fun SignUpScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
                     .border(
                         width = 1.dp,
                         brush = Brush.linearGradient(
@@ -213,6 +212,7 @@ fun SignUpScreen(
                         ),
                         shape = RoundedCornerShape(20.dp)
                     )
+                    .clip(RoundedCornerShape(20.dp))
                     .background(
                         brush = Brush.linearGradient(
                             colors = listOf(glassBase.copy(alpha = 0.78f), glassBase.copy(alpha = 0.55f))
@@ -337,7 +337,6 @@ fun SignUpScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)
-                                .clip(RoundedCornerShape(14.dp))
                                 .background(
                                     brush = if (canSignup)
                                         Brush.linearGradient(colors = listOf(accentColor, accentColor2))
@@ -345,8 +344,10 @@ fun SignUpScreen(
                                         Brush.linearGradient(colors = listOf(
                                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                                        ))
+                                        )),
+                                    shape = RoundedCornerShape(14.dp)
                                 )
+                                .clip(RoundedCornerShape(14.dp))
                                 .clickable(enabled = canSignup) {
                                     viewModel.register(nombre, email, password)
                                 },
