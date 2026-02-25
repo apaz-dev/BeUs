@@ -2,6 +2,7 @@ package com.alpara.beus.Screens.Auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,10 +14,12 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,6 +48,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.alpara.beus.Models.View.AuthViewModel
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
@@ -64,7 +69,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
-
 fun SignUpScreen(
     onSignupSuccess: () -> Unit = {},
     viewModel: AuthViewModel,
@@ -83,20 +87,80 @@ fun SignUpScreen(
     val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(isAuthenticated) {
-        if (isAuthenticated) {
-            onSignupSuccess()
-        }
+        if (isAuthenticated) onSignupSuccess()
     }
 
-    Column(
+    val bgRed       = MaterialTheme.colorScheme.background.red
+    val isDark      = bgRed < 0.5f
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2= if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+    val glassBase   = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .offset(x = (-70).dp, y = (-50).dp)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            accentColor2.copy(alpha = if (isDark) 0.22f else 0.13f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = CircleShape
+                )
+        )
+        Box(
+            modifier = Modifier
+                .size(240.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 50.dp, y = 50.dp)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            accentColor.copy(alpha = if (isDark) 0.18f else 0.10f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = CircleShape
+                )
+        )
+
+
+        Box(
             modifier = Modifier
                 .padding(
+                    top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding() + 12.dp,
+                    start = 16.dp
+                )
+                .size(38.dp)
+                .clip(CircleShape)
+                .background(glassBase.copy(alpha = 0.5f))
+                .border(1.dp, borderGlass, CircleShape)
+                .clickable { onLoginBack() },
+            contentAlignment = Alignment.Center
+        ) {
+            androidx.compose.material3.Icon(
+                painter = painterResource(Res.drawable.ico_arrowleft),
+                contentDescription = "Volver",
+                tint = if (isDark) Color.White.copy(alpha = 0.85f) else accentColor,
+                modifier = androidx.compose.ui.Modifier.size(18.dp)
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
                     top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
+                    start = 28.dp,
+                    end = 28.dp,
+                    bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 16.dp
                 )
         ) {
             Surface(

@@ -129,7 +129,6 @@ fun LoginScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // Título con gradiente
             Text(
                 text = "BeUs",
                 style = AppTypo.heading().copy(
