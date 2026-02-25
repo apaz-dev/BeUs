@@ -424,21 +424,30 @@ fun PhotoGalleryScreen(
                 )
             },
             confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.deletePhoto(photo, teamId, eventId)
-                        photoToDelete = null
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFFFF6B6B).copy(alpha = 0.15f))
+                        .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                        .clickable {
+                            viewModel.deletePhoto(photo, teamId, eventId)
+                            photoToDelete = null
+                        }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text("Eliminar")
+                    Text("Eliminar", color = Color(0xFFFF6B6B), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { photoToDelete = null }) {
-                    Text("Cancelar")
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(accentColor.copy(alpha = 0.12f))
+                        .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                        .clickable { photoToDelete = null }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text("Cancelar", color = accentColor, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 }
             }
         )
@@ -450,13 +459,15 @@ private fun PhotoGridItem(
     photo: PhotoModel,
     isOwner: Boolean,
     onDeleteClick: () -> Unit,
-    accentColor: Color
+    accentColor: Color = Color(0xFF4F5BFF),
+    borderGlass: Color = Color(0x55FFFFFF)
 ) {
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(4.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, borderGlass, RoundedCornerShape(12.dp))
+            .background(accentColor.copy(alpha = 0.07f))
     ) {
         AsyncImage(
             model = photo.publicUrl,
@@ -467,19 +478,22 @@ private fun PhotoGridItem(
 
         // Botón de borrar visible solo para el autor
         if (isOwner) {
-            IconButton(
-                onClick = onDeleteClick,
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(2.dp)
-                    .size(28.dp)
-                    .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    .padding(5.dp)
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.45f))
+                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
+                    .clickable { onDeleteClick() },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.Delete,
                     contentDescription = "Borrar foto",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
+                    tint = Color(0xFFFF6B6B),
+                    modifier = Modifier.size(14.dp)
                 )
             }
         }
@@ -490,14 +504,19 @@ private fun PhotoGridItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomStart)
-                    .background(Color.Black.copy(alpha = 0.4f))
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f))
+                        )
+                    )
+                    .padding(horizontal = 6.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = photo.caption,
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.White,
-                    maxLines = 1
+                    maxLines = 1,
+                    fontSize = 10.sp
                 )
             }
         }
