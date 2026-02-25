@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import com.alpara.beus.Models.View.AuthViewModel
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.sp
@@ -62,8 +63,7 @@ import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.email
 import com.alpara.beus.resources.ico_arrowleft
-import com.alpara.beus.resources.name
-import com.alpara.beus.resources.password
+import com.alpara.beus.resources.ico_home
 import com.alpara.beus.resources.passwordnomatch
 import com.alpara.beus.resources.privacy_policy
 import com.alpara.beus.resources.repeat_password
@@ -140,6 +140,7 @@ fun SignUpScreen(
 
         Box(
             modifier = Modifier
+                .align(Alignment.TopStart)
                 .padding(
                     top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding() + 12.dp,
                     start = 16.dp
@@ -148,7 +149,8 @@ fun SignUpScreen(
                 .clip(CircleShape)
                 .background(glassBase.copy(alpha = 0.5f))
                 .border(1.dp, borderGlass, CircleShape)
-                .clickable { onLoginBack() },
+                .clickable { onLoginBack() }
+                .zIndex(1f),
             contentAlignment = Alignment.Center
         ) {
             androidx.compose.material3.Icon(
@@ -173,28 +175,11 @@ fun SignUpScreen(
         ) {
             Spacer(Modifier.height(64.dp))
 
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(accentColor, accentColor2),
-                            start = Offset(0f, 0f),
-                            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-                        )
-                    )
-                    .border(1.dp, borderGlass, RoundedCornerShape(20.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "B",
-                    style = AppTypo.heading(),
-                    fontSize = 32.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Image(
+                painter = painterResource(Res.drawable.ico_home),
+                contentDescription = null,
+                modifier = Modifier.size(80.dp)
+            )
 
             Spacer(Modifier.height(14.dp))
 
@@ -331,7 +316,7 @@ fun SignUpScreen(
                                 onCheckedChange = { chekbox1 = it },
                                 colors = CheckboxDefaults.colors(
                                     checkedColor = accentColor,
-                                    uncheckedColor = borderGlass,
+                                    uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                                     checkmarkColor = Color.White
                                 )
                             )
