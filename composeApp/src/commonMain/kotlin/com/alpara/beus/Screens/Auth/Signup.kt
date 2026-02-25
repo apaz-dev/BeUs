@@ -2,6 +2,7 @@ package com.alpara.beus.Screens.Auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,11 +14,15 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -45,15 +50,20 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.alpara.beus.Models.View.AuthViewModel
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.zIndex
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.sp
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_home
 import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.email
 import com.alpara.beus.resources.ico_arrowleft
-import com.alpara.beus.resources.name
-import com.alpara.beus.resources.password
+import com.alpara.beus.resources.ico_home
 import com.alpara.beus.resources.passwordnomatch
 import com.alpara.beus.resources.privacy_policy
 import com.alpara.beus.resources.repeat_password
@@ -64,7 +74,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
-
 fun SignUpScreen(
     onSignupSuccess: () -> Unit = {},
     viewModel: AuthViewModel,
@@ -83,193 +92,220 @@ fun SignUpScreen(
     val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(isAuthenticated) {
-        if (isAuthenticated) {
-            onSignupSuccess()
-        }
+        if (isAuthenticated) onSignupSuccess()
     }
 
-    Column(
+    val bgRed       = MaterialTheme.colorScheme.background.red
+    val isDark      = bgRed < 0.5f
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2= if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+    val glassBase   = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .offset(x = (-70).dp, y = (-50).dp)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            accentColor2.copy(alpha = if (isDark) 0.22f else 0.13f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = CircleShape
+                )
+        )
+        Box(
+            modifier = Modifier
+                .size(240.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 50.dp, y = 50.dp)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            accentColor.copy(alpha = if (isDark) 0.18f else 0.10f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = CircleShape
+                )
+        )
+
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(
+                    top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding() + 12.dp,
+                    start = 16.dp
+                )
+                .size(38.dp)
+                .clip(CircleShape)
+                .background(glassBase.copy(alpha = 0.5f))
+                .border(1.dp, borderGlass, CircleShape)
+                .clickable { onLoginBack() }
+                .zIndex(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            androidx.compose.material3.Icon(
+                painter = painterResource(Res.drawable.ico_arrowleft),
+                contentDescription = "Volver",
+                tint = if (isDark) Color.White.copy(alpha = 0.85f) else accentColor,
+                modifier = androidx.compose.ui.Modifier.size(18.dp)
+            )
+        }
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(
                     top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
+                    start = 28.dp,
+                    end = 28.dp,
+                    bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 16.dp
                 )
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Surface(
+            Spacer(Modifier.height(64.dp))
+
+            Image(
+                painter = painterResource(Res.drawable.ico_home),
+                contentDescription = null,
+                modifier = Modifier.size(80.dp)
+            )
+
+            Spacer(Modifier.height(14.dp))
+
+            Text(
+                text = "BeUs",
+                style = AppTypo.heading().copy(
+                    brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
+                ),
+                fontSize = 34.sp
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = "Crea tu cuenta",
+                style = AppTypo.body(),
+                fontSize = 14.sp,
+                color = textSecondary
+            )
+
+            Spacer(Modifier.height(28.dp))
+
+            Column(
                 modifier = Modifier
-                    .fillMaxSize(),
-                color = Color.Transparent
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(borderGlass, Color.Transparent, borderGlass)
+                        ),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(glassBase.copy(alpha = 0.78f), glassBase.copy(alpha = 0.55f))
+                        )
+                    )
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
-                    IconButton(
-                        onClick = onLoginBack,
-                        modifier = Modifier.align(Alignment.TopStart).padding(top = 20.dp)
-                            .padding(horizontal = 20.dp)
+                authError?.let { error ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFFF6B6B).copy(alpha = 0.12f))
+                            .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-
-                        Icon(
-                            painter = painterResource(Res.drawable.ico_arrowleft),
-                            contentDescription = "Ícono personalizado",
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.onBackground
+                        Text(
+                            text = error,
+                            style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
+                            color = Color(0xFFFF6B6B),
+                            fontSize = 13.sp
                         )
                     }
+                }
 
+                GlassTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    placeholder = "Nombre",
+                    enabled = !isLoading,
+                    accentColor = accentColor,
+                    borderGlass = borderGlass,
+                    glassBase = glassBase,
+                    onSurface = MaterialTheme.colorScheme.onSurface
+                )
 
+                GlassTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = "Email",
+                    enabled = !isLoading,
+                    accentColor = accentColor,
+                    borderGlass = borderGlass,
+                    glassBase = glassBase,
+                    onSurface = MaterialTheme.colorScheme.onSurface
+                )
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 28.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-
-
-                        Image(
-                            painter = painterResource(Res.drawable.ico_home),
-                            contentDescription = null,
-                            modifier = Modifier.size(96.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Text(
-                            text = "BeUs",
-                            style = AppTypo.heading(),
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
-                            value = nombre,
-                            onValueChange = { nombre = it },
-                            placeholder = { Text(text = stringResource(Res.string.name), style = AppTypo.body()) },
-                            textStyle = AppTypo.body(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            placeholder = { Text(text = stringResource(Res.string.email), style = AppTypo.body()) },
-                            textStyle = AppTypo.body(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
+                        GlassTextField(
                             value = password,
                             onValueChange = {
                                 password = it
-                                passwordsMatch = password == repeatPassword
+                                passwordsMatch = it == repeatPassword || repeatPassword.isEmpty()
                             },
-                            placeholder = { Text(text = stringResource(Res.string.password), style = AppTypo.body()) },
-                            singleLine = true,
-                            visualTransformation = if (passwordVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    passwordVisible = !passwordVisible
-                                }) {
-                                    Icon(
-                                        painter = painterResource(
-                                            if (passwordVisible)
-                                                Res.drawable.ico_eyeoff
-                                            else
-                                                Res.drawable.ico_eye
-                                        ),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onBackground
-                                    )
-                                }
-                            },
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            placeholder = "Contraseña",
+                            enabled = !isLoading,
+                            isPassword = true,
+                            passwordVisible = passwordVisible,
+                            onTogglePassword = { passwordVisible = !passwordVisible },
+                            accentColor = accentColor,
+                            borderGlass = borderGlass,
+                            glassBase = glassBase,
+                            onSurface = MaterialTheme.colorScheme.onSurface
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
+                        GlassTextField(
                             value = repeatPassword,
                             onValueChange = {
                                 repeatPassword = it
-                                passwordsMatch = password == repeatPassword
+                                passwordsMatch = password == it
                             },
-                            placeholder = { Text(text = stringResource(Res.string.repeat_password), style = AppTypo.body()) },
-                            singleLine = true,
-                            visualTransformation = if (passwordVisible2)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    passwordVisible2 = !passwordVisible2
-                                }) {
-                                    Icon(
-                                        painter = painterResource(
-                                            if (passwordVisible2)
-                                                Res.drawable.ico_eyeoff
-                                            else
-                                                Res.drawable.ico_eye
-                                        ),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onBackground
-                                    )
-                                }
-                            },
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            placeholder = "Repetir contraseña",
+                            enabled = !isLoading,
+                            isPassword = true,
+                            passwordVisible = passwordVisible2,
+                            onTogglePassword = { passwordVisible2 = !passwordVisible2 },
+                            accentColor = if (!passwordsMatch && repeatPassword.isNotEmpty())
+                                Color(0xFFFF6B6B) else accentColor,
+                            borderGlass = if (!passwordsMatch && repeatPassword.isNotEmpty())
+                                Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
+                            glassBase = glassBase,
+                            onSurface = MaterialTheme.colorScheme.onSurface
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        if (!passwordsMatch && repeatPassword.isNotEmpty()) {
+                            Text(
+                                text = stringResource(Res.string.passwordnomatch),
+                                style = AppTypo.body(),
+                                color = Color(0xFFFF6B6B),
+                                fontSize = 12.sp
+                            )
+                        }
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -279,92 +315,90 @@ fun SignUpScreen(
                                 checked = chekbox1,
                                 onCheckedChange = { chekbox1 = it },
                                 colors = CheckboxDefaults.colors(
-                                    checkedColor = MaterialTheme.colorScheme.onBackground,
-                                    uncheckedColor = MaterialTheme.colorScheme.onBackground,
-                                    checkmarkColor = MaterialTheme.colorScheme.background
+                                    checkedColor = accentColor,
+                                    uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                    checkmarkColor = Color.White
                                 )
                             )
-
-                            Spacer(modifier = Modifier.width(2.dp))
-
+                            Spacer(Modifier.width(4.dp))
                             Text(
                                 text = stringResource(Res.string.privacy_policy),
                                 style = AppTypo.body(),
-                                modifier = Modifier.clickable {
-                                    chekbox1 = !chekbox1
-                                }
+                                fontSize = 13.sp,
+                                color = textSecondary,
+                                modifier = Modifier.clickable { chekbox1 = !chekbox1 }
                             )
                         }
+                        val canSignup = !isLoading && email.isNotBlank() && password.isNotBlank()
+                                && nombre.isNotBlank() && repeatPassword.isNotBlank()
+                                && passwordsMatch && chekbox1
 
-
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            if (!isLoading && email.isNotBlank() && password.isNotBlank() && nombre.isNotBlank() && repeatPassword.isNotBlank() && passwordsMatch && chekbox1) {
-                                viewModel.register(nombre, email, password)
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(58.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onBackground,
-                            contentColor = MaterialTheme.colorScheme.background,
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = Color.Black,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(Res.string.signup),
-                                style = AppTypo.body()
-                                    .copy(color = MaterialTheme.colorScheme.background, fontWeight = FontWeight.Bold)
-                            )
-                        }
-                    }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        if (!passwordsMatch) {
-                            Text(
-                                text = stringResource(Res.string.passwordnomatch),
-                                style = AppTypo.body().copy(color = Color.Red)
-                            )
-                        }
-
-                        authError?.let { error ->
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                color = Color.Red.copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(
+                                    brush = if (canSignup)
+                                        Brush.linearGradient(colors = listOf(accentColor, accentColor2))
+                                    else
+                                        Brush.linearGradient(colors = listOf(
+                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                                        ))
+                                )
+                                .clickable(enabled = canSignup) {
+                                    viewModel.register(nombre, email, password)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(22.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
                                 Text(
-                                    text = error,
-                                    style = AppTypo.body().copy(
-                                        color = Color.Red,
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    modifier = Modifier.padding(12.dp)
+                                    text = stringResource(Res.string.signup),
+                                    style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                                    color = Color.White,
+                                    fontSize = 15.sp
                                 )
                             }
                         }
 
+                Spacer(Modifier.height(20.dp))
 
-                    }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .clickable(enabled = !isLoading) { onLoginBack() }
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "¿Ya tienes cuenta? ",
+                        style = AppTypo.body(),
+                        color = textSecondary,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = "Inicia sesión",
+                        style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                        color = if (isLoading) textSecondary else accentColor,
+                        fontSize = 14.sp
+                    )
                 }
+
+                Spacer(Modifier.height(16.dp))
+
             }
         }
     }
 }
+
+
+
 
 
