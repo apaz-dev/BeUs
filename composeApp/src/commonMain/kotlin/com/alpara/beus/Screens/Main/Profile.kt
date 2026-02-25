@@ -1,5 +1,8 @@
 package com.alpara.beus.Screens.Main
 
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -17,6 +20,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alpara.beus.Models.ProfilePrivate
@@ -166,11 +170,24 @@ fun ProfileScreenContent(
     onAddteam: () -> Unit,
     onClickTeam: () -> Unit
 ) {
-    val headerHeight = 140.dp
+
+    // Medidas
+    val headerHeight = 150.dp
     val avatarSize = 92.dp
     val avatarRadius = avatarSize / 2
+    val avatarLeft = 16.dp
+    val avatarCenterX = avatarLeft + avatarRadius
 
-    // Colores del tema
+    // Colores del nuevo tema
+    val bgRed = MaterialTheme.colorScheme.background.red
+    val isDark = bgRed < 0.5f
+    val accentColor   = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2  = if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+    val glassBase     = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass   = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+    val bgColor       = MaterialTheme.colorScheme.background
+
+
     val headerColor = MaterialTheme.colorScheme.surfaceVariant
     val bodyColor   = MaterialTheme.colorScheme.background
     val outlineColor = MaterialTheme.colorScheme.outline
@@ -178,14 +195,10 @@ fun ProfileScreenContent(
 
     val avatarBg = Color(0xFF3A3D44)
 
-    val avatarLeft = 16.dp
-    val avatarCenterX = avatarLeft + avatarRadius
-
-
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(headerColor)
+            .background(bgColor)
     ) {
         Box(
             modifier = Modifier
@@ -193,31 +206,50 @@ fun ProfileScreenContent(
                     top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
                 )
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(bgColor)
         ) {
             when (val state = profileState) {
                 is ProfileState.Loading -> {
                     CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center).background(MaterialTheme.colorScheme.background)
+                        modifier = Modifier.align(Alignment.Center),
+                        color = accentColor
                     )
                 }
 
                 is ProfileState.Error -> {
-                    Column(
+                    Box(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .padding(16.dp)
-                            .background(MaterialTheme.colorScheme.background),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .padding(24.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .border(1.dp, borderGlass, RoundedCornerShape(20.dp))
+                            .background(glassBase.copy(alpha = 0.7f))
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "Error: ${state.message}",
-                            color = Color.Red,
-                            style = AppTypo.body()
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = onRetry) {
-                            Text("Reintentar")
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "⚠ ${state.message}",
+                                color = Color(0xFFFF6B6B),
+                                style = AppTypo.body(),
+                                fontSize = 14.sp
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(accentColor.copy(alpha = 0.15f))
+                                    .border(1.dp, accentColor.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                                    .clickable { onRetry() }
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                            ) {
+                                Text(
+                                    text = "Reintentar",
+                                    color = accentColor,
+                                    style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                                    fontSize = 14.sp
+                                )
+                            }
                         }
                     }
                 }
