@@ -246,39 +246,36 @@ fun SignUpScreen(
                             .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.35f), RoundedCornerShape(10.dp))
                             .padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-
                         Text(
                             text = error,
                             style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
                             color = Color(0xFFFF6B6B),
                             fontSize = 13.sp
                         )
+                    }
+                }
 
+                GlassTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    placeholder = "Nombre",
+                    enabled = !isLoading,
+                    accentColor = accentColor,
+                    borderGlass = borderGlass,
+                    glassBase = glassBase,
+                    onSurface = MaterialTheme.colorScheme.onSurface
+                )
 
-
-                        GlassTextField(
-                            value = nombre,
-                            onValueChange = { nombre = it },
-                            placeholder = "Nombre",
-                            enabled = !isLoading,
-                            accentColor = accentColor,
-                            borderGlass = borderGlass,
-                            glassBase = glassBase,
-                            onSurface = MaterialTheme.colorScheme.onSurface
-                        )
-
-
-
-                        GlassTextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            placeholder = "Email",
-                            enabled = !isLoading,
-                            accentColor = accentColor,
-                            borderGlass = borderGlass,
-                            glassBase = glassBase,
-                            onSurface = MaterialTheme.colorScheme.onSurface
-                        )
+                GlassTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = "Email",
+                    enabled = !isLoading,
+                    accentColor = accentColor,
+                    borderGlass = borderGlass,
+                    glassBase = glassBase,
+                    onSurface = MaterialTheme.colorScheme.onSurface
+                )
 
                         GlassTextField(
                             value = password,
@@ -359,67 +356,64 @@ fun SignUpScreen(
                                 .background(
                                     brush = if (canSignup)
                                         Brush.linearGradient(colors = listOf(accentColor, accentColor2))
-                            else
+                                    else
                                         Brush.linearGradient(colors = listOf(
                                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
                                         ))
-                            )
-                        ).clickable(enabled = canSignup) {
-                            viewModel.register(nombre, email, password)
-                        },
-                        contentAlignment = Alignment.Center
+                                )
+                                .clickable(enabled = canSignup) {
+                                    viewModel.register(nombre, email, password)
+                                },
+                            contentAlignment = Alignment.Center
                         ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(22.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(Res.string.signup),
-                                style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
-                                color = Color.White,
-                                fontSize = 15.sp
-                            )
-                    }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        if (!passwordsMatch) {
-                            Text(
-                                text = stringResource(Res.string.passwordnomatch),
-                                style = AppTypo.body().copy(color = Color.Red)
-                            )
-                        }
-
-                        authError?.let { error ->
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                color = Color.Red.copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(22.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
                                 Text(
-                                    text = error,
-                                    style = AppTypo.body().copy(
-                                        color = Color.Red,
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    modifier = Modifier.padding(12.dp)
+                                    text = stringResource(Res.string.signup),
+                                    style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                                    color = Color.White,
+                                    fontSize = 15.sp
                                 )
                             }
                         }
 
+                Spacer(Modifier.height(20.dp))
 
-                    }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .clickable(enabled = !isLoading) { onLoginBack() }
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "¿Ya tienes cuenta? ",
+                        style = AppTypo.body(),
+                        color = textSecondary,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = "Inicia sesión",
+                        style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                        color = if (isLoading) textSecondary else accentColor,
+                        fontSize = 14.sp
+                    )
                 }
+
+                Spacer(Modifier.height(16.dp))
+
             }
         }
     }
 }
+
+
 
 
 
