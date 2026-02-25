@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -257,48 +260,68 @@ fun ProfileScreenContent(
                 is ProfileState.Success -> {
                     val profile = state.profile
 
-                    // Header gris
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(headerHeight)
-                            .background(headerColor)
-                    )
-
-                    // Icono configuración MÁS GRANDE y NEGRO
-                    IconButton(
-                        onClick = { onOpenConfiguration() },
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        accentColor.copy(alpha = if (isDark) 0.55f else 0.35f),
+                                        accentColor2.copy(alpha = if (isDark) 0.45f else 0.25f),
+                                        glassBase.copy(alpha = if (isDark) 0.3f else 0.6f)
+                                    ),
+                                    start = Offset(0f, 0f),
+                                    end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                                )
+                            )
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .align(Alignment.BottomCenter)
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            borderGlass,
+                                            Color.Transparent
+                                        )
+                                    )
+                                )
+                        )
+                    }
+                    Box (
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(16.dp)
-                            .size(56.dp)
+                            .padding(top = 12.dp, end = 16.dp)
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(glassBase.copy(alpha = 0.55f))
+                            .border(1.dp, borderGlass, CircleShape)
+                            .clickable { onOpenConfiguration() },
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ico_gear),
                             contentDescription = "Configuración",
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.size(28.dp)
+                            tint = if (isDark) Color.White.copy(alpha = 0.85f) else accentColor,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
-
-                    // Body con mordisco
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top = headerHeight)
-                            .background(MaterialTheme.colorScheme.background)
+                            .background(bgColor)
                             .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                             .drawWithContent {
                                 drawContent()
-
-                                val cutoutRadius = avatarRadius.toPx() + 10.dp.toPx()
-                                val cx = avatarCenterX.toPx()
-                                val cy = 0f
-
                                 drawCircle(
                                     color = Color.Transparent,
-                                    radius = cutoutRadius,
-                                    center = Offset(cx, cy),
+                                    radius = avatarRadius.toPx() + 10.dp.toPx(),
+                                    center = Offset(avatarCenterX.toPx(), 0f),
                                     blendMode = BlendMode.Clear
                                 )
                             }
@@ -309,68 +332,109 @@ fun ProfileScreenContent(
                                 .padding(
                                     start = 16.dp,
                                     end = 16.dp,
-                                    top = avatarRadius + 10.dp,
+                                    top = avatarRadius + 12.dp,
                                     bottom = 16.dp
                                 ),
-                            verticalArrangement = Arrangement.spacedBy(1.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             Text(
                                 text = profile.username,
-                                style = AppTypo.heading(),
-                                fontSize = 32.sp,
-                                color = textPrimary
+                                style = AppTypo.heading().copy(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(accentColor, accentColor2)
+                                    )
+                                ),
+                                fontSize = 30.sp
                             )
                             Text(
                                 text = profile.email,
                                 style = AppTypo.body(),
-                                color = textSecondary
+                                color = textSecondary,
+                                fontSize = 13.sp
+                            )
+
+                            Spacer(Modifier.height(20.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))
+                                    .background(
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(
+                                                accentColor.copy(alpha = 0.12f),
+                                                accentColor2.copy(alpha = 0.06f)
+                                            )
+                                        )
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(borderGlass, Color.Transparent)
+                                        ),
+                                        shape = RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp)
+                                    )
+                                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Group,
+                                    contentDescription = null,
+                                    tint = accentColor,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = "Grupos",
+                                    color = accentColor,
+                                    style = AppTypo.body().copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        letterSpacing = 1.sp
+                                    ),
+                                    fontSize = 12.sp
+                                )
+                                Spacer(Modifier.weight(1f))
+                                if (profile.teams.isNotEmpty()) {
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(accentColor.copy(alpha = 0.15f))
+                                            .padding(horizontal = 7.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(
+                                            text = "${profile.teams.size}",
+                                            color = accentColor,
+                                            style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
+                            }
+                            Box(
+                                modifier = Modifier
+                                   .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(borderGlass)
                             )
 
                             Spacer(Modifier.height(6.dp))
 
-                            Column(
-                                modifier = Modifier.fillMaxWidth()
-                                    .padding(top = 10.dp)
-                            ) {
-                                // Grupos
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(containerColor = cardColor)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(12.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Text(
-                                            text = "Grupos a los que perteneces",
-                                            color = textPrimary
-                                        )
-                                    }
-                                }
-
+                            // Lista de equipos + botón añadir
+                            if (profile.teams.isEmpty()) {
+                                AddTeamCard(add = true, onAddTeam = onAddteam, onClickTeam = onClickTeam)
+                            } else {
+                                AddTeamCard(
+                                    add = false,
+                                    profile = profile,
+                                    onClickTeam = onClickTeam,
+                                    onAddTeam = onAddteam
+                                )
                                 Spacer(Modifier.height(6.dp))
-
-                                // Mostrar cada equipo en una card separada
-                                if (profile.teams.isEmpty()) {
-                                    AddTeamCard(
-                                        add = true,
-                                        onAddTeam = onAddteam,
-                                        onClickTeam = onClickTeam
-                                    )
-                                } else {
-                                    AddTeamCard(
-                                        add = false,
-                                        profile = profile,
-                                        onClickTeam = onClickTeam,
-                                        onAddTeam = onAddteam
-                                    )
-                                    Spacer(Modifier.height(6.dp))
-                                    AddTeamCard(
-                                        add = true,
-                                        onAddTeam = onAddteam,
-                                        onClickTeam = onClickTeam
-                                    )
-                                }
+                                AddTeamCard(
+                                    add = true,
+                                    onAddTeam = onAddteam,
+                                    onClickTeam = onClickTeam
+                                )
                             }
                         }
                     }
@@ -381,17 +445,22 @@ fun ProfileScreenContent(
                             .size(avatarSize)
                             .offset(x = avatarLeft, y = headerHeight - avatarRadius)
                             .clip(CircleShape)
-                            .background(avatarBg)
-                            .border(4.dp, MaterialTheme.colorScheme.background, CircleShape),
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(accentColor, accentColor2)
+                                )
+                            )
+                            .border(3.dp, bgColor, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Mostrar las iniciales del username
-                        val initials = if (profile.username.length >= 2) {
-                            profile.username.take(2).uppercase()
-                        } else {
-                            profile.username.uppercase()
-                        }
-                        Text(initials, style = AppTypo.heading(), color = Color.White)
+                        val initials = profile.username.take(2).uppercase()
+                        Text(
+                            text = initials,
+                            style = AppTypo.heading(),
+                            fontSize = 26.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
