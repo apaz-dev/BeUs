@@ -1,27 +1,29 @@
 package com.alpara.beus.Screens.Add
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.alpara.beus.Screens.Auth.GlassTextField
 import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.Themes.textSecondary
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import androidx.compose.material3.MaterialTheme
 
 @Preview
 @Composable
 fun TeamModalPreview() {
-    TeamModal(
-        showDialog = true,
-        onDismiss = {},
-        onCreateTeam = { },
-        onJoinTeam = { }
-    )
+    TeamModal(showDialog = true, onDismiss = {}, onCreateTeam = {}, onJoinTeam = {})
 }
 
 @Composable
@@ -31,247 +33,201 @@ fun TeamModal(
     onCreateTeam: (String) -> Unit,
     onJoinTeam: (String) -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(0) } // 0 = Crear, 1 = Unirse
+    var selectedTab by remember { mutableStateOf(0) }
     var teamName by remember { mutableStateOf("") }
     var joinCode by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                // Limpiar campos al cerrar
-                teamName = ""
-                joinCode = ""
-                errorMessage = ""
-                selectedTab = 0
-                onDismiss()
-            },
-            title = {
+    // ── Glassmorphism palette ──────────────────────────────────────────────
+    val bgRed       = MaterialTheme.colorScheme.background.red
+    val isDark      = bgRed < 0.5f
+    val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2= if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+    val glassBase   = if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+    val borderGlass = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+    val onSurface   = MaterialTheme.colorScheme.onSurface
+
+    fun dismiss() {
+        teamName = ""; joinCode = ""; errorMessage = ""; selectedTab = 0
+        onDismiss()
+    }
+
+    if (!showDialog) return
+
+    AlertDialog(
+        onDismissRequest = { dismiss() },
+        containerColor = glassBase,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                // Título con gradiente
                 Text(
-                    text = "Gestionar Equipo",
-                    style = AppTypo.heading(),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "Gestionar equipo",
+                    style = AppTypo.heading().copy(
+                        brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
+                    ),
+                    fontSize = 22.sp
                 )
-            },
-            text = {
-                Column(
+
+                // ── Selector de pestaña glass ──────────────────────────────
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(accentColor.copy(alpha = 0.07f))
+                        .border(1.dp, borderGlass, RoundedCornerShape(12.dp))
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Tabs para cambiar entre Crear y Unirse
-                    PrimaryTabRow(
-                        selectedTabIndex = selectedTab,
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    ) {
-                        Tab(
-                            selected = selectedTab == 0,
-                            onClick = {
-                                selectedTab = 0
-                                errorMessage = ""
-                            },
-                            text = {
-                                Text(
-                                    text = "Crear",
-                                    style = AppTypo.body(),
-                                    fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal
+                    listOf("✨ Crear", "🔗 Unirse").forEachIndexed { index, label ->
+                        val isSelected = selectedTab == index
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(9.dp))
+                                .background(
+                                    if (isSelected)
+                                        Brush.linearGradient(colors = listOf(accentColor, accentColor2))
+                                    else
+                                        Brush.linearGradient(colors = listOf(Color.Transparent, Color.Transparent))
                                 )
-                            }
-                        )
-                        Tab(
-                            selected = selectedTab == 1,
-                            onClick = {
-                                selectedTab = 1
-                                errorMessage = ""
-                            },
-                            text = {
-                                Text(
-                                    text = "Unirse",
-                                    style = AppTypo.body(),
-                                    fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal
-                                )
-                            }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Contenido según la pestaña seleccionada
-                    when (selectedTab) {
-                        0 -> {
-                            // Crear equipo
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text(
-                                    text = "Nombre del equipo",
-                                    style = AppTypo.body(),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-
-                                OutlinedTextField(
-                                    value = teamName,
-                                    onValueChange = {
-                                        teamName = it
-                                        errorMessage = ""
-                                    },
-                                    placeholder = {
-                                        Text(
-                                            text = "Ej: Los Invencibles",
-                                            style = AppTypo.body()
-                                        )
-                                    },
-                                    textStyle = AppTypo.body(),
-                                    singleLine = true,
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent
-                                    ),
-                                    isError = errorMessage.isNotEmpty() && selectedTab == 0
-                                )
-
-                                if (errorMessage.isNotEmpty() && selectedTab == 0) {
-                                    Text(
-                                        text = errorMessage,
-                                        color = Color.Red,
-                                        style = AppTypo.body(),
-                                        fontSize = 12.sp
-                                    )
-                                }
-
-                                Text(
-                                    text = "Se generará un código automáticamente para que otros puedan unirse",
-                                    style = AppTypo.body(),
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        1 -> {
-                            // Unirse a equipo
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text(
-                                    text = "Código de equipo",
-                                    style = AppTypo.body(),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-
-                                OutlinedTextField(
-                                    value = joinCode,
-                                    onValueChange = {
-                                        joinCode = it.uppercase()
-                                        errorMessage = ""
-                                    },
-                                    placeholder = {
-                                        Text(
-                                            text = "Ej: ABC123",
-                                            style = AppTypo.body()
-                                        )
-                                    },
-                                    textStyle = AppTypo.body(),
-                                    singleLine = true,
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent
-                                    ),
-                                    isError = errorMessage.isNotEmpty() && selectedTab == 1
-                                )
-
-                                if (errorMessage.isNotEmpty() && selectedTab == 1) {
-                                    Text(
-                                        text = errorMessage,
-                                        color = Color.Red,
-                                        style = AppTypo.body(),
-                                        fontSize = 12.sp
-                                    )
-                                }
-
-                                Text(
-                                    text = "Introduce el código que te compartió el administrador del equipo",
-                                    style = AppTypo.body(),
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                                .clickable { selectedTab = index; errorMessage = "" }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = label,
+                                style = AppTypo.body().copy(fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal),
+                                fontSize = 13.sp,
+                                color = if (isSelected) Color.White else onSurface.copy(alpha = 0.6f)
+                            )
                         }
                     }
                 }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                when (selectedTab) {
+                    // ── Tab: Crear equipo ──────────────────────────────────
+                    0 -> {
+                        GlassSectionLabel("Nombre del equipo", accentColor)
+                        GlassTextField(
+                            value = teamName,
+                            onValueChange = { teamName = it; errorMessage = "" },
+                            placeholder = "Ej: Los Invencibles",
+                            accentColor = if (errorMessage.isNotEmpty()) Color(0xFFFF6B6B) else accentColor,
+                            borderGlass = if (errorMessage.isNotEmpty()) Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
+                            glassBase = glassBase,
+                            onSurface = onSurface
+                        )
+                        if (errorMessage.isNotEmpty()) {
+                            Text(
+                                text = errorMessage,
+                                color = Color(0xFFFF6B6B),
+                                style = AppTypo.body(),
+                                fontSize = 12.sp
+                            )
+                        }
+                        Text(
+                            text = "Se generará un código automáticamente para que otros puedan unirse.",
+                            style = AppTypo.body(),
+                            fontSize = 12.sp,
+                            color = textSecondary
+                        )
+                    }
+                    // ── Tab: Unirse a equipo ───────────────────────────────
+                    1 -> {
+                        GlassSectionLabel("Código de equipo", accentColor)
+                        GlassTextField(
+                            value = joinCode,
+                            onValueChange = { joinCode = it.uppercase(); errorMessage = "" },
+                            placeholder = "Ej: ABC123",
+                            accentColor = if (errorMessage.isNotEmpty()) Color(0xFFFF6B6B) else accentColor,
+                            borderGlass = if (errorMessage.isNotEmpty()) Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
+                            glassBase = glassBase,
+                            onSurface = onSurface
+                        )
+                        if (errorMessage.isNotEmpty()) {
+                            Text(
+                                text = errorMessage,
+                                color = Color(0xFFFF6B6B),
+                                style = AppTypo.body(),
+                                fontSize = 12.sp
+                            )
+                        }
+                        Text(
+                            text = "Introduce el código que te compartió el administrador del equipo.",
+                            style = AppTypo.body(),
+                            fontSize = 12.sp,
+                            color = textSecondary
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        brush = Brush.linearGradient(colors = listOf(accentColor, accentColor2))
+                    )
+                    .clickable {
                         when (selectedTab) {
-                            0 -> {
-                                // Validar nombre del equipo
-                                if (teamName.isBlank()) {
-                                    errorMessage = "El nombre del equipo no puede estar vacío"
-                                } else if (teamName.length < 3) {
-                                    errorMessage = "El nombre debe tener al menos 3 caracteres"
-                                } else {
-                                    onCreateTeam(teamName)
-                                    teamName = ""
-                                    errorMessage = ""
-                                    onDismiss()
-                                }
+                            0 -> when {
+                                teamName.isBlank() -> errorMessage = "El nombre no puede estar vacío"
+                                teamName.length < 3 -> errorMessage = "Mínimo 3 caracteres"
+                                else -> { onCreateTeam(teamName); dismiss() }
                             }
-                            1 -> {
-                                // Validar código de equipo
-                                if (joinCode.isBlank()) {
-                                    errorMessage = "El código no puede estar vacío"
-                                } else if (joinCode.length < 6) {
-                                    errorMessage = "El código debe tener al menos 6 caracteres"
-                                } else {
-                                    onJoinTeam(joinCode)
-                                    joinCode = ""
-                                    errorMessage = ""
-                                    onDismiss()
-                                }
+                            1 -> when {
+                                joinCode.isBlank() -> errorMessage = "El código no puede estar vacío"
+                                joinCode.length < 6 -> errorMessage = "Mínimo 6 caracteres"
+                                else -> { onJoinTeam(joinCode); dismiss() }
                             }
                         }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = if (selectedTab == 0) "Crear" else "Unirse",
-                        style = AppTypo.body(),
-                        color = MaterialTheme.colorScheme.background,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        teamName = ""
-                        joinCode = ""
-                        errorMessage = ""
-                        selectedTab = 0
-                        onDismiss()
                     }
-                ) {
-                    Text(
-                        text = "Cancelar",
-                        style = AppTypo.body(),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(16.dp)
-        )
-    }
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+            ) {
+                Text(
+                    text = if (selectedTab == 0) "Crear" else "Unirse",
+                    style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
+            }
+        },
+        dismissButton = {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(accentColor.copy(alpha = 0.10f))
+                    .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                    .clickable { dismiss() }
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+            ) {
+                Text(
+                    text = "Cancelar",
+                    style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
+                    color = accentColor,
+                    fontSize = 14.sp
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun GlassSectionLabel(text: String, accentColor: Color) {
+    Text(
+        text = text,
+        style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+        fontSize = 13.sp,
+        color = accentColor
+    )
 }

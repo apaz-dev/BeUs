@@ -15,41 +15,34 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.alpara.beus.Models.ProfilePrivate
 import com.alpara.beus.Models.ProfileTeam
 import com.alpara.beus.Models.View.ProfileState
 import com.alpara.beus.Models.View.ProfileViewModel
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textSecondary
-
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_arrowleft
-import com.alpara.beus.resources.ico_profile
-import com.alpara.beus.resources.ico_rightarrow
-import com.alpara.beus.resources.ico_pencil
-import com.alpara.beus.resources.ico_moon
-import com.alpara.beus.resources.ico_notes
-import com.alpara.beus.resources.ico_bin
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -61,15 +54,13 @@ fun ConfigurationScreen(
     onLogout: () -> Unit = {},
     onDeleteAccount: () -> Unit = {},
     onHomeBack: () -> Unit = {},
-
-    // viene desde arriba (App)
     darkModeEnabled: Boolean = false,
     onDarkModeChange: (Boolean) -> Unit = {},
-
     viewModel: ProfileViewModel = remember { ProfileViewModel() }
 ) {
     val profileState by viewModel.profileState.collectAsState()
 
+    // Glassmorphism palette
     val bgRed = MaterialTheme.colorScheme.background.red
     val isDark = bgRed < 0.5f
     val accentColor  = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
@@ -140,6 +131,7 @@ fun ConfigurationScreenContent(
 ) {
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
 
+    // Glassmorphism palette
     val bgRed       = MaterialTheme.colorScheme.background.red
     val isDark      = bgRed < 0.5f
     val accentColor = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
@@ -149,33 +141,51 @@ fun ConfigurationScreenContent(
     val bgColor     = MaterialTheme.colorScheme.background
     val onSurface   = MaterialTheme.colorScheme.onSurface
 
+    // ── Dialog de confirmación glass ───────────────────────────────────────
     if (showDeleteAccountDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteAccountDialog = false },
             containerColor = glassBase,
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(24.dp),
+            title = {
+                Text(
+                    "¿Eliminar cuenta?",
+                    style = AppTypo.heading().copy(
+                        brush = Brush.horizontalGradient(colors = listOf(Color(0xFFFF6B6B), Color(0xFFFF9966)))
+                    ),
+                    fontSize = 22.sp
+                )
+            },
+            text = {
+                Text(
+                    "Estás a punto de eliminar tu cuenta. ¿Estás seguro?",
+                    color = textSecondary,
+                    style = AppTypo.body(),
+                    fontSize = 14.sp
+                )
+            },
             confirmButton = {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
+                        .clip(RoundedCornerShape(12.dp))
                         .background(Color(0xFFFF6B6B).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                        .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.4f), RoundedCornerShape(12.dp))
                         .clickable { showDeleteAccountDialog = false; onDeleteAccount() }
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Eliminar", color = Color(0xFFFF6B6B), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text("Eliminar", color = Color(0xFFFF6B6B), style = AppTypo.body().copy(fontWeight = FontWeight.Bold), fontSize = 14.sp)
                 }
             },
             dismissButton = {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(accentColor.copy(alpha = 0.12f))
-                        .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(accentColor.copy(alpha = 0.10f))
+                        .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .clickable { showDeleteAccountDialog = false }
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Cancelar", color = accentColor, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text("Cancelar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
                 }
             }
         )
@@ -187,6 +197,7 @@ fun ConfigurationScreenContent(
             .background(bgColor)
             .windowInsetsPadding(WindowInsets.statusBars)
     ) {
+        // ── Header con gradiente glass ─────────────────────────────────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -203,6 +214,7 @@ fun ConfigurationScreenContent(
                     )
                 )
         ) {
+            // Línea decorativa inferior
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -259,7 +271,7 @@ fun ConfigurationScreenContent(
         // Espaciado para el avatar que sobresale
         Spacer(Modifier.height(52.dp))
 
-        //mail y nombre
+        // ── Nombre y email ─────────────────────────────────────────────────
         Text(
             text = profile.username,
             style = AppTypo.heading().copy(
@@ -268,9 +280,7 @@ fun ConfigurationScreenContent(
             fontSize = 26.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-
         Spacer(Modifier.height(4.dp))
-
         Text(
             text = profile.email,
             style = AppTypo.body(),
@@ -281,7 +291,7 @@ fun ConfigurationScreenContent(
 
         Spacer(Modifier.height(28.dp))
 
-        //secciones
+        // ── Secciones ──────────────────────────────────────────────────────
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -344,6 +354,8 @@ fun ConfigurationScreenContent(
     }
 }
 
+// ─── Componentes Glass reutilizables ──────────────────────────────────────────
+
 @Composable
 private fun GlassSectionLabel(text: String, accentColor: Color) {
     Text(
@@ -388,16 +400,15 @@ private fun GlassRow(
     showChevron: Boolean,
     onClick: () -> Unit
 ) {
-
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 54.dp)
             .clickable(onClick = onClick)
-            .padding(start = 16.dp),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Icono con fondo glass
         Box(
             modifier = Modifier
                 .size(34.dp)
@@ -423,7 +434,6 @@ private fun GlassRow(
             color = onSurface
         )
 
-
         if (showChevron) {
             Text(
                 text = "›",
@@ -445,7 +455,6 @@ private fun GlassSwitchRow(
     onCheckedChange: (Boolean) -> Unit,
     isDark: Boolean
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -496,8 +505,8 @@ private fun GlassDivider(borderGlass: Color) {
 @Composable
 fun ConfigurationScreenPreview() {
     val fakeProfile = ProfilePrivate(
-        username = "alvaro_dev",
-        email = "alvaro@correo.com",
+        username = "paz",
+        email = "paz@correo.com",
         avatar_url = "default",
         teams = listOf(
             ProfileTeam(name = "Frontend", join_code = "FE001"),
