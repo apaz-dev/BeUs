@@ -31,7 +31,6 @@ import com.alpara.beus.Models.View.ProfileState
 import com.alpara.beus.Models.ProfileTeam
 import com.alpara.beus.Screens.Add.TeamModal
 import com.alpara.beus.Themes.AppTypo
-import com.alpara.beus.Themes.BackgroundColor
 import com.alpara.beus.Themes.cardColor
 import com.alpara.beus.Themes.textPrimary
 import com.alpara.beus.Themes.textSecondary
@@ -112,6 +111,7 @@ fun ProfileScreenNoTeamsPreview() {
 @Composable
 fun ProfileScreen(
     onOpenConfiguration: () -> Unit,
+    onOpenTeamDetail: (teamId: String) -> Unit = {},
     viewModel: ProfileViewModel = remember { ProfileViewModel() }
 ) {
     val profileState by viewModel.profileState.collectAsState()
@@ -137,7 +137,7 @@ fun ProfileScreen(
             onOpenConfiguration = onOpenConfiguration,
             onRetry = { viewModel.loadProfile() },
             onAddteam = { showTeamModal = true },
-            onClickTeam = { /* Acción para abrir detalles del equipo */ }
+            onClickTeam = { teamId -> onOpenTeamDetail(teamId) }
         )
     }
 
@@ -169,7 +169,7 @@ fun ProfileScreenContent(
     onOpenConfiguration: () -> Unit,
     onRetry: () -> Unit,
     onAddteam: () -> Unit,
-    onClickTeam: () -> Unit
+    onClickTeam: (teamId: String) -> Unit
 ) {
     val headerHeight = 150.dp
     val avatarSize = 92.dp
@@ -469,21 +469,21 @@ fun ProfileScreenContent(
 @Composable
 fun AddTeamCard(add: Boolean,
                 profile: ProfilePrivate? = null,
-                onClickTeam: () -> Unit,
+                onClickTeam: (teamId: String) -> Unit,
                 onAddTeam: () -> Unit
 ) {
     if (!add && profile != null) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 240.dp), // Limita la altura máxima para permitir scroll
+                .heightIn(max = 240.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             items(
                 items = profile.teams,
                 key = { team -> team.join_code }
             ) { team ->
-                TeamCard(team = team, cardColor = cardColor, onClick = onClickTeam)
+                TeamCard(team = team, cardColor = cardColor, onClick = { onClickTeam(team.team_id) })
             }
         }
     } else {
@@ -525,6 +525,7 @@ private fun TeamCard(
                     end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                 )
             )
+            .clickable(onClick = onClick)
     ) {
         // Acento decorativo en la parte izquierda
         Box(

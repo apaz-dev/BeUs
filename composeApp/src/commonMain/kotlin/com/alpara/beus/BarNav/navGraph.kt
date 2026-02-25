@@ -16,6 +16,7 @@ import com.alpara.beus.Screens.Main.HomeScreen
 import com.alpara.beus.Screens.Main.PhotoGalleryScreen
 import com.alpara.beus.Screens.Main.ProfileScreen
 import com.alpara.beus.Screens.Main.RankScreen
+import com.alpara.beus.Screens.Main.TeamDetailScreen
 import com.alpara.beus.Screens.Screen
 
 @Composable
@@ -53,6 +54,10 @@ fun NavigationGraph(
             ProfileScreen(
                 onOpenConfiguration = {
                     navController.navigate(Screen.Configuration.route)
+                },
+                onOpenTeamDetail = { teamId ->
+                    TeamDetailNavArgs.teamId = teamId
+                    navController.navigate(Screen.TeamDetail.createRoute(teamId))
                 }
             )
         }
@@ -80,6 +85,17 @@ fun NavigationGraph(
         }
         composable(Screen.Bet.route) {
             BetScreen()
+        }
+        composable(
+            route = Screen.TeamDetail.route,
+            arguments = listOf(
+                navArgument("teamId") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) {
+            TeamDetailScreen(
+                teamId = TeamDetailNavArgs.teamId,
+                onBack = { navController.popBackStack() }
+            )
         }
         composable(
             route = Screen.PhotoGallery.route,
