@@ -41,3 +41,32 @@ fun AppTheme(
     )
 }
 
+object AppColors {
+    val accentColor: Color
+        @Composable get() {
+            val isDark = MaterialTheme.colorScheme.background.red < 0.5f
+            return if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+        }
+
+    val accentColor2: Color
+        @Composable get() {
+            val isDark = MaterialTheme.colorScheme.background.red < 0.5f
+            return if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+        }
+
+    val glassBase: Color
+        @Composable get() {
+            val isDark = MaterialTheme.colorScheme.background.red < 0.5f
+            return if (isDark) Color(0xFF1C1E26) else Color(0xFFFFFFFF)
+        }
+
+    val borderGlass: Color
+        @Composable get() {
+            val isDark = MaterialTheme.colorScheme.background.red < 0.5f
+            return if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
+        }
+
+    val bgColor: Color
+        @Composable get() = MaterialTheme.colorScheme.background
+}
+
