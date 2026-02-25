@@ -22,4 +22,7 @@ sealed class Screen(val route: String) {
         fun createRoute(teamId: String, eventId: String, eventName: String) =
             "photo_gallery/$teamId/$eventId/$eventName"
     }
+    object TeamDetail : Screen("team_detail/{teamId}") {
+        fun createRoute(teamId: String) = "team_detail/$teamId"
+    }
 }
