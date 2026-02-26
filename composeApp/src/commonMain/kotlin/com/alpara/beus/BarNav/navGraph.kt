@@ -66,7 +66,7 @@ fun NavigationGraph(
             ConfigurationScreen(
                 onHomeBack = { navController.popBackStack() },
                 onLogout = onLogout,
-                onDeleteAccount = { /* TODO */ },
+                onDeleteAccount = onLogout, // Después de eliminar la cuenta, se cierra sesión
                 darkModeEnabled = darkMode,
                 onDarkModeChange = onDarkModeChange
             )

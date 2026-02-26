@@ -133,6 +133,10 @@ fun ConfigurationScreenContent(
 ) {
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
+    var isDeletingAccount by remember { mutableStateOf(false) }
+    var deleteAccountError by remember { mutableStateOf<String?>(null) }
+    var deletePassword by remember { mutableStateOf("") }
+    var deletePasswordVisible by remember { mutableStateOf(false) }
 
     val isUpdating by viewModel.isUpdating.collectAsState()
     val updateError by viewModel.updateError.collectAsState()
@@ -150,7 +154,14 @@ fun ConfigurationScreenContent(
     // ── Dialog de confirmación glass ───────────────────────────────────────
     if (showDeleteAccountDialog) {
         AlertDialog(
-            onDismissRequest = { showDeleteAccountDialog = false },
+            onDismissRequest = {
+                if (!isDeletingAccount) {
+                    showDeleteAccountDialog = false
+                    deletePassword = ""
+                    deletePasswordVisible = false
+                    deleteAccountError = null
+                }
+            },
             containerColor = glassBase,
             shape = RoundedCornerShape(24.dp),
             title = {
@@ -163,23 +174,95 @@ fun ConfigurationScreenContent(
                 )
             },
             text = {
-                Text(
-                    "Estás a punto de eliminar tu cuenta. ¿Estás seguro?",
-                    color = textSecondary,
-                    style = AppTypo.body(),
-                    fontSize = 14.sp
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "Esta acción es permanente y no se puede deshacer. Para confirmar, ingresa tu contraseña:",
+                        color = textSecondary,
+                        style = AppTypo.body(),
+                        fontSize = 14.sp
+                    )
+
+                    // Campo de contraseña
+                    GlassTextField(
+                        value = deletePassword,
+                        onValueChange = {
+                            deletePassword = it
+                            deleteAccountError = null
+                        },
+                        placeholder = "Tu contraseña",
+                        isPassword = true,
+                        passwordVisible = deletePasswordVisible,
+                        onTogglePassword = { deletePasswordVisible = !deletePasswordVisible },
+                        accentColor = if (deleteAccountError != null) Color(0xFFFF6B6B) else accentColor,
+                        borderGlass = if (deleteAccountError != null) Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
+                        glassBase = glassBase,
+                        onSurface = onSurface,
+                        enabled = !isDeletingAccount
+                    )
+
+                    if (deleteAccountError != null) {
+                        Text(
+                            deleteAccountError ?: "",
+                            color = Color(0xFFFF6B6B),
+                            style = AppTypo.body(),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
             },
             confirmButton = {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFF6B6B).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                        .clickable { showDeleteAccountDialog = false; onDeleteAccount() }
-                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                        .background(
+                            if (isDeletingAccount || deletePassword.isEmpty())
+                                Color(0xFFFF6B6B).copy(alpha = 0.5f)
+                            else
+                                Color(0xFFFF6B6B).copy(alpha = 0.15f)
+                        )
+                        .border(
+                            1.dp,
+                            if (isDeletingAccount || deletePassword.isEmpty())
+                                Color(0xFFFF6B6B).copy(alpha = 0.2f)
+                            else
+                                Color(0xFFFF6B6B).copy(alpha = 0.4f),
+                            RoundedCornerShape(12.dp)
+                        )
+                        .clickable(enabled = !isDeletingAccount && deletePassword.isNotEmpty()) {
+                            isDeletingAccount = true
+                            deleteAccountError = null
+                            viewModel.deleteAccount(
+                                password = deletePassword,
+                                onSuccess = {
+                                    isDeletingAccount = false
+                                    showDeleteAccountDialog = false
+                                    deletePassword = ""
+                                    deletePasswordVisible = false
+                                    onDeleteAccount()
+                                },
+                                onError = { error ->
+                                    isDeletingAccount = false
+                                    deleteAccountError = error
+                                }
+                            )
+                        }
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Eliminar", color = Color(0xFFFF6B6B), style = AppTypo.body().copy(fontWeight = FontWeight.Bold), fontSize = 14.sp)
+                    if (isDeletingAccount) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = Color(0xFFFF6B6B),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            "Eliminar cuenta",
+                            color = Color(0xFFFF6B6B),
+                            style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             },
             dismissButton = {
@@ -188,7 +271,12 @@ fun ConfigurationScreenContent(
                         .clip(RoundedCornerShape(12.dp))
                         .background(accentColor.copy(alpha = 0.10f))
                         .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-                        .clickable { showDeleteAccountDialog = false }
+                        .clickable(enabled = !isDeletingAccount) {
+                            showDeleteAccountDialog = false
+                            deletePassword = ""
+                            deletePasswordVisible = false
+                            deleteAccountError = null
+                        }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
                     Text("Cancelar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)

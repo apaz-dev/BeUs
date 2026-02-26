@@ -50,5 +50,14 @@ class FirebaseProfileService {
         }
     }
 
+    suspend fun deleteProfile(userId: String): Result<Unit> {
+        return try {
+            firestore.collection("profiles").document(userId).delete()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Error al eliminar perfil: ${e.message}"))
+        }
+    }
+
 
 }

@@ -107,6 +107,41 @@ class ProfileViewModel : ViewModel() {
             _isUpdating.value = false
         }
     }
+
+    fun deleteAccount(password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            val userId = authService.getCurrentUserId()
+            if (userId == null) {
+                onError("Usuario no autenticado")
+                return@launch
+            }
+
+            // Primero eliminar la cuenta de Firebase Auth (con re-autenticación)
+            // Esto es lo más importante y lo que tiene permisos garantizados
+            authService.deleteAccount(password).fold(
+                onSuccess = {
+                    // Intentar eliminar el perfil de Firestore
+                    // Si falla no es crítico, la cuenta ya fue eliminada
+                    viewModelScope.launch {
+                        firebaseProfileService.deleteProfile(userId).fold(
+                            onSuccess = {
+                                // Perfil eliminado exitosamente
+                                onSuccess()
+                            },
+                            onFailure = {
+                                // Perfil no se pudo eliminar, pero la cuenta sí
+                                // Continuar de todas formas
+                                onSuccess()
+                            }
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    onError(error.message ?: "Error al eliminar cuenta")
+                }
+            )
+        }
+    }
 }
 
 sealed class ProfileState {
