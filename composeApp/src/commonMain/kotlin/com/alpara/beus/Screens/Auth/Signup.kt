@@ -173,24 +173,24 @@ fun SignUpScreen(
                 )
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
-            Spacer(Modifier.height(64.dp))
+            Spacer(Modifier.height(48.dp))
 
             Image(
                 painter = painterResource(if (isDark) Res.drawable.ico_logo2 else Res.drawable.ico_logo),
                 contentDescription = null,
-                modifier = Modifier.size(120.dp)
+                modifier = Modifier.size(96.dp)
             )
 
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(10.dp))
 
             Text(
                 text = "BeUs",
                 style = AppTypo.heading().copy(
                     brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
                 ),
-                fontSize = 34.sp
+                fontSize = 30.sp
             )
 
             Spacer(Modifier.height(4.dp))
@@ -198,11 +198,11 @@ fun SignUpScreen(
             Text(
                 text = "Crea tu cuenta",
                 style = AppTypo.body(),
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 color = textSecondary
             )
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(20.dp))
 
             Column(
                 modifier = Modifier
@@ -220,8 +220,8 @@ fun SignUpScreen(
                             colors = listOf(glassBase.copy(alpha = 0.78f), glassBase.copy(alpha = 0.55f))
                         )
                     )
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
                 authError?.let { error ->
@@ -371,7 +371,7 @@ fun SignUpScreen(
                             }
                         }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(4.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -394,7 +394,7 @@ fun SignUpScreen(
                     )
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(4.dp))
 
             }
         }
