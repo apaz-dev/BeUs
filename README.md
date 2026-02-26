@@ -136,7 +136,3 @@ Las contribuciones siempre son bienvenidas!!!
 4. Asegúrate de que los nuevos menús y diálogos sigan las pautas originales
 
 ---
-
-## Roadmap
-
-- [ ] Next Step
