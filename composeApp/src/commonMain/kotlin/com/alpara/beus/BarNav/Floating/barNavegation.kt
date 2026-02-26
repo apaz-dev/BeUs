@@ -20,8 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.alpara.beus.BarNav.BottomNavItem
 import com.alpara.beus.Screens.Screen
@@ -54,6 +58,11 @@ fun FloatingBottomNavigationBar(
         BottomNavItem(Screen.Profile.route, Res.drawable.ico_profile, "Profile")
     )
 
+    val bgRed = MaterialTheme.colorScheme.background.red
+    val isDark = bgRed < 0.5f
+    val accentColor  = if (isDark) Color(0xFF7C8BFF) else Color(0xFF4F5BFF)
+    val accentColor2 = if (isDark) Color(0xFFB06EFF) else Color(0xFF8B5CF6)
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -84,9 +93,12 @@ fun FloatingBottomNavigationBar(
             ) {
                 bottomNavItems.forEach { item ->
                     if (item.route == "add") {
+                        val addGradient = Brush.linearGradient(
+                            colors = listOf(accentColor, accentColor2)
+                        )
                         Box(
                             modifier = Modifier
-                                .size(60.dp)
+                                .size(56.dp)
                                 .clip(CircleShape)
                                 .clickable { onNavigate(item.route) },
                             contentAlignment = Alignment.Center
@@ -94,9 +106,16 @@ fun FloatingBottomNavigationBar(
                             Icon(
                                 painter = painterResource(item.icon),
                                 contentDescription = item.label,
-                                modifier = Modifier.size(32.dp),
-                                tint = if (showAddMenu) MaterialTheme.colorScheme.onPrimary
-                                else MaterialTheme.colorScheme.onPrimaryContainer
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .graphicsLayer(alpha = 0.99f)
+                                    .drawWithCache {
+                                        onDrawWithContent {
+                                            drawContent()
+                                            drawRect(addGradient, blendMode = BlendMode.SrcAtop)
+                                        }
+                                    },
+                                tint = Color.Unspecified
                             )
                         }
                     } else {

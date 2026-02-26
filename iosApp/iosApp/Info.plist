@@ -7,7 +7,7 @@
 	<!-- Permiso de acceso a la galería de fotos -->
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>BeUs necesita acceso a tu galería para subir fotos a los eventos del equipo.</string>
-	<!-- Claves de Supabase Storage (reemplaza con tus valores reales) -->
+	<!-- Claves de Supabase Storage -->
 	<key>SUPABASE_URL</key>
 	<string>https://bfbldhlzncpngclymfaj.supabase.co</string>
 	<key>SUPABASE_ANON_KEY</key>

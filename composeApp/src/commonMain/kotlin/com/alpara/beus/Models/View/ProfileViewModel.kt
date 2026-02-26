@@ -17,6 +17,12 @@ class ProfileViewModel : ViewModel() {
     private val _profileState = MutableStateFlow<ProfileState>(ProfileState.Loading)
     val profileState: StateFlow<ProfileState> = _profileState.asStateFlow()
 
+    private val _isUpdating = MutableStateFlow(false)
+    val isUpdating: StateFlow<Boolean> = _isUpdating.asStateFlow()
+
+    private val _updateError = MutableStateFlow<String?>(null)
+    val updateError: StateFlow<String?> = _updateError.asStateFlow()
+
     init {
         loadProfile()
     }
@@ -39,6 +45,66 @@ class ProfileViewModel : ViewModel() {
                     _profileState.value = ProfileState.Error(error.message ?: "Error desconocido")
                 }
             )
+        }
+    }
+
+    fun updateProfile(newUsername: String, newPassword: String? = null) {
+        viewModelScope.launch {
+            _isUpdating.value = true
+            _updateError.value = null
+
+            val userId = authService.getCurrentUserId()
+            if (userId == null) {
+                _updateError.value = "Usuario no autenticado"
+                _isUpdating.value = false
+                return@launch
+            }
+
+            // Preparar actualizaciones
+            val updates = mutableMapOf<String, Any>()
+
+            // Actualizar username si cambió
+            val currentProfile = (_profileState.value as? ProfileState.Success)?.profile
+            if (currentProfile != null && newUsername != currentProfile.username) {
+                updates["username"] = newUsername
+
+                // Actualizar también el displayName en Firebase Auth
+                authService.updateDisplayName(newUsername).fold(
+                    onSuccess = { /* DisplayName actualizado correctamente */ },
+                    onFailure = { error ->
+                        _updateError.value = "Error al actualizar nombre: ${error.message}"
+                        _isUpdating.value = false
+                        return@launch
+                    }
+                )
+            }
+
+            // Actualizar contraseña si se proporcionó
+            if (!newPassword.isNullOrEmpty()) {
+                authService.updatePassword(newPassword).fold(
+                    onSuccess = { /* Password actualizado correctamente */ },
+                    onFailure = { error ->
+                        _updateError.value = "Error al actualizar contraseña: ${error.message}"
+                        _isUpdating.value = false
+                        return@launch
+                    }
+                )
+            }
+
+            // Actualizar perfil en Firestore si hay cambios
+            if (updates.isNotEmpty()) {
+                firebaseProfileService.updateProfile(userId, updates).fold(
+                    onSuccess = {
+                        // Recargar perfil para mostrar cambios
+                        loadProfile()
+                    },
+                    onFailure = { error ->
+                        _updateError.value = error.message ?: "Error al actualizar perfil"
+                    }
+                )
+            }
+
+            _isUpdating.value = false
         }
     }
 }

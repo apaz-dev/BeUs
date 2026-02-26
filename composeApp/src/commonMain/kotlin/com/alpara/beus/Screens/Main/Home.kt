@@ -37,6 +37,7 @@ import com.alpara.beus.Models.View.ProfileState
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.AppTheme
 import com.alpara.beus.Themes.textSecondary
+import com.alpara.beus.Utils.EventType
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
@@ -286,6 +287,26 @@ fun HomeScreen(
                 else -> {
                     val navBarInsets = WindowInsets.navigationBars.asPaddingValues()
                     val bottomPadding = 12.dp + 70.dp + 12.dp + navBarInsets.calculateBottomPadding()
+
+                    // Estado del filtro de tipo de evento
+                    var selectedEventType by remember { mutableStateOf<EventType?>(null) }
+                    var filterDropdownExpanded by remember { mutableStateOf(false) }
+
+                    val filteredEvents = remember(uiState.events, selectedEventType) {
+                        if (selectedEventType == null) uiState.events
+                        else uiState.events.filter { it.type.equals(selectedEventType!!.name, ignoreCase = true) }
+                    }
+
+                    // Etiquetas con emoji para cada tipo
+                    val eventTypeLabels = mapOf(
+                        EventType.FIESTA      to "🎉 Fiesta",
+                        EventType.BAR         to "🍻 Quedada",
+                        EventType.MONTANA     to "🏔️ Montaña",
+                        EventType.CENA        to "🍽️ Cena",
+                        EventType.VIAJE       to "✈️ Viaje",
+                        EventType.COMPETICION to "🏆 Competición"
+                    )
+
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(
@@ -295,35 +316,133 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         item {
-                            // Cabecera de sección glass
+                            // Cabecera de sección glass con filtro
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.padding(bottom = 4.dp)
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 4.dp)
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(3.dp)
-                                        .height(18.dp)
-                                        .clip(RoundedCornerShape(2.dp))
-                                        .background(
-                                            brush = Brush.verticalGradient(
-                                                colors = listOf(accentColor, accentColor2)
+                                // Título "Últimos eventos"
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(3.dp)
+                                            .height(18.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .background(
+                                                brush = Brush.verticalGradient(
+                                                    colors = listOf(accentColor, accentColor2)
+                                                )
                                             )
+                                    )
+                                    Text(
+                                        "Últimos eventos",
+                                        style = AppTypo.body().copy(
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 0.5.sp
+                                        ),
+                                        fontSize = 15.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+
+                                // Desplegable de filtro por tipo
+                                Box {
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(
+                                                if (selectedEventType != null)
+                                                    accentColor.copy(alpha = 0.18f)
+                                                else
+                                                    accentColor.copy(alpha = 0.08f)
+                                            )
+                                            .border(
+                                                1.dp,
+                                                if (selectedEventType != null)
+                                                    accentColor.copy(alpha = 0.5f)
+                                                else
+                                                    accentColor.copy(alpha = 0.25f),
+                                                RoundedCornerShape(10.dp)
+                                            )
+                                            .clickable { filterDropdownExpanded = true }
+                                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Text(
+                                                text = if (selectedEventType != null)
+                                                    eventTypeLabels[selectedEventType] ?: selectedEventType!!.name
+                                                else "Todos",
+                                                color = accentColor,
+                                                style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                                                fontSize = 12.sp,
+                                                maxLines = 1
+                                            )
+                                            Icon(
+                                                Icons.Default.ArrowDropDown,
+                                                contentDescription = null,
+                                                tint = accentColor.copy(alpha = 0.7f),
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                    }
+
+                                    DropdownMenu(
+                                        expanded = filterDropdownExpanded,
+                                        onDismissRequest = { filterDropdownExpanded = false },
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(14.dp))
+                                            .background(glassBase)
+                                            .border(1.dp, borderGlass, RoundedCornerShape(14.dp))
+                                    ) {
+                                        // Opción "Todos"
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    "Todos",
+                                                    fontWeight = if (selectedEventType == null) FontWeight.Bold else FontWeight.Normal,
+                                                    color = if (selectedEventType == null) accentColor
+                                                    else MaterialTheme.colorScheme.onSurface,
+                                                    fontSize = 14.sp
+                                                )
+                                            },
+                                            onClick = {
+                                                selectedEventType = null
+                                                filterDropdownExpanded = false
+                                            }
                                         )
-                                )
-                                Text(
-                                    "Últimos eventos",
-                                    style = AppTypo.body().copy(
-                                        fontWeight = FontWeight.Bold,
-                                        letterSpacing = 0.5.sp
-                                    ),
-                                    fontSize = 15.sp,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                        // Opciones por tipo
+                                        EventType.entries.forEach { type ->
+                                            val isSelected = type == selectedEventType
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        text = eventTypeLabels[type] ?: type.name,
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                        color = if (isSelected) accentColor
+                                                        else MaterialTheme.colorScheme.onSurface,
+                                                        fontSize = 14.sp
+                                                    )
+                                                },
+                                                onClick = {
+                                                    selectedEventType = type
+                                                    filterDropdownExpanded = false
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
-                        items(uiState.events) { event ->
+                        items(filteredEvents) { event ->
                             EventCard(
                                 event = event,
                                 onClick = { onOpenGallery(event.teamId, event.id, event.name) },
@@ -333,6 +452,24 @@ fun HomeScreen(
                                 borderGlass = borderGlass,
                                 isDark = isDark
                             )
+                        }
+                        // Mensaje si no hay resultados para el filtro aplicado
+                        if (filteredEvents.isEmpty()) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "No hay eventos de tipo \"${eventTypeLabels[selectedEventType] ?: selectedEventType?.name}\"",
+                                        style = AppTypo.body(),
+                                        fontSize = 13.sp,
+                                        color = textSecondary
+                                    )
+                                }
+                            }
                         }
                     }
                 }

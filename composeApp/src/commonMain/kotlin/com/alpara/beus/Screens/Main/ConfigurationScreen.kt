@@ -18,11 +18,13 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +35,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alpara.beus.Models.ProfilePrivate
@@ -43,14 +47,14 @@ import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_arrowleft
+import com.alpara.beus.resources.ico_eye
+import com.alpara.beus.resources.ico_eyeoff
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
 fun ConfigurationScreen(
-    onEditClick: () -> Unit = {},
-    onChangePasswordClick: () -> Unit = {},
     onLogout: () -> Unit = {},
     onDeleteAccount: () -> Unit = {},
     onHomeBack: () -> Unit = {},
@@ -106,8 +110,7 @@ fun ConfigurationScreen(
             val profile = (profileState as ProfileState.Success).profile
             ConfigurationScreenContent(
                 profile = profile,
-                onEditClick = onEditClick,
-                onChangePasswordClick = onChangePasswordClick,
+                viewModel = viewModel,
                 onLogout = onLogout,
                 onDeleteAccount = onDeleteAccount,
                 onHomeBack = onHomeBack,
@@ -121,8 +124,7 @@ fun ConfigurationScreen(
 @Composable
 fun ConfigurationScreenContent(
     profile: ProfilePrivate,
-    onEditClick: () -> Unit = {},
-    onChangePasswordClick: () -> Unit = {},
+    viewModel: ProfileViewModel,
     onLogout: () -> Unit = {},
     onDeleteAccount: () -> Unit = {},
     onHomeBack: () -> Unit = {},
@@ -130,6 +132,10 @@ fun ConfigurationScreenContent(
     onDarkModeChange: (Boolean) -> Unit = {}
 ) {
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
+
+    val isUpdating by viewModel.isUpdating.collectAsState()
+    val updateError by viewModel.updateError.collectAsState()
 
     // Glassmorphism palette
     val bgRed       = MaterialTheme.colorScheme.background.red
@@ -188,6 +194,26 @@ fun ConfigurationScreenContent(
                     Text("Cancelar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
                 }
             }
+        )
+    }
+
+    // ── Dialog de edición de datos glass ──────────────────────────────────
+    if (showEditDialog) {
+        EditDataDialog(
+            currentUsername = profile.username,
+            isUpdating = isUpdating,
+            updateError = updateError,
+            onDismiss = { showEditDialog = false },
+            onSave = { newUsername, newPassword ->
+                viewModel.updateProfile(newUsername, newPassword)
+                // El modal se cerrará cuando isUpdating vuelva a false y no haya error
+            },
+            glassBase = glassBase,
+            borderGlass = borderGlass,
+            accentColor = accentColor,
+            accentColor2 = accentColor2,
+            onSurface = onSurface,
+            textSecondary = textSecondary
         )
     }
 
@@ -307,7 +333,7 @@ fun ConfigurationScreenContent(
                     accentColor = accentColor,
                     onSurface = onSurface,
                     showChevron = true,
-                    onClick = onEditClick
+                    onClick = { showEditDialog = true }
                 )
             }
 
@@ -501,6 +527,273 @@ private fun GlassDivider(borderGlass: Color) {
     )
 }
 
+// ─── Modal de edición de datos ────────────────────────────────────────────────
+
+@Composable
+private fun EditDataDialog(
+    currentUsername: String,
+    isUpdating: Boolean,
+    updateError: String?,
+    onDismiss: () -> Unit,
+    onSave: (username: String, password: String) -> Unit,
+    glassBase: Color,
+    borderGlass: Color,
+    accentColor: Color,
+    accentColor2: Color,
+    onSurface: Color,
+    textSecondary: Color
+) {
+    var username by remember { mutableStateOf(currentUsername) }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var passwordsMatch by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    // Cerrar el modal cuando la actualización sea exitosa
+    LaunchedEffect(isUpdating, updateError) {
+        if (!isUpdating && updateError == null && username != currentUsername) {
+            // Esperar un momento antes de cerrar para que el usuario vea que se guardó
+            kotlinx.coroutines.delay(300)
+            onDismiss()
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = glassBase,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Text(
+                "Editar datos",
+                style = AppTypo.heading().copy(
+                    brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
+                ),
+                fontSize = 22.sp
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Username
+                GlassSectionLabel("Nombre de usuario", accentColor)
+                GlassTextField(
+                    value = username,
+                    onValueChange = {
+                        username = it
+                        errorMessage = ""
+                    },
+                    placeholder = "Nombre de usuario",
+                    accentColor = if (errorMessage.isNotEmpty()) Color(0xFFFF6B6B) else accentColor,
+                    borderGlass = if (errorMessage.isNotEmpty()) Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
+                    glassBase = glassBase,
+                    onSurface = onSurface
+                )
+
+                Spacer(Modifier.height(4.dp))
+
+                // Nueva contraseña
+                GlassSectionLabel("Nueva contraseña (opcional)", accentColor)
+                GlassTextField(
+                    value = newPassword,
+                    onValueChange = {
+                        newPassword = it
+                        passwordsMatch = confirmPassword.isEmpty() || it == confirmPassword
+                        errorMessage = ""
+                    },
+                    placeholder = "Nueva contraseña",
+                    isPassword = true,
+                    passwordVisible = passwordVisible,
+                    onTogglePassword = { passwordVisible = !passwordVisible },
+                    accentColor = if (!passwordsMatch && newPassword.isNotEmpty()) Color(0xFFFF6B6B) else accentColor,
+                    borderGlass = if (!passwordsMatch && newPassword.isNotEmpty()) Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
+                    glassBase = glassBase,
+                    onSurface = onSurface
+                )
+
+                // Confirmar contraseña
+                if (newPassword.isNotEmpty()) {
+                    GlassTextField(
+                        value = confirmPassword,
+                        onValueChange = {
+                            confirmPassword = it
+                            passwordsMatch = newPassword == it
+                            errorMessage = ""
+                        },
+                        placeholder = "Confirmar contraseña",
+                        isPassword = true,
+                        passwordVisible = confirmPasswordVisible,
+                        onTogglePassword = { confirmPasswordVisible = !confirmPasswordVisible },
+                        accentColor = if (!passwordsMatch && confirmPassword.isNotEmpty()) Color(0xFFFF6B6B) else accentColor,
+                        borderGlass = if (!passwordsMatch && confirmPassword.isNotEmpty()) Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
+                        glassBase = glassBase,
+                        onSurface = onSurface
+                    )
+
+                    if (!passwordsMatch && confirmPassword.isNotEmpty()) {
+                        Text(
+                            text = "Las contraseñas no coinciden",
+                            style = AppTypo.body(),
+                            color = Color(0xFFFF6B6B),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        style = AppTypo.body(),
+                        color = Color(0xFFFF6B6B),
+                        fontSize = 12.sp
+                    )
+                }
+
+                // Mostrar error del ViewModel si existe
+                if (updateError != null) {
+                    Text(
+                        text = updateError,
+                        style = AppTypo.body(),
+                        color = Color(0xFFFF6B6B),
+                        fontSize = 12.sp
+                    )
+                }
+
+                Text(
+                    text = "Deja la contraseña vacía si no deseas cambiarla",
+                    style = AppTypo.body(),
+                    fontSize = 12.sp,
+                    color = textSecondary
+                )
+            }
+        },
+        confirmButton = {
+            val canSave = username.isNotBlank() &&
+                         (newPassword.isEmpty() || (passwordsMatch && confirmPassword.isNotEmpty())) &&
+                         !isUpdating
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        brush = if (canSave && !isUpdating)
+                            Brush.linearGradient(colors = listOf(accentColor, accentColor2))
+                        else
+                            Brush.linearGradient(colors = listOf(
+                                onSurface.copy(alpha = 0.3f),
+                                onSurface.copy(alpha = 0.2f)
+                            ))
+                    )
+                    .clickable(enabled = canSave && !isUpdating) {
+                        if (username.isBlank()) {
+                            errorMessage = "El nombre de usuario no puede estar vacío"
+                        } else if (newPassword.isNotEmpty() && !passwordsMatch) {
+                            errorMessage = "Las contraseñas no coinciden"
+                        } else {
+                            onSave(username, newPassword)
+                        }
+                    }
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isUpdating) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        "Guardar",
+                        color = Color.White,
+                        style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        },
+        dismissButton = {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(accentColor.copy(alpha = 0.10f))
+                    .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                    .clickable { onDismiss() }
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+            ) {
+                Text("Cancelar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
+            }
+        }
+    )
+}
+
+// ─── GlassTextField para este archivo ─────────────────────────────────────────
+
+@Composable
+private fun GlassTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    enabled: Boolean = true,
+    isPassword: Boolean = false,
+    passwordVisible: Boolean = false,
+    onTogglePassword: (() -> Unit)? = null,
+    accentColor: Color,
+    borderGlass: Color,
+    glassBase: Color,
+    onSurface: Color
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                text = placeholder,
+                style = AppTypo.body(),
+                fontSize = 14.sp,
+                color = onSurface.copy(alpha = 0.4f)
+            )
+        },
+        textStyle = AppTypo.body().copy(fontSize = 14.sp),
+        singleLine = true,
+        enabled = enabled,
+        visualTransformation = if (isPassword && !passwordVisible)
+            PasswordVisualTransformation() else VisualTransformation.None,
+        trailingIcon = if (isPassword && onTogglePassword != null) {
+            {
+                IconButton(onClick = onTogglePassword) {
+                    Icon(
+                        painter = painterResource(
+                            if (passwordVisible) Res.drawable.ico_eyeoff else Res.drawable.ico_eye
+                        ),
+                        contentDescription = null,
+                        tint = accentColor.copy(alpha = 0.7f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        } else null,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = accentColor,
+            unfocusedBorderColor = borderGlass,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledBorderColor = borderGlass.copy(alpha = 0.4f),
+            disabledContainerColor = Color.Transparent,
+            focusedTextColor = onSurface,
+            unfocusedTextColor = onSurface,
+            cursorColor = accentColor
+        )
+    )
+}
+
 @Preview(name = "ConfigurationScreen Preview")
 @Composable
 fun ConfigurationScreenPreview() {
@@ -513,5 +806,9 @@ fun ConfigurationScreenPreview() {
             ProfileTeam(name = "Backend", join_code = "BE002")
         )
     )
-    ConfigurationScreenContent(profile = fakeProfile, darkModeEnabled = false)
+    ConfigurationScreenContent(
+        profile = fakeProfile,
+        viewModel = remember { ProfileViewModel() },
+        darkModeEnabled = false
+    )
 }
