@@ -65,4 +65,32 @@ class FirebaseAuthService {
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
+
+    suspend fun updatePassword(newPassword: String): Result<Unit> {
+        return try {
+            val user = auth.currentUser
+            if (user != null) {
+                user.updatePassword(newPassword)
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Usuario no autenticado"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Error al actualizar contraseña: ${e.message}"))
+        }
+    }
+
+    suspend fun updateDisplayName(newDisplayName: String): Result<Unit> {
+        return try {
+            val user = auth.currentUser
+            if (user != null) {
+                user.updateProfile(displayName = newDisplayName)
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Usuario no autenticado"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Error al actualizar nombre: ${e.message}"))
+        }
+    }
 }

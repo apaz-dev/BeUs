@@ -60,8 +60,6 @@ fun NavigationGraph(
             ConfigurationScreen(
                 onHomeBack = { navController.popBackStack() },
                 onLogout = onLogout,
-                onEditClick = { /* TODO */ },
-                onChangePasswordClick = { /* TODO */ },
                 onDeleteAccount = { /* TODO */ },
                 darkModeEnabled = darkMode,
                 onDarkModeChange = onDarkModeChange
