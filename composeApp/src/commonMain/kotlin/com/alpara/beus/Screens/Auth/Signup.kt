@@ -64,6 +64,8 @@ import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.email
 import com.alpara.beus.resources.ico_arrowleft
 import com.alpara.beus.resources.ico_home
+import com.alpara.beus.resources.ico_logo
+import com.alpara.beus.resources.ico_logo2
 import com.alpara.beus.resources.passwordnomatch
 import com.alpara.beus.resources.privacy_policy
 import com.alpara.beus.resources.repeat_password
@@ -176,9 +178,9 @@ fun SignUpScreen(
             Spacer(Modifier.height(64.dp))
 
             Image(
-                painter = painterResource(Res.drawable.ico_home),
+                painter = painterResource(if (isDark) Res.drawable.ico_logo2 else Res.drawable.ico_logo),
                 contentDescription = null,
-                modifier = Modifier.size(80.dp)
+                modifier = Modifier.size(120.dp)
             )
 
             Spacer(Modifier.height(14.dp))
