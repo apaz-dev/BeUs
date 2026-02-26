@@ -13,6 +13,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alpara.beus.Themes.AppTypo
+import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.calendar
+import com.alpara.beus.resources.under_maintenance
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -35,7 +39,7 @@ fun CalendarScreen() {
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             Text(
-                text = "Calendario",
+                text = stringResource(Res.string.calendar),
                 style = AppTypo.heading().copy(
                     brush = Brush.horizontalGradient(
                         colors = listOf(accentColor, accentColor2)
@@ -50,7 +54,7 @@ fun CalendarScreen() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "En mantenimiento",
+                text = stringResource(Res.string.under_maintenance),
                 style = AppTypo.heading().copy(
                     brush = Brush.horizontalGradient(
                         colors = listOf(accentColor, accentColor2)

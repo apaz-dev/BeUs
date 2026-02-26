@@ -38,6 +38,15 @@ import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.AppTheme
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.Utils.EventType
+import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.all
+import com.alpara.beus.resources.home
+import com.alpara.beus.resources.latest_events
+import com.alpara.beus.resources.no_events
+import com.alpara.beus.resources.no_events_hint
+import com.alpara.beus.resources.no_photos_hint_card
+import com.alpara.beus.resources.no_team
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
@@ -111,7 +120,7 @@ fun HomeScreen(
                 ) {
                     // Título con gradiente
                     Text(
-                        text = "Inicio",
+                        text = stringResource(Res.string.home),
                         style = AppTypo.heading().copy(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(accentColor, accentColor2)
@@ -142,7 +151,7 @@ fun HomeScreen(
                                         modifier = Modifier.size(15.dp)
                                     )
                                     Text(
-                                        text = selectedTeam?.name ?: "Sin equipo",
+                                        text = selectedTeam?.name ?: stringResource(Res.string.no_team),
                                         color = accentColor,
                                         style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
                                         fontSize = 13.sp,
@@ -268,13 +277,13 @@ fun HomeScreen(
                                 )
                             }
                             Text(
-                                "Sin eventos aún",
+                                stringResource(Res.string.no_events),
                                 style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
                                 fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                "Pulsa + en la barra para crear el primero",
+                                stringResource(Res.string.no_events_hint),
                                 style = AppTypo.body(),
                                 fontSize = 13.sp,
                                 color = textSecondary
@@ -341,7 +350,7 @@ fun HomeScreen(
                                             )
                                     )
                                     Text(
-                                        "Últimos eventos",
+                                        stringResource(Res.string.latest_events),
                                         style = AppTypo.body().copy(
                                             fontWeight = FontWeight.Bold,
                                             letterSpacing = 0.5.sp
@@ -380,7 +389,7 @@ fun HomeScreen(
                                             Text(
                                                 text = if (selectedEventType != null)
                                                     eventTypeLabels[selectedEventType] ?: selectedEventType!!.name
-                                                else "Todos",
+                                                else stringResource(Res.string.all),
                                                 color = accentColor,
                                                 style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
                                                 fontSize = 12.sp,
@@ -407,7 +416,7 @@ fun HomeScreen(
                                         DropdownMenuItem(
                                             text = {
                                                 Text(
-                                                    "Todos",
+                                                    stringResource(Res.string.all),
                                                     fontWeight = if (selectedEventType == null) FontWeight.Bold else FontWeight.Normal,
                                                     color = if (selectedEventType == null) accentColor
                                                     else MaterialTheme.colorScheme.onSurface,
@@ -641,7 +650,7 @@ fun EventCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Sin fotos aún — toca para añadir",
+                        stringResource(Res.string.no_photos_hint_card),
                         style = AppTypo.body(),
                         fontSize = 12.sp,
                         color = textSecondary

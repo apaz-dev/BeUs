@@ -35,9 +35,14 @@ import com.alpara.beus.Themes.cardColor
 import com.alpara.beus.Themes.textPrimary
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.groups
+import com.alpara.beus.resources.join_or_create_team
+import com.alpara.beus.resources.no_participants
+import com.alpara.beus.resources.retry
 import com.alpara.beus.resources.ico_gear
 import com.alpara.beus.resources.ico_plus
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview(name = "Profile Success")
@@ -235,7 +240,7 @@ fun ProfileScreenContent(
                                     .padding(horizontal = 20.dp, vertical = 10.dp)
                             ) {
                                 Text(
-                                    text = "Reintentar",
+                                    text = stringResource(Res.string.retry),
                                     color = accentColor,
                                     style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
                                     fontSize = 14.sp
@@ -385,7 +390,7 @@ fun ProfileScreenContent(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Text(
-                                    text = "Grupos",
+                                    text = stringResource(Res.string.groups),
                                     color = accentColor,
                                     style = AppTypo.body().copy(
                                         fontWeight = FontWeight.SemiBold,
@@ -582,7 +587,7 @@ private fun TeamCard(
                         text = if (team.members_count > 0)
                             "${team.members_count} participante${if (team.members_count != 1) "s" else ""}"
                         else
-                            "Sin participantes",
+                            stringResource(Res.string.no_participants),
                         color = textSecondary,
                         style = AppTypo.body(),
                         fontSize = 11.sp
@@ -659,7 +664,7 @@ private fun AddCard(cardColor: Color, onClick: () -> Unit) {
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Unirse o crear equipo",
+                    text = stringResource(Res.string.join_or_create_team),
                     style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
                     fontSize = 13.sp,
                     color = accentColor.copy(alpha = 0.9f),

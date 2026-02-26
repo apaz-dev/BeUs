@@ -35,6 +35,20 @@ import com.alpara.beus.Screens.Auth.GlassTextField
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.Utils.rememberImagePickerLauncher
+import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.add_description
+import com.alpara.beus.resources.cancel
+import com.alpara.beus.resources.close
+import com.alpara.beus.resources.delete
+import com.alpara.beus.resources.delete_photo_title
+import com.alpara.beus.resources.description_optional
+import com.alpara.beus.resources.irreversible_action
+import com.alpara.beus.resources.no_photos
+import com.alpara.beus.resources.no_photos_hint
+import com.alpara.beus.resources.photo_caption_hint
+import com.alpara.beus.resources.upload
+import com.alpara.beus.resources.uploading_photo
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -209,7 +223,7 @@ fun PhotoGalleryScreen(
                         CircularProgressIndicator(color = accentColor)
                         if (uiState.isUploading) {
                             Text(
-                                "Subiendo foto…",
+                                stringResource(Res.string.uploading_photo),
                                 style = AppTypo.body(),
                                 fontSize = 13.sp,
                                 color = textSecondary
@@ -257,13 +271,13 @@ fun PhotoGalleryScreen(
                                 )
                             }
                             Text(
-                                "Sin fotos aún",
+                                stringResource(Res.string.no_photos),
                                 style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
                                 fontSize = 16.sp,
                                 color = onSurface
                             )
                             Text(
-                                "Pulsa + para subir la primera",
+                                stringResource(Res.string.no_photos_hint),
                                 style = AppTypo.body(),
                                 fontSize = 13.sp,
                                 color = textSecondary
@@ -314,7 +328,7 @@ fun PhotoGalleryScreen(
                     ) {
                         Text(error, color = Color(0xFFFF6B6B), fontSize = 13.sp, style = AppTypo.body(), modifier = Modifier.weight(1f))
                         Text(
-                            "Cerrar",
+                            stringResource(Res.string.close),
                             color = Color(0xFFFF6B6B),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -353,7 +367,7 @@ fun PhotoGalleryScreen(
             shape = RoundedCornerShape(24.dp),
             title = {
                 Text(
-                    "Añadir descripción",
+                    stringResource(Res.string.add_description),
                     style = AppTypo.heading().copy(
                         brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
                     ),
@@ -363,7 +377,7 @@ fun PhotoGalleryScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "Dale un título a esta foto:",
+                        text = stringResource(Res.string.photo_caption_hint),
                         style = AppTypo.body(),
                         fontSize = 13.sp,
                         color = textSecondary
@@ -371,7 +385,7 @@ fun PhotoGalleryScreen(
                     GlassTextField(
                         value = captionText,
                         onValueChange = { captionText = it },
-                        placeholder = "Descripción (opcional)",
+                        placeholder = stringResource(Res.string.description_optional),
                         accentColor = accentColor,
                         borderGlass = borderGlass,
                         glassBase = glassBase,
@@ -396,7 +410,7 @@ fun PhotoGalleryScreen(
                         }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Subir", color = Color.White, style = AppTypo.body().copy(fontWeight = FontWeight.Bold), fontSize = 14.sp)
+                    Text(stringResource(Res.string.upload), color = Color.White, style = AppTypo.body().copy(fontWeight = FontWeight.Bold), fontSize = 14.sp)
                 }
             },
             dismissButton = {
@@ -412,7 +426,7 @@ fun PhotoGalleryScreen(
                         }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Cancelar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
+                    Text(stringResource(Res.string.cancel), color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
                 }
             }
         )
@@ -426,7 +440,7 @@ fun PhotoGalleryScreen(
             shape = RoundedCornerShape(24.dp),
             title = {
                 Text(
-                    "¿Borrar foto?",
+                    stringResource(Res.string.delete_photo_title),
                     style = AppTypo.heading().copy(
                         brush = Brush.horizontalGradient(colors = listOf(Color(0xFFFF6B6B), Color(0xFFFF9966)))
                     ),
@@ -435,7 +449,7 @@ fun PhotoGalleryScreen(
             },
             text = {
                 Text(
-                    "Esta acción no se puede deshacer.",
+                    stringResource(Res.string.irreversible_action),
                     color = textSecondary,
                     style = AppTypo.body(),
                     fontSize = 14.sp
@@ -453,7 +467,7 @@ fun PhotoGalleryScreen(
                         }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Eliminar", color = Color(0xFFFF6B6B), style = AppTypo.body().copy(fontWeight = FontWeight.Bold), fontSize = 14.sp)
+                    Text(stringResource(Res.string.delete), color = Color(0xFFFF6B6B), style = AppTypo.body().copy(fontWeight = FontWeight.Bold), fontSize = 14.sp)
                 }
             },
             dismissButton = {
@@ -465,7 +479,7 @@ fun PhotoGalleryScreen(
                         .clickable { photoToDelete = null }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Cancelar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
+                    Text(stringResource(Res.string.cancel), color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
                 }
             }
         )

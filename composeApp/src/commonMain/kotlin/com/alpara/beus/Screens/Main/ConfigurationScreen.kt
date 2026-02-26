@@ -46,10 +46,30 @@ import com.alpara.beus.Models.View.ProfileViewModel
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.account_section
+import com.alpara.beus.resources.cancel
+import com.alpara.beus.resources.confirm_password
+import com.alpara.beus.resources.dark_mode
+import com.alpara.beus.resources.delete
+import com.alpara.beus.resources.delete_account
+import com.alpara.beus.resources.delete_account_message
+import com.alpara.beus.resources.delete_account_title
+import com.alpara.beus.resources.edit_data
 import com.alpara.beus.resources.ico_arrowleft
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
+import com.alpara.beus.resources.leave_password_empty
+import com.alpara.beus.resources.logout
+import com.alpara.beus.resources.name
+import com.alpara.beus.resources.new_password
+import com.alpara.beus.resources.new_password_optional
+import com.alpara.beus.resources.passwordnomatch
+import com.alpara.beus.resources.preferences_section
+import com.alpara.beus.resources.retry
+import com.alpara.beus.resources.save
+import com.alpara.beus.resources.session_section
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
@@ -155,7 +175,7 @@ fun ConfigurationScreenContent(
             shape = RoundedCornerShape(24.dp),
             title = {
                 Text(
-                    "¿Eliminar cuenta?",
+                    stringResource(Res.string.delete_account_title),
                     style = AppTypo.heading().copy(
                         brush = Brush.horizontalGradient(colors = listOf(Color(0xFFFF6B6B), Color(0xFFFF9966)))
                     ),
@@ -164,7 +184,7 @@ fun ConfigurationScreenContent(
             },
             text = {
                 Text(
-                    "Estás a punto de eliminar tu cuenta. ¿Estás seguro?",
+                    stringResource(Res.string.delete_account_message),
                     color = textSecondary,
                     style = AppTypo.body(),
                     fontSize = 14.sp
@@ -179,7 +199,7 @@ fun ConfigurationScreenContent(
                         .clickable { showDeleteAccountDialog = false; onDeleteAccount() }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Eliminar", color = Color(0xFFFF6B6B), style = AppTypo.body().copy(fontWeight = FontWeight.Bold), fontSize = 14.sp)
+                    Text(stringResource(Res.string.delete), color = Color(0xFFFF6B6B), style = AppTypo.body().copy(fontWeight = FontWeight.Bold), fontSize = 14.sp)
                 }
             },
             dismissButton = {
@@ -191,7 +211,7 @@ fun ConfigurationScreenContent(
                         .clickable { showDeleteAccountDialog = false }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Cancelar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
+                    Text(stringResource(Res.string.cancel), color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
                 }
             }
         )
@@ -325,11 +345,11 @@ fun ConfigurationScreenContent(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // Cuenta
-            GlassSectionLabel("Cuenta", accentColor)
+            GlassSectionLabel(stringResource(Res.string.account_section), accentColor)
             GlassSection(glassBase, borderGlass) {
                 GlassRow(
                     icon = Icons.Filled.Edit,
-                    text = "Editar datos",
+                    text = stringResource(Res.string.edit_data),
                     accentColor = accentColor,
                     onSurface = onSurface,
                     showChevron = true,
@@ -340,11 +360,11 @@ fun ConfigurationScreenContent(
             Spacer(Modifier.height(4.dp))
 
             // Preferencias
-            GlassSectionLabel("Preferencias", accentColor)
+            GlassSectionLabel(stringResource(Res.string.preferences_section), accentColor)
             GlassSection(glassBase, borderGlass) {
                 GlassSwitchRow(
                     icon = Icons.Filled.DarkMode,
-                    text = "Modo oscuro",
+                    text = stringResource(Res.string.dark_mode),
                     accentColor = accentColor,
                     onSurface = onSurface,
                     checked = darkModeEnabled,
@@ -356,11 +376,11 @@ fun ConfigurationScreenContent(
             Spacer(Modifier.height(4.dp))
 
             // Peligro
-            GlassSectionLabel("Sesión", accentColor)
+            GlassSectionLabel(stringResource(Res.string.session_section), accentColor)
             GlassSection(glassBase, borderGlass) {
                 GlassRow(
                     icon = Icons.Filled.Logout,
-                    text = "Cerrar sesión",
+                    text = stringResource(Res.string.logout),
                     accentColor = accentColor,
                     onSurface = onSurface,
                     showChevron = false,
@@ -369,7 +389,7 @@ fun ConfigurationScreenContent(
                 GlassDivider(borderGlass)
                 GlassRow(
                     icon = Icons.Filled.Delete,
-                    text = "Borrar cuenta",
+                    text = stringResource(Res.string.delete_account),
                     accentColor = Color(0xFFFF6B6B),
                     onSurface = Color(0xFFFF6B6B),
                     showChevron = false,
@@ -566,7 +586,7 @@ private fun EditDataDialog(
         shape = RoundedCornerShape(24.dp),
         title = {
             Text(
-                "Editar datos",
+                stringResource(Res.string.edit_data),
                 style = AppTypo.heading().copy(
                     brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
                 ),
@@ -579,14 +599,14 @@ private fun EditDataDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Username
-                GlassSectionLabel("Nombre de usuario", accentColor)
+                GlassSectionLabel(stringResource(Res.string.name), accentColor)
                 GlassTextField(
                     value = username,
                     onValueChange = {
                         username = it
                         errorMessage = ""
                     },
-                    placeholder = "Nombre de usuario",
+                    placeholder = stringResource(Res.string.name),
                     accentColor = if (errorMessage.isNotEmpty()) Color(0xFFFF6B6B) else accentColor,
                     borderGlass = if (errorMessage.isNotEmpty()) Color(0xFFFF6B6B).copy(alpha = 0.4f) else borderGlass,
                     glassBase = glassBase,
@@ -596,7 +616,7 @@ private fun EditDataDialog(
                 Spacer(Modifier.height(4.dp))
 
                 // Nueva contraseña
-                GlassSectionLabel("Nueva contraseña (opcional)", accentColor)
+                GlassSectionLabel(stringResource(Res.string.new_password_optional), accentColor)
                 GlassTextField(
                     value = newPassword,
                     onValueChange = {
@@ -604,7 +624,7 @@ private fun EditDataDialog(
                         passwordsMatch = confirmPassword.isEmpty() || it == confirmPassword
                         errorMessage = ""
                     },
-                    placeholder = "Nueva contraseña",
+                    placeholder = stringResource(Res.string.new_password),
                     isPassword = true,
                     passwordVisible = passwordVisible,
                     onTogglePassword = { passwordVisible = !passwordVisible },
@@ -623,7 +643,7 @@ private fun EditDataDialog(
                             passwordsMatch = newPassword == it
                             errorMessage = ""
                         },
-                        placeholder = "Confirmar contraseña",
+                        placeholder = stringResource(Res.string.confirm_password),
                         isPassword = true,
                         passwordVisible = confirmPasswordVisible,
                         onTogglePassword = { confirmPasswordVisible = !confirmPasswordVisible },
@@ -635,7 +655,7 @@ private fun EditDataDialog(
 
                     if (!passwordsMatch && confirmPassword.isNotEmpty()) {
                         Text(
-                            text = "Las contraseñas no coinciden",
+                            text = stringResource(Res.string.passwordnomatch),
                             style = AppTypo.body(),
                             color = Color(0xFFFF6B6B),
                             fontSize = 12.sp
@@ -663,7 +683,7 @@ private fun EditDataDialog(
                 }
 
                 Text(
-                    text = "Deja la contraseña vacía si no deseas cambiarla",
+                    text = stringResource(Res.string.leave_password_empty),
                     style = AppTypo.body(),
                     fontSize = 12.sp,
                     color = textSecondary
@@ -707,7 +727,7 @@ private fun EditDataDialog(
                     )
                 } else {
                     Text(
-                        "Guardar",
+                        stringResource(Res.string.save),
                         color = Color.White,
                         style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
                         fontSize = 14.sp
@@ -724,7 +744,7 @@ private fun EditDataDialog(
                     .clickable { onDismiss() }
                     .padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
-                Text("Cancelar", color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
+                Text(stringResource(Res.string.cancel), color = accentColor, style = AppTypo.body().copy(fontWeight = FontWeight.Medium), fontSize = 14.sp)
             }
         }
     )

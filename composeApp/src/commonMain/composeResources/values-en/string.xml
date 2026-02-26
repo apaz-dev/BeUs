@@ -12,4 +12,98 @@
     <string name="calendar">Calendar</string>
     <string name="rank">Ranking</string>
 
+    <!-- Auth -->
+    <string name="welcome_back">Welcome back</string>
+    <string name="login_button">Log in</string>
+    <string name="create_account_subtitle">Create your account</string>
+    <string name="already_account">Already have an account?</string>
+    <string name="login_link">Log in</string>
+
+    <!-- Home -->
+    <string name="home">Home</string>
+    <string name="no_team">No team</string>
+    <string name="all">All</string>
+    <string name="latest_events">Latest events</string>
+    <string name="no_events">No events yet</string>
+    <string name="no_events_hint">Tap + in the bar to create the first one</string>
+    <string name="no_photos_hint_card">No photos yet — tap to add</string>
+
+    <!-- Profile -->
+    <string name="groups">Groups</string>
+    <string name="join_or_create_team">Join or create team</string>
+    <string name="retry">Retry</string>
+    <string name="no_participants">No participants</string>
+
+    <!-- Team Detail -->
+    <string name="code">Code</string>
+    <string name="members">MEMBERS</string>
+    <string name="owner">Owner</string>
+    <string name="member">Member</string>
+    <string name="kick_button">Kick</string>
+    <string name="leave_button">Leave</string>
+    <string name="dissolve_button">Dissolve</string>
+    <string name="team">Team</string>
+    <!-- Dialog titles with interpolation — XML only, not implemented in screens -->
+    <string name="kick_member_title">Kick member</string>
+    <string name="leave_team_title">Leave team</string>
+    <string name="dissolve_team_title">Dissolve team</string>
+
+    <!-- Common -->
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="close">Close</string>
+    <string name="irreversible_action">This action cannot be undone.</string>
+
+    <!-- Configuration -->
+    <string name="edit_data">Edit data</string>
+    <string name="new_password_optional">New password (optional)</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="leave_password_empty">Leave password empty if you don't want to change it</string>
+    <string name="delete_account_title">Delete account?</string>
+    <string name="delete_account_message">You are about to delete your account. Are you sure?</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="account_section">Account</string>
+    <string name="preferences_section">Preferences</string>
+    <string name="session_section">Session</string>
+    <string name="logout">Log out</string>
+    <string name="delete_account">Delete account</string>
+
+    <!-- Team Modal -->
+    <string name="manage_team">Manage team</string>
+    <string name="team_tab_create">✨ Create</string>
+    <string name="team_tab_join">🔗 Join</string>
+    <string name="team_name_label">Team name</string>
+    <string name="team_code_label">Team code</string>
+    <string name="team_create_hint">A code will be generated automatically so others can join.</string>
+    <string name="team_join_hint">Enter the code shared by the team administrator.</string>
+    <string name="create">Create</string>
+    <string name="join">Join</string>
+    <string name="name_required">Name cannot be empty</string>
+    <string name="min_3_chars">Minimum 3 characters</string>
+    <string name="min_6_chars">Minimum 6 characters</string>
+    <string name="code_required">Code cannot be empty</string>
+
+    <!-- Events -->
+    <string name="new_event">New event</string>
+    <string name="event_title_question">What are you doing today?</string>
+    <string name="event_subtitle">Choose the event type to start</string>
+    <string name="event_name_hint">Give the event a name:</string>
+    <string name="create_event">Create event</string>
+
+    <!-- Photo Gallery -->
+    <string name="uploading_photo">Uploading photo…</string>
+    <string name="no_photos">No photos yet</string>
+    <string name="no_photos_hint">Tap + to upload the first one</string>
+    <string name="add_description">Add description</string>
+    <string name="photo_caption_hint">Give this photo a title:</string>
+    <string name="description_optional">Description (optional)</string>
+    <string name="upload">Upload</string>
+    <string name="delete_photo_title">Delete photo?</string>
+
+    <!-- Misc -->
+    <string name="bets">Bets</string>
+    <string name="under_maintenance">Under maintenance</string>
+
 </resources>

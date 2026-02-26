@@ -12,5 +12,98 @@
     <string name="calendar">Calendario</string>
     <string name="rank">Clasificación</string>
 
+    <!-- Auth -->
+    <string name="welcome_back">Bienvenido de nuevo</string>
+    <string name="login_button">Entrar</string>
+    <string name="create_account_subtitle">Crea tu cuenta</string>
+    <string name="already_account">¿Ya tienes cuenta?</string>
+    <string name="login_link">Inicia sesión</string>
+
+    <!-- Home -->
+    <string name="home">Inicio</string>
+    <string name="no_team">Sin equipo</string>
+    <string name="all">Todos</string>
+    <string name="latest_events">Últimos eventos</string>
+    <string name="no_events">Sin eventos aún</string>
+    <string name="no_events_hint">Pulsa + en la barra para crear el primero</string>
+    <string name="no_photos_hint_card">Sin fotos aún — toca para añadir</string>
+
+    <!-- Profile -->
+    <string name="groups">Grupos</string>
+    <string name="join_or_create_team">Unirse o crear equipo</string>
+    <string name="retry">Reintentar</string>
+    <string name="no_participants">Sin participantes</string>
+
+    <!-- Team Detail -->
+    <string name="code">Código</string>
+    <string name="members">MIEMBROS</string>
+    <string name="owner">Dueño</string>
+    <string name="member">Miembro</string>
+    <string name="kick_button">Expulsar</string>
+    <string name="leave_button">Salir</string>
+    <string name="dissolve_button">Disolver</string>
+    <string name="team">Equipo</string>
+    <!-- Títulos de diálogos con interpolación — SOLO XML, no implementar en screens -->
+    <string name="kick_member_title">Expulsar miembro</string>
+    <string name="leave_team_title">Salir del equipo</string>
+    <string name="dissolve_team_title">Disolver equipo</string>
+
+    <!-- Common -->
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="delete">Eliminar</string>
+    <string name="close">Cerrar</string>
+    <string name="irreversible_action">Esta acción no se puede deshacer.</string>
+
+    <!-- Configuration -->
+    <string name="edit_data">Editar datos</string>
+    <string name="new_password_optional">Nueva contraseña (opcional)</string>
+    <string name="new_password">Nueva contraseña</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="leave_password_empty">Deja la contraseña vacía si no deseas cambiarla</string>
+    <string name="delete_account_title">¿Eliminar cuenta?</string>
+    <string name="delete_account_message">Estás a punto de eliminar tu cuenta. ¿Estás seguro?</string>
+    <string name="dark_mode">Modo oscuro</string>
+    <string name="account_section">Cuenta</string>
+    <string name="preferences_section">Preferencias</string>
+    <string name="session_section">Sesión</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="delete_account">Borrar cuenta</string>
+
+    <!-- Team Modal -->
+    <string name="manage_team">Gestionar equipo</string>
+    <string name="team_tab_create">✨ Crear</string>
+    <string name="team_tab_join">🔗 Unirse</string>
+    <string name="team_name_label">Nombre del equipo</string>
+    <string name="team_code_label">Código de equipo</string>
+    <string name="team_create_hint">Se generará un código automáticamente para que otros puedan unirse.</string>
+    <string name="team_join_hint">Introduce el código que te compartió el administrador del equipo.</string>
+    <string name="create">Crear</string>
+    <string name="join">Unirse</string>
+    <string name="name_required">El nombre no puede estar vacío</string>
+    <string name="min_3_chars">Mínimo 3 caracteres</string>
+    <string name="min_6_chars">Mínimo 6 caracteres</string>
+    <string name="code_required">El código no puede estar vacío</string>
+
+    <!-- Events -->
+    <string name="new_event">Nuevo evento</string>
+    <string name="event_title_question">¿Qué vais a hacer hoy?</string>
+    <string name="event_subtitle">Elige el tipo de evento para empezar</string>
+    <string name="event_name_hint">Dale un nombre al evento:</string>
+    <string name="create_event">Crear evento</string>
+
+    <!-- Photo Gallery -->
+    <string name="uploading_photo">Subiendo foto…</string>
+    <string name="no_photos">Sin fotos aún</string>
+    <string name="no_photos_hint">Pulsa + para subir la primera</string>
+    <string name="add_description">Añadir descripción</string>
+    <string name="photo_caption_hint">Dale un título a esta foto:</string>
+    <string name="description_optional">Descripción (opcional)</string>
+    <string name="upload">Subir</string>
+    <string name="delete_photo_title">¿Borrar foto?</string>
+
+    <!-- Misc -->
+    <string name="bets">Apuestas</string>
+    <string name="under_maintenance">En mantenimiento</string>
 
 </resources>

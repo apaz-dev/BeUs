@@ -18,6 +18,22 @@ import androidx.compose.ui.unit.sp
 import com.alpara.beus.Screens.Auth.GlassTextField
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textSecondary
+import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.cancel
+import com.alpara.beus.resources.code_required
+import com.alpara.beus.resources.create
+import com.alpara.beus.resources.join
+import com.alpara.beus.resources.manage_team
+import com.alpara.beus.resources.min_3_chars
+import com.alpara.beus.resources.min_6_chars
+import com.alpara.beus.resources.name_required
+import com.alpara.beus.resources.team_code_label
+import com.alpara.beus.resources.team_create_hint
+import com.alpara.beus.resources.team_join_hint
+import com.alpara.beus.resources.team_name_label
+import com.alpara.beus.resources.team_tab_create
+import com.alpara.beus.resources.team_tab_join
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
@@ -62,7 +78,7 @@ fun TeamModal(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 // Título con gradiente
                 Text(
-                    text = "Gestionar equipo",
+                    text = stringResource(Res.string.manage_team),
                     style = AppTypo.heading().copy(
                         brush = Brush.horizontalGradient(colors = listOf(accentColor, accentColor2))
                     ),
@@ -79,7 +95,7 @@ fun TeamModal(
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    listOf("✨ Crear", "🔗 Unirse").forEachIndexed { index, label ->
+                    listOf(stringResource(Res.string.team_tab_create), stringResource(Res.string.team_tab_join)).forEachIndexed { index, label ->
                         val isSelected = selectedTab == index
                         Box(
                             modifier = Modifier
@@ -116,7 +132,7 @@ fun TeamModal(
                 when (selectedTab) {
                     // ── Tab: Crear equipo ──────────────────────────────────
                     0 -> {
-                        GlassSectionLabel("Nombre del equipo", accentColor)
+                        GlassSectionLabel(stringResource(Res.string.team_name_label), accentColor)
                         GlassTextField(
                             value = teamName,
                             onValueChange = { teamName = it; errorMessage = "" },
@@ -135,7 +151,7 @@ fun TeamModal(
                             )
                         }
                         Text(
-                            text = "Se generará un código automáticamente para que otros puedan unirse.",
+                            text = stringResource(Res.string.team_create_hint),
                             style = AppTypo.body(),
                             fontSize = 12.sp,
                             color = textSecondary
@@ -143,7 +159,7 @@ fun TeamModal(
                     }
                     // ── Tab: Unirse a equipo ───────────────────────────────
                     1 -> {
-                        GlassSectionLabel("Código de equipo", accentColor)
+                        GlassSectionLabel(stringResource(Res.string.team_code_label), accentColor)
                         GlassTextField(
                             value = joinCode,
                             onValueChange = { joinCode = it.uppercase(); errorMessage = "" },
@@ -162,7 +178,7 @@ fun TeamModal(
                             )
                         }
                         Text(
-                            text = "Introduce el código que te compartió el administrador del equipo.",
+                            text = stringResource(Res.string.team_join_hint),
                             style = AppTypo.body(),
                             fontSize = 12.sp,
                             color = textSecondary
@@ -172,6 +188,10 @@ fun TeamModal(
             }
         },
         confirmButton = {
+            val strNameRequired = stringResource(Res.string.name_required)
+            val strMin3 = stringResource(Res.string.min_3_chars)
+            val strCodeRequired = stringResource(Res.string.code_required)
+            val strMin6 = stringResource(Res.string.min_6_chars)
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
@@ -181,13 +201,13 @@ fun TeamModal(
                     .clickable {
                         when (selectedTab) {
                             0 -> when {
-                                teamName.isBlank() -> errorMessage = "El nombre no puede estar vacío"
-                                teamName.length < 3 -> errorMessage = "Mínimo 3 caracteres"
+                                teamName.isBlank() -> errorMessage = strNameRequired
+                                teamName.length < 3 -> errorMessage = strMin3
                                 else -> { onCreateTeam(teamName); dismiss() }
                             }
                             1 -> when {
-                                joinCode.isBlank() -> errorMessage = "El código no puede estar vacío"
-                                joinCode.length < 6 -> errorMessage = "Mínimo 6 caracteres"
+                                joinCode.isBlank() -> errorMessage = strCodeRequired
+                                joinCode.length < 6 -> errorMessage = strMin6
                                 else -> { onJoinTeam(joinCode); dismiss() }
                             }
                         }
@@ -195,7 +215,7 @@ fun TeamModal(
                     .padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
                 Text(
-                    text = if (selectedTab == 0) "Crear" else "Unirse",
+                    text = if (selectedTab == 0) stringResource(Res.string.create) else stringResource(Res.string.join),
                     style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
                     color = Color.White,
                     fontSize = 14.sp
@@ -212,7 +232,7 @@ fun TeamModal(
                     .padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
                 Text(
-                    text = "Cancelar",
+                    text = stringResource(Res.string.cancel),
                     style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
                     color = accentColor,
                     fontSize = 14.sp

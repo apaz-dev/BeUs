@@ -27,7 +27,11 @@ import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_logo
 import com.alpara.beus.resources.ico_logo2
+import com.alpara.beus.resources.email
+import com.alpara.beus.resources.login_button
 import com.alpara.beus.resources.no_account
+import com.alpara.beus.resources.password
+import com.alpara.beus.resources.welcome_back
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -131,7 +135,7 @@ fun LoginScreen(
             Spacer(Modifier.height(6.dp))
 
             Text(
-                text = "Bienvenido de nuevo",
+                text = stringResource(Res.string.welcome_back),
                 style = AppTypo.body(),
                 fontSize = 14.sp,
                 color = textSecondary
@@ -182,7 +186,7 @@ fun LoginScreen(
                 GlassTextField(
                     value = emailText,
                     onValueChange = { emailText = it },
-                    placeholder = "Email",
+                    placeholder = stringResource(Res.string.email),
                     enabled = !isLoading,
                     accentColor = accentColor,
                     borderGlass = borderGlass,
@@ -194,7 +198,7 @@ fun LoginScreen(
                 GlassTextField(
                     value = passwordText,
                     onValueChange = { passwordText = it },
-                    placeholder = "Contraseña",
+                    placeholder = stringResource(Res.string.password),
                     enabled = !isLoading,
                     isPassword = true,
                     passwordVisible = passwordVisible,
@@ -234,7 +238,7 @@ fun LoginScreen(
                         )
                     } else {
                         Text(
-                            "Entrar",
+                            stringResource(Res.string.login_button),
                             style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
                             color = Color.White,
                             fontSize = 15.sp

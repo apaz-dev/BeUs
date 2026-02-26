@@ -32,8 +32,20 @@ import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textPrimary
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.cancel
+import com.alpara.beus.resources.code
+import com.alpara.beus.resources.dissolve_button
+import com.alpara.beus.resources.irreversible_action
+import com.alpara.beus.resources.kick_button
+import com.alpara.beus.resources.leave_button
+import com.alpara.beus.resources.member
+import com.alpara.beus.resources.members
+import com.alpara.beus.resources.owner
+import com.alpara.beus.resources.retry
+import com.alpara.beus.resources.team
 import com.alpara.beus.resources.ico_arrowleft
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun TeamDetailScreen(
@@ -104,7 +116,7 @@ fun TeamDetailScreen(
                 Text(
                     text = when (val s = state) {
                         is TeamDetailState.Success -> s.detail.name.uppercase()
-                        else -> "Equipo"
+                        else -> stringResource(Res.string.team)
                     },
                     style = AppTypo.heading().copy(
                         brush = Brush.horizontalGradient(listOf(accentColor, accentColor2))
@@ -140,7 +152,7 @@ fun TeamDetailScreen(
                                     .padding(horizontal = 20.dp, vertical = 10.dp)
                             ) {
                                 Text(
-                                    "Reintentar",
+                                    stringResource(Res.string.retry),
                                     color = accentColor,
                                     style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
                                     fontSize = 14.sp
@@ -207,7 +219,7 @@ private fun TeamDetailContent(
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Text(
-            text = "Código",
+            text = stringResource(Res.string.code),
             style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
             color = textSecondary,
             fontSize = 12.sp
@@ -238,7 +250,7 @@ private fun TeamDetailContent(
         modifier = Modifier.padding(horizontal = 20.dp)
     ) {
         Text(
-            text = "MIEMBROS",
+            text = stringResource(Res.string.members),
             style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold, letterSpacing = 1.2.sp),
             color = accentColor,
             fontSize = 11.sp
@@ -351,8 +363,8 @@ private fun MemberRow(
     onDissolve: () -> Unit
 ) {
     val roleLabel = when (member.role) {
-        "OWNER" -> "Dueño"
-        else -> "Miembro"
+        "OWNER" -> stringResource(Res.string.owner)
+        else -> stringResource(Res.string.member)
     }
     val roleColor = if (member.role == "OWNER") accentColor else textSecondary
 
@@ -452,23 +464,23 @@ private fun MemberRow(
                 if (isOwner) {
                     // Dueño ve botón "Disolver"
                     ActionIconButton(
-                        icon = { Icon(Icons.Filled.Delete, contentDescription = "Disolver equipo", tint = Color(0xFFFF6B6B), modifier = Modifier.size(20.dp)) },
-                        tooltip = "Disolver",
+                        icon = { Icon(Icons.Filled.Delete, contentDescription = stringResource(Res.string.dissolve_button), tint = Color(0xFFFF6B6B), modifier = Modifier.size(20.dp)) },
+                        tooltip = stringResource(Res.string.dissolve_button),
                         onClick = onDissolve
                     )
                 } else {
                     // Miembro ve botón "Salir"
                     ActionIconButton(
-                        icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Salir del equipo", tint = Color(0xFFFF6B6B), modifier = Modifier.size(20.dp)) },
-                        tooltip = "Salir",
+                        icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = stringResource(Res.string.leave_button), tint = Color(0xFFFF6B6B), modifier = Modifier.size(20.dp)) },
+                        tooltip = stringResource(Res.string.leave_button),
                         onClick = onLeave
                     )
                 }
             } else if (isOwner && member.role != "OWNER") {
                 // Dueño viendo a otro miembro → puede expulsar
                 ActionIconButton(
-                    icon = { Icon(Icons.Filled.PersonRemove, contentDescription = "Expulsar", tint = Color(0xFFFF9966), modifier = Modifier.size(20.dp)) },
-                    tooltip = "Expulsar",
+                    icon = { Icon(Icons.Filled.PersonRemove, contentDescription = stringResource(Res.string.kick_button), tint = Color(0xFFFF9966), modifier = Modifier.size(20.dp)) },
+                    tooltip = stringResource(Res.string.kick_button),
                     onClick = onKick
                 )
             }
@@ -553,7 +565,7 @@ private fun ConfirmDialog(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "Cancelar",
+                            stringResource(Res.string.cancel),
                             style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
                             color = accentColor,
                             fontSize = 14.sp

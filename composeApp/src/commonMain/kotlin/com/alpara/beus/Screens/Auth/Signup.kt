@@ -61,12 +61,16 @@ import com.alpara.beus.resources.ico_eyeoff
 import com.alpara.beus.resources.ico_home
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textSecondary
+import com.alpara.beus.resources.already_account
+import com.alpara.beus.resources.create_account_subtitle
 import com.alpara.beus.resources.email
 import com.alpara.beus.resources.ico_arrowleft
-import com.alpara.beus.resources.ico_home
 import com.alpara.beus.resources.ico_logo
 import com.alpara.beus.resources.ico_logo2
+import com.alpara.beus.resources.login_link
+import com.alpara.beus.resources.name
 import com.alpara.beus.resources.passwordnomatch
+import com.alpara.beus.resources.password
 import com.alpara.beus.resources.privacy_policy
 import com.alpara.beus.resources.repeat_password
 import com.alpara.beus.resources.signup
@@ -196,7 +200,7 @@ fun SignUpScreen(
             Spacer(Modifier.height(4.dp))
 
             Text(
-                text = "Crea tu cuenta",
+                text = stringResource(Res.string.create_account_subtitle),
                 style = AppTypo.body(),
                 fontSize = 13.sp,
                 color = textSecondary
@@ -245,7 +249,7 @@ fun SignUpScreen(
                 GlassTextField(
                     value = nombre,
                     onValueChange = { nombre = it },
-                    placeholder = "Nombre",
+                    placeholder = stringResource(Res.string.name),
                     enabled = !isLoading,
                     accentColor = accentColor,
                     borderGlass = borderGlass,
@@ -256,7 +260,7 @@ fun SignUpScreen(
                 GlassTextField(
                     value = email,
                     onValueChange = { email = it },
-                    placeholder = "Email",
+                    placeholder = stringResource(Res.string.email),
                     enabled = !isLoading,
                     accentColor = accentColor,
                     borderGlass = borderGlass,
@@ -270,7 +274,7 @@ fun SignUpScreen(
                                 password = it
                                 passwordsMatch = it == repeatPassword || repeatPassword.isEmpty()
                             },
-                            placeholder = "Contraseña",
+                            placeholder = stringResource(Res.string.password),
                             enabled = !isLoading,
                             isPassword = true,
                             passwordVisible = passwordVisible,
@@ -287,7 +291,7 @@ fun SignUpScreen(
                                 repeatPassword = it
                                 passwordsMatch = password == it
                             },
-                            placeholder = "Repetir contraseña",
+                            placeholder = stringResource(Res.string.repeat_password),
                             enabled = !isLoading,
                             isPassword = true,
                             passwordVisible = passwordVisible2,
@@ -381,13 +385,13 @@ fun SignUpScreen(
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "¿Ya tienes cuenta? ",
+                        text = stringResource(Res.string.already_account) + " ",
                         style = AppTypo.body(),
                         color = textSecondary,
                         fontSize = 14.sp
                     )
                     Text(
-                        text = "Inicia sesión",
+                        text = stringResource(Res.string.login_link),
                         style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
                         color = if (isLoading) textSecondary else accentColor,
                         fontSize = 14.sp

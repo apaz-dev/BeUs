@@ -25,8 +25,15 @@ import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.Utils.EventType
 import com.alpara.beus.resources.Res
+import com.alpara.beus.resources.cancel
+import com.alpara.beus.resources.create_event
+import com.alpara.beus.resources.event_name_hint
+import com.alpara.beus.resources.event_subtitle
+import com.alpara.beus.resources.event_title_question
 import com.alpara.beus.resources.ico_arrowleft
+import com.alpara.beus.resources.new_event
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 // Metadatos por tipo de evento
@@ -137,7 +144,7 @@ fun EventScreen(
 
                 // Título con gradiente centrado
                 Text(
-                    text = "Nuevo evento",
+                    text = stringResource(Res.string.new_event),
                     style = AppTypo.heading().copy(
                         brush = Brush.horizontalGradient(
                             colors = listOf(accentColor, accentColor2)
@@ -180,14 +187,14 @@ fun EventScreen(
                     .padding(horizontal = 20.dp, vertical = 16.dp)
             ) {
                 Text(
-                    text = "¿Qué vais a hacer hoy?",
+                    text = stringResource(Res.string.event_title_question),
                     style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
                     fontSize = 18.sp,
                     color = onSurface
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = "Elige el tipo de evento para empezar",
+                    text = stringResource(Res.string.event_subtitle),
                     style = AppTypo.body(),
                     fontSize = 13.sp,
                     color = textSecondary
@@ -333,7 +340,7 @@ fun EventScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "Dale un nombre al evento:",
+                        text = stringResource(Res.string.event_name_hint),
                         style = AppTypo.body(),
                         fontSize = 13.sp,
                         color = textSecondary
@@ -364,7 +371,7 @@ fun EventScreen(
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
                     Text(
-                        "Crear evento",
+                        stringResource(Res.string.create_event),
                         color = Color.White,
                         style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
                         fontSize = 14.sp
@@ -381,7 +388,7 @@ fun EventScreen(
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
                     Text(
-                        "Cancelar",
+                        stringResource(Res.string.cancel),
                         color = accentColor,
                         style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
                         fontSize = 14.sp
