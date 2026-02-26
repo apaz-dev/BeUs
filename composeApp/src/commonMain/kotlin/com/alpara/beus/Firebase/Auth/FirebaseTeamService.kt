@@ -1,7 +1,9 @@
 package com.alpara.beus.Firebase.Auth
 
 import com.alpara.beus.Models.TeamCreateResponse
+import com.alpara.beus.Models.TeamDetail
 import com.alpara.beus.Models.TeamJoinResponse
+import com.alpara.beus.Models.TeamMember
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.DocumentSnapshot
 import dev.gitlive.firebase.firestore.FieldValue
@@ -101,6 +103,121 @@ class FirebaseTeamService {
             Result.failure(Exception("No se pudo generar código único, prueba de nuevo"))
         } catch (e: Exception) {
             Result.failure(Exception("Error al crear equipo: ${e.message}"))
+        }
+    }
+
+    /** Obtiene los detalles del equipo y sus miembros enriquecidos con username */
+    suspend fun getTeamDetail(currentUserId: String, teamId: String): Result<TeamDetail> {
+        return try {
+            // Validar que el teamId no esté vacío (puede ocurrir con datos migrados)
+            if (teamId.isBlank()) {
+                return Result.failure(Exception("El ID del equipo está vacío. Sal y vuelve a entrar al equipo."))
+            }
+
+            val teamRef = firestore.collection("teams").document(teamId)
+            val teamSnap = teamRef.get()
+            if (!teamSnap.exists) return Result.failure(Exception("Equipo no encontrado"))
+
+            val teamName = teamSnap.get<String>("name")
+            val teamCode = teamSnap.get<String>("code")
+
+            val membersSnap = teamRef.collection("members").get()
+            val members = membersSnap.documents.mapNotNull { doc ->
+                val uid = doc.id
+                val role = try { doc.get<String>("role") } catch (_: Exception) { "MEMBER" }
+                // Obtener username del perfil
+                val profileSnap = firestore.collection("profiles").document(uid).get()
+                val username = if (profileSnap.exists) {
+                    try { profileSnap.get<String>("username") } catch (_: Exception) { uid }
+                } else uid
+                TeamMember(userId = uid, username = username, role = role)
+            }
+
+            val currentUserRole = members.find { it.userId == currentUserId }?.role ?: "MEMBER"
+
+            Result.success(
+                TeamDetail(
+                    teamId = teamId,
+                    name = teamName,
+                    joinCode = teamCode,
+                    currentUserRole = currentUserRole,
+                    currentUserId = currentUserId,
+                    members = members
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(Exception("Error al obtener detalles del equipo: ${e.message}"))
+        }
+    }
+
+    /** El dueño expulsa a un miembro */
+    suspend fun kickMember(teamId: String, targetUserId: String, teamCode: String, teamName: String): Result<Unit> {
+        return try {
+            val teamRef = firestore.collection("teams").document(teamId)
+            // Eliminar de la subcolección members
+            teamRef.collection("members").document(targetUserId).delete()
+            // Eliminar del perfil del usuario
+            val profileRef = firestore.collection("profiles").document(targetUserId)
+            val profileSnap = profileRef.get()
+            if (profileSnap.exists) {
+                val teams = try {
+                    profileSnap.get<List<Map<String, String>>>("teams")
+                } catch (_: Exception) { emptyList() }
+                val updated = teams.filter { it["join_code"] != teamCode }
+                profileRef.update(mapOf("teams" to updated))
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Error al expulsar miembro: ${e.message}"))
+        }
+    }
+
+    /** Un miembro abandona el equipo */
+    suspend fun leaveTeam(currentUserId: String, teamId: String, teamCode: String): Result<Unit> {
+        return try {
+            val teamRef = firestore.collection("teams").document(teamId)
+            teamRef.collection("members").document(currentUserId).delete()
+            val profileRef = firestore.collection("profiles").document(currentUserId)
+            val profileSnap = profileRef.get()
+            if (profileSnap.exists) {
+                val teams = try {
+                    profileSnap.get<List<Map<String, String>>>("teams")
+                } catch (_: Exception) { emptyList() }
+                val updated = teams.filter { it["join_code"] != teamCode }
+                profileRef.update(mapOf("teams" to updated))
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Error al salir del equipo: ${e.message}"))
+        }
+    }
+
+    /** El dueño disuelve el equipo (borra todos los miembros, perfiles y el equipo) */
+    suspend fun dissolveTeam(teamId: String, teamCode: String): Result<Unit> {
+        return try {
+            val teamRef = firestore.collection("teams").document(teamId)
+            val membersSnap = teamRef.collection("members").get()
+            // Limpiar cada perfil
+            for (memberDoc in membersSnap.documents) {
+                val uid = memberDoc.id
+                val profileRef = firestore.collection("profiles").document(uid)
+                val profileSnap = profileRef.get()
+                if (profileSnap.exists) {
+                    val teams = try {
+                        profileSnap.get<List<Map<String, String>>>("teams")
+                    } catch (_: Exception) { emptyList() }
+                    val updated = teams.filter { it["join_code"] != teamCode }
+                    profileRef.update(mapOf("teams" to updated))
+                }
+                memberDoc.reference.delete()
+            }
+            // Borrar el código de equipo
+            firestore.collection("teamCodes").document(teamCode.uppercase()).delete()
+            // Borrar el equipo
+            teamRef.delete()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Error al disolver equipo: ${e.message}"))
         }
     }
 

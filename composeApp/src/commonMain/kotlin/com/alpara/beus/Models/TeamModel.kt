@@ -34,6 +34,23 @@ data class TeamMembersResponse(
 )
 
 @Serializable
+data class TeamMember(
+    val userId: String,
+    val username: String,
+    val role: String   // "OWNER" o "MEMBER"
+)
+
+@Serializable
+data class TeamDetail(
+    val teamId: String,
+    val name: String,
+    val joinCode: String,
+    val currentUserRole: String,   // "OWNER" o "MEMBER"
+    val currentUserId: String,
+    val members: List<TeamMember>
+)
+
+@Serializable
 data class TeamJoinRequest(
     val join_code: String
 )

@@ -64,6 +64,8 @@ import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.email
 import com.alpara.beus.resources.ico_arrowleft
 import com.alpara.beus.resources.ico_home
+import com.alpara.beus.resources.ico_logo
+import com.alpara.beus.resources.ico_logo2
 import com.alpara.beus.resources.passwordnomatch
 import com.alpara.beus.resources.privacy_policy
 import com.alpara.beus.resources.repeat_password
@@ -176,9 +178,9 @@ fun SignUpScreen(
             Spacer(Modifier.height(64.dp))
 
             Image(
-                painter = painterResource(Res.drawable.ico_home),
+                painter = painterResource(if (isDark) Res.drawable.ico_logo2 else Res.drawable.ico_logo),
                 contentDescription = null,
-                modifier = Modifier.size(80.dp)
+                modifier = Modifier.size(120.dp)
             )
 
             Spacer(Modifier.height(14.dp))
@@ -205,7 +207,6 @@ fun SignUpScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
                     .border(
                         width = 1.dp,
                         brush = Brush.linearGradient(
@@ -213,6 +214,7 @@ fun SignUpScreen(
                         ),
                         shape = RoundedCornerShape(20.dp)
                     )
+                    .clip(RoundedCornerShape(20.dp))
                     .background(
                         brush = Brush.linearGradient(
                             colors = listOf(glassBase.copy(alpha = 0.78f), glassBase.copy(alpha = 0.55f))
@@ -337,7 +339,6 @@ fun SignUpScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)
-                                .clip(RoundedCornerShape(14.dp))
                                 .background(
                                     brush = if (canSignup)
                                         Brush.linearGradient(colors = listOf(accentColor, accentColor2))
@@ -345,8 +346,10 @@ fun SignUpScreen(
                                         Brush.linearGradient(colors = listOf(
                                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                                        ))
+                                        )),
+                                    shape = RoundedCornerShape(14.dp)
                                 )
+                                .clip(RoundedCornerShape(14.dp))
                                 .clickable(enabled = canSignup) {
                                     viewModel.register(nombre, email, password)
                                 },

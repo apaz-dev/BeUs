@@ -1,3 +1,4 @@
+# Aunque no se use NO borrar
 [versions]
 agp = "8.13.2"
 android-compileSdk = "36"
