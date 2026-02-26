@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -325,11 +327,12 @@ fun ProfileScreenContent(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
                                 .padding(
                                     start = 16.dp,
                                     end = 16.dp,
                                     top = avatarRadius + 12.dp,
-                                    bottom = 16.dp
+                                    bottom = 100.dp // Añadido padding inferior para la navbar
                                 ),
                             verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
