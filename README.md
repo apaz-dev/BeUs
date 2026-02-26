@@ -44,9 +44,9 @@ Hoy en día nuestros recuerdos acaban perdidos entre miles de fotos en el móvil
 
 ### 📷 Galería & Perfil
 
-| Galería de Fotos | Perfil | Configuración |
-|:---:|:---:|:---:|
-| <img src="img/screen_gallery.png" width="180px"/> | <img src="img/screen_profile.png" width="180px"/> | <img src="img/screen_config.png" width="180px"/> |
+| Galería de Fotos |                       Perfil                       | Configuración |
+|:---:|:--------------------------------------------------:|:---:|
+| <img src="img/screen_gallery.png" width="180px"/> | <img src="img/screen_profile.jpeg" width="180px"/> | <img src="img/screen_config.png" width="180px"/> |
 
 ---
 
