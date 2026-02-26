@@ -146,5 +146,6 @@ compose.resources {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
 }
 

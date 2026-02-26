@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +25,8 @@ import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.ico_eye
 import com.alpara.beus.resources.ico_eyeoff
+import com.alpara.beus.resources.ico_logo
+import com.alpara.beus.resources.ico_logo2
 import com.alpara.beus.resources.no_account
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -107,29 +108,14 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo / icono con gradiente
-            Box(
+            // Logo de la aplicación (negro en tema claro, blanco en tema oscuro)
+            Image(
+                painter = painterResource(if (isDark) Res.drawable.ico_logo2 else Res.drawable.ico_logo),
+                contentDescription = "BeUs Logo",
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(120.dp)
                     .clip(RoundedCornerShape(22.dp))
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(accentColor, accentColor2),
-                            start = Offset(0f, 0f),
-                            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-                        )
-                    )
-                    .border(1.dp, borderGlass, RoundedCornerShape(22.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "B",
-                    style = AppTypo.heading(),
-                    fontSize = 38.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            )
 
             Spacer(Modifier.height(16.dp))
 

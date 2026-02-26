@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.sp
 import com.alpara.beus.Models.View.AuthViewModel
 import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.resources.Res
-import com.alpara.beus.resources.ico_home
+import com.alpara.beus.resources.ico_logo
+import com.alpara.beus.resources.ico_logo2
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -52,6 +53,8 @@ fun SplashScreen(
         }
     }
 
+    val isDark = MaterialTheme.colorScheme.background.red < 0.5f
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -73,9 +76,9 @@ fun SplashScreen(
             ) {
                 // Logo de la aplicación
                 Image(
-                    painter = painterResource(Res.drawable.ico_home),
+                    painter = painterResource(if (isDark) Res.drawable.ico_logo2 else Res.drawable.ico_logo),
                     contentDescription = null,
-                    modifier = Modifier.size(96.dp)
+                    modifier = Modifier.size(140.dp)
                 )
 
                 Spacer(Modifier.height(12.dp))
