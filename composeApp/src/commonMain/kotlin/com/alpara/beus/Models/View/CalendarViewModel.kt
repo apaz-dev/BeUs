@@ -309,6 +309,60 @@ class CalendarViewModel : ViewModel() {
         }
     }
 
+    fun deletePhotoFromDate(date: LocalDate, photo: PhotoModel) {
+        val teamId = _uiState.value.activeTeamId
+        if (teamId.isBlank()) {
+            _uiState.value = _uiState.value.copy(error = "No hay equipo activo")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val userId = authService.getCurrentUserId()
+                if (userId == null || userId != photo.uploadedBy) {
+                    _uiState.value = _uiState.value.copy(error = "No tienes permiso para borrar esta foto")
+                    return@launch
+                }
+
+                val token = authService.getCurrentUserToken()
+                if (token.isNullOrBlank()) {
+                    _uiState.value = _uiState.value.copy(error = "No se pudo obtener el token")
+                    return@launch
+                }
+
+                _uiState.value = _uiState.value.copy(error = null, successMessage = null)
+
+                val eventId = buildCalendarEventId(date)
+                storageService.deletePhoto(teamId, eventId, photo.id, token).fold(
+                    onSuccess = {
+                        photoService.deletePhoto(teamId, eventId, photo.id).fold(
+                            onSuccess = {
+                                loadPhotosForDate(date)
+                                _uiState.value = _uiState.value.copy(
+                                    successMessage = "Foto eliminada"
+                                )
+                            },
+                            onFailure = { e ->
+                                _uiState.value = _uiState.value.copy(
+                                    error = "Error al borrar metadata: ${e.message}"
+                                )
+                            }
+                        )
+                    },
+                    onFailure = { e ->
+                        _uiState.value = _uiState.value.copy(
+                            error = e.message ?: "Error al borrar la foto"
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Error borrando la foto"
+                )
+            }
+        }
+    }
+
     fun goToPreviousMonth() {
         val state = _uiState.value
         val (newMonth, newYear) = if (state.currentMonth == 1) {
@@ -370,6 +424,8 @@ class CalendarViewModel : ViewModel() {
             successMessage = null
         )
     }
+
+    fun getCurrentUserId(): String? = authService.getCurrentUserId()
 
     private fun buildCalendarEventId(date: LocalDate): String {
         return "calendar_${date.year}-${date.monthNumber.toString().padStart(2, '0')}-${date.dayOfMonth.toString().padStart(2, '0')}"

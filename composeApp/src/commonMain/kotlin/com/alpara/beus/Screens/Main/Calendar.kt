@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,6 +51,7 @@ fun CalendarScreen(
     val bgColor = MaterialTheme.colorScheme.background
 
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
+    val currentUserId = remember { calendarViewModel.getCurrentUserId() }
 
     var showDayDetail by remember { mutableStateOf(false) }
     var selectedDateForDetail by remember { mutableStateOf<LocalDate?>(null) }
@@ -164,10 +166,14 @@ fun CalendarScreen(
             date = selectedDate,
             dayEvents = uiState.dayEvents[selectedDate],
             calendarPhotos = uiState.calendarDayPhotos[selectedDate] ?: emptyList(),
+            currentUserId = currentUserId,
             accentColor = accentColor,
             onAddPhoto = {
                 pendingPhotoDate = selectedDate
                 imagePicker.launch()
+            },
+            onDeletePhoto = { photo ->
+                calendarViewModel.deletePhotoFromDate(selectedDate, photo)
             },
             onDismiss = { showDayDetail = false }
         )
@@ -489,8 +495,10 @@ fun DayDetailDialog(
     date: LocalDate,
     dayEvents: DayEvents?,
     calendarPhotos: List<PhotoModel>,
+    currentUserId: String?,
     accentColor: Color,
     onAddPhoto: () -> Unit,
+    onDeletePhoto: (PhotoModel) -> Unit,
     onDismiss: () -> Unit
 ) {
     val bgRed = MaterialTheme.colorScheme.background.red
@@ -499,6 +507,7 @@ fun DayDetailDialog(
     val subTextColor = if (isDark) Color(0xFFB0B0B0) else Color(0xFF666666)
     val bgColor = MaterialTheme.colorScheme.background
     val surfaceColor = if (isDark) Color(0xFF2A2A2A) else Color(0xFFFAFAFA)
+    var photoToDelete by remember { mutableStateOf<PhotoModel?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -607,7 +616,12 @@ fun DayDetailDialog(
                 } else {
                     item {
                         DayPhotosGrid(
-                            photos = calendarPhotos
+                            photos = calendarPhotos,
+                            currentUserId = currentUserId,
+                            onDeletePhoto = { photo ->
+                                photoToDelete = photo
+                            },
+                            accentColor = accentColor
                         )
                     }
                 }
@@ -624,6 +638,42 @@ fun DayDetailDialog(
             }
         }
     )
+
+    photoToDelete?.let { photo ->
+        AlertDialog(
+            onDismissRequest = { photoToDelete = null },
+            containerColor = bgColor,
+            title = {
+                Text(
+                    text = "Borrar foto",
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+            },
+            text = {
+                Text(
+                    text = "Esta acción no se puede deshacer.",
+                    color = subTextColor
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDeletePhoto(photo)
+                        photoToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B6B))
+                ) {
+                    Text("Borrar", color = Color.White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { photoToDelete = null }) {
+                    Text("Cancelar", color = accentColor)
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -678,7 +728,12 @@ fun EventDetailCard(
 }
 
 @Composable
-private fun DayPhotosGrid(photos: List<PhotoModel>) {
+private fun DayPhotosGrid(
+    photos: List<PhotoModel>,
+    currentUserId: String? = null,
+    onDeletePhoto: ((PhotoModel) -> Unit)? = null,
+    accentColor: Color = Color(0xFF4F5BFF)
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -690,16 +745,40 @@ private fun DayPhotosGrid(photos: List<PhotoModel>) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 rowPhotos.forEach { photo ->
-                    AsyncImage(
-                        model = photo.publicUrl,
-                        contentDescription = photo.caption,
+                    Box(
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color.Gray),
-                        contentScale = ContentScale.Crop
-                    )
+                            .background(Color.Gray)
+                    ) {
+                        AsyncImage(
+                            model = photo.publicUrl,
+                            contentDescription = photo.caption,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        if (currentUserId != null && onDeletePhoto != null && currentUserId == photo.uploadedBy) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(5.dp)
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Black.copy(alpha = 0.45f))
+                                    .clickable { onDeletePhoto(photo) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Borrar foto",
+                                    tint = accentColor,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                        }
+                    }
                 }
                 if (rowPhotos.size == 1) {
                     Spacer(modifier = Modifier.weight(1f))
