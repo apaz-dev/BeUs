@@ -7,6 +7,9 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.DocumentSnapshot
 import dev.gitlive.firebase.firestore.Timestamp
 import dev.gitlive.firebase.firestore.firestore
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 class FirebaseEventService {
     private val firestore = Firebase.firestore
@@ -28,6 +31,10 @@ class FirebaseEventService {
                 .collection("events")
 
             val docRef = eventsCol.document
+            val today = Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+            val calendarDate = "${today.year}-${today.monthNumber.toString().padStart(2, '0')}-${today.dayOfMonth.toString().padStart(2, '0')}"
             docRef.set(
                 mapOf(
                     "id" to docRef.id,
@@ -35,7 +42,8 @@ class FirebaseEventService {
                     "name" to name,
                     "type" to type.toString(),
                     "user_id" to userId,
-                    "created_at" to Timestamp.now()
+                    "created_at" to Timestamp.now(),
+                    "calendarDate" to calendarDate
                 )
             )
 
@@ -68,7 +76,8 @@ class FirebaseEventService {
                         teamId = teamId,
                         name = doc.get<String>("name"),
                         type = doc.get<String>("type"),
-                        createdAt = createdAt
+                        createdAt = createdAt,
+                        calendarDate = try { doc.get<String>("calendarDate") } catch (_: Exception) { null }
                     )
                 } catch (_: Exception) { null }
             }.sortedByDescending { it.createdAt }

@@ -46,6 +46,9 @@ import com.alpara.beus.resources.no_events
 import com.alpara.beus.resources.no_events_hint
 import com.alpara.beus.resources.no_photos_hint_card
 import com.alpara.beus.resources.no_team
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -583,6 +586,13 @@ fun EventCard(
                         fontSize = 12.sp,
                         color = textSecondary
                     )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = "Creado: ${formatCreatedDate(event.createdAt)}",
+                        style = AppTypo.body(),
+                        fontSize = 11.sp,
+                        color = textSecondary.copy(alpha = 0.9f)
+                    )
                 }
 
                 // Chip de fotos glass
@@ -688,6 +698,22 @@ private val previewEvents = listOf(
         )
     )
 )
+
+private fun formatCreatedDate(createdAt: Long): String {
+    if (createdAt <= 0L) return "fecha desconocida"
+    return try {
+        val date = Instant.fromEpochMilliseconds(createdAt)
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
+        val months = listOf(
+            "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+            "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+        )
+        "${date.dayOfMonth} ${months[date.monthNumber - 1]} ${date.year}"
+    } catch (_: Exception) {
+        "fecha desconocida"
+    }
+}
 
 @Preview(name = "Home — Con eventos (Light)")
 @Composable

@@ -19,6 +19,7 @@ data class EventData(
     val name: String = "",
     val type: String = "",
     val createdAt: Long = 0L,
+    val calendarDate: String? = null,
     val previewPhotos: List<String> = emptyList()  // URLs de las 3 últimas fotos
 )
 

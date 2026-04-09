@@ -25,6 +25,31 @@ class SupabaseStorageService(httpClientEngine: HttpClientEngine) {
         }
     }
 
+    private fun validateConfig(): Result<Unit> {
+        if (url.isBlank()) {
+            return Result.failure(
+                Exception(
+                    "Falta SUPABASE_URL. Configura local.properties con tu URL HTTPS de Supabase Cloud."
+                )
+            )
+        }
+        if (anonKey.isBlank()) {
+            return Result.failure(
+                Exception(
+                    "Falta SUPABASE_ANON_KEY. Configura local.properties con la anon key de tu proyecto."
+                )
+            )
+        }
+        if (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1")) {
+            return Result.failure(
+                Exception(
+                    "URL no valida para Android emulador: usa https://<tu-proyecto>.supabase.co (Cloud) o http://10.0.2.2:<puerto> en local."
+                )
+            )
+        }
+        return Result.success(Unit)
+    }
+
     suspend fun uploadPhoto(
         imageBytes: ByteArray,
         teamId: String,
@@ -32,6 +57,7 @@ class SupabaseStorageService(httpClientEngine: HttpClientEngine) {
         photoId: String,
         authToken: String  // mantenido por compatibilidad, pero se usa anonKey para Supabase
     ): Result<String> {
+        validateConfig().exceptionOrNull()?.let { return Result.failure(it) }
         return try {
             val path = "$teamId/$eventId/$photoId.jpg"
             val uploadUrl = "$url/storage/v1/object/$bucket/$path"
@@ -64,6 +90,7 @@ class SupabaseStorageService(httpClientEngine: HttpClientEngine) {
         photoId: String,
         authToken: String
     ): Result<Unit> {
+        validateConfig().exceptionOrNull()?.let { return Result.failure(it) }
         return try {
             val path = "$teamId/$eventId/$photoId.jpg"
             val deleteUrl = "$url/storage/v1/object/$bucket/$path"
