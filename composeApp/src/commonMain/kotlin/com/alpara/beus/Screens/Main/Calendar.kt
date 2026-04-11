@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -541,49 +543,57 @@ fun DayDetailDialog(
             )
         },
         text = {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 450.dp)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    FilledTonalButton(
+                        onClick = onAddPhoto,
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = accentColor.copy(alpha = 0.15f)
+                        )
                     ) {
-                        FilledTonalButton(
-                            onClick = onAddPhoto,
-                            colors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = accentColor.copy(alpha = 0.15f)
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                tint = accentColor
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "Añadir foto",
-                                color = accentColor
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                if (dayEvents == null || dayEvents.events.isEmpty()) {
-                    item {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            tint = accentColor
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "No hay eventos este día",
-                            color = subTextColor,
-                            fontSize = 14.sp
+                            text = "Añadir foto",
+                            color = accentColor
                         )
                     }
+                }
+
+                Text(
+                    text = "Eventos del día",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+
+                if (dayEvents == null || dayEvents.events.isEmpty()) {
+                    Text(
+                        text = "No hay eventos este día",
+                        color = subTextColor,
+                        fontSize = 14.sp
+                    )
                 } else {
-                    dayEvents.events.forEachIndexed { index, event ->
-                        item {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 240.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = dayEvents.events,
+                            key = { event -> event.id }
+                        ) { event ->
                             EventDetailCard(
                                 event = event,
                                 photos = dayEvents.photos[event.id] ?: emptyList(),
@@ -593,45 +603,32 @@ fun DayDetailDialog(
                                 subTextColor = subTextColor,
                                 onClick = { onOpenEvent(event) }
                             )
-                            if (index < dayEvents.events.size - 1) {
-                                Spacer(modifier = Modifier.height(12.dp))
-                            }
                         }
                     }
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "Fotos del día",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+                Text(
+                    text = "Fotos del día",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
 
                 if (calendarPhotos.isEmpty()) {
-                    item {
-                        Text(
-                            text = "Todavía no hay fotos guardadas en este día",
-                            color = subTextColor,
-                            fontSize = 14.sp
-                        )
-                    }
+                    Text(
+                        text = "Todavía no hay fotos guardadas en este día",
+                        color = subTextColor,
+                        fontSize = 14.sp
+                    )
                 } else {
-                    item {
-                        DayPhotosGrid(
-                            photos = calendarPhotos,
-                            currentUserId = currentUserId,
-                            onDeletePhoto = { photo ->
-                                photoToDelete = photo
-                            },
-                            accentColor = accentColor
-                        )
-                    }
+                    DayPhotosGrid(
+                        photos = calendarPhotos,
+                        currentUserId = currentUserId,
+                        onDeletePhoto = { photo ->
+                            photoToDelete = photo
+                        },
+                        accentColor = accentColor
+                    )
                 }
             }
         },
@@ -732,7 +729,29 @@ fun EventDetailCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            DayPhotosGrid(photos = photos)
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(
+                    items = photos,
+                    key = { photo -> photo.id }
+                ) { photo ->
+                    Box(
+                        modifier = Modifier
+                            .size(92.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.Gray)
+                    ) {
+                        AsyncImage(
+                            model = photo.publicUrl,
+                            contentDescription = photo.caption,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
         }
     }
 }
