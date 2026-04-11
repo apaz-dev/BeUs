@@ -45,7 +45,16 @@ fun NavigationGraph(
             )
         }
         composable(Screen.Calendar.route) {
-            CalendarScreen()
+            CalendarScreen(
+                onOpenEvent = { teamId, eventId, eventName ->
+                    GalleryNavArgs.teamId = teamId
+                    GalleryNavArgs.eventId = eventId
+                    GalleryNavArgs.eventName = eventName
+                    navController.navigate(
+                        Screen.PhotoGallery.createRoute(teamId, eventId, eventName)
+                    )
+                }
+            )
         }
         composable(Screen.Rank.route) {
             RankScreen()

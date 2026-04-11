@@ -42,7 +42,8 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CalendarScreen(
-    calendarViewModel: CalendarViewModel = remember { CalendarViewModel() }
+    calendarViewModel: CalendarViewModel = remember { CalendarViewModel() },
+    onOpenEvent: (teamId: String, eventId: String, eventName: String) -> Unit = { _, _, _ -> }
 ) {
     val bgRed = MaterialTheme.colorScheme.background.red
     val isDark = bgRed < 0.5f
@@ -174,6 +175,11 @@ fun CalendarScreen(
             },
             onDeletePhoto = { photo ->
                 calendarViewModel.deletePhotoFromDate(selectedDate, photo)
+            },
+            onOpenEvent = { event ->
+                val teamId = event.teamId.ifBlank { uiState.activeTeamId }
+                showDayDetail = false
+                onOpenEvent(teamId, event.id, event.name)
             },
             onDismiss = { showDayDetail = false }
         )
@@ -499,6 +505,7 @@ fun DayDetailDialog(
     accentColor: Color,
     onAddPhoto: () -> Unit,
     onDeletePhoto: (PhotoModel) -> Unit,
+    onOpenEvent: (com.alpara.beus.Models.EventData) -> Unit,
     onDismiss: () -> Unit
 ) {
     val bgRed = MaterialTheme.colorScheme.background.red
@@ -583,7 +590,8 @@ fun DayDetailDialog(
                                 accentColor = accentColor,
                                 surfaceColor = surfaceColor,
                                 textColor = textColor,
-                                subTextColor = subTextColor
+                                subTextColor = subTextColor,
+                                onClick = { onOpenEvent(event) }
                             )
                             if (index < dayEvents.events.size - 1) {
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -683,13 +691,15 @@ fun EventDetailCard(
     accentColor: Color,
     surfaceColor: Color,
     textColor: Color,
-    subTextColor: Color
+    subTextColor: Color,
+    onClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
+            .clickable(onClick = onClick)
             .padding(12.dp)
     ) {
         Row(
