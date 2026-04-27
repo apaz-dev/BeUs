@@ -448,4 +448,32 @@ class CalendarViewModel : ViewModel() {
     private fun isLeapYear(year: Int): Boolean {
         return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
     }
+
+    fun refreshForActiveTeam(teamCodeOrId: String? = null) {
+        val active = teamCodeOrId?.takeIf { it.isNotBlank() }
+            ?: try {
+                com.alpara.beus.BarNav.ActiveTeamArgs.teamId.takeIf { it.isNotBlank() }
+            } catch (_: Exception) {
+                null
+            }
+
+        if (active.isNullOrBlank()) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                dayEvents = emptyMap(),
+                calendarDayPhotos = emptyMap(),
+                activeTeamId = "",
+                error = null
+            )
+            return
+        }
+
+        if (active == _uiState.value.activeTeamId &&
+            (_uiState.value.dayEvents.isNotEmpty() || _uiState.value.calendarDayPhotos.isNotEmpty())
+        ) {
+            return
+        }
+
+        loadTeamAndEvents()
+    }
 }

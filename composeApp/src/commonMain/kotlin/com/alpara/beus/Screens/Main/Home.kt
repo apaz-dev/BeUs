@@ -68,7 +68,16 @@ fun HomeScreen(
             (profileState as ProfileState.Success).profile.teams
         else emptyList()
     }
-    var selectedTeam by remember(teams) { mutableStateOf(teams.firstOrNull()) }
+
+    // Mantiene el equipo previamente seleccionado entre pestañas/recomposiciones.
+    val persistedTeamKey = ActiveTeamArgs.teamId
+    var selectedTeam by remember(teams, persistedTeamKey) {
+        val persisted = teams.firstOrNull { team ->
+            val teamKey = team.team_id?.takeIf { it.isNotBlank() } ?: team.join_code.orEmpty()
+            teamKey.isNotBlank() && teamKey == persistedTeamKey
+        }
+        mutableStateOf(persisted ?: teams.firstOrNull())
+    }
     val teamId = remember(selectedTeam) {
         selectedTeam?.team_id?.takeIf { it.isNotBlank() } ?: selectedTeam?.join_code ?: ""
     }

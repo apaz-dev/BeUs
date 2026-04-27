@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.alpara.beus.BarNav.ActiveTeamArgs
 import com.alpara.beus.Models.PhotoModel
 import com.alpara.beus.Models.View.CalendarViewModel
 import com.alpara.beus.Models.View.DayEvents
@@ -44,7 +45,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CalendarScreen(
-    calendarViewModel: CalendarViewModel = remember { CalendarViewModel() },
+    calendarViewModel: CalendarViewModel,
     onOpenEvent: (teamId: String, eventId: String, eventName: String) -> Unit = { _, _, _ -> }
 ) {
     val bgRed = MaterialTheme.colorScheme.background.red
@@ -72,6 +73,9 @@ fun CalendarScreen(
 
     LaunchedEffect(Unit) {
         calendarViewModel.initializeCurrentMonth()
+    }
+    LaunchedEffect(ActiveTeamArgs.teamId) {
+        calendarViewModel.refreshForActiveTeam(ActiveTeamArgs.teamId)
     }
     LaunchedEffect(uiState.successMessage) {
         if (!uiState.successMessage.isNullOrBlank()) {
