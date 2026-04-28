@@ -42,7 +42,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel,
-    onOpenEvent: (teamId: String, eventId: String, eventName: String) -> Unit = { _, _, _ -> }
+    onOpenEvent: (teamId: String, eventId: String, eventName: String, endDate: String?) -> Unit = { _, _, _, _ -> }
 ) {
     val bgRed = MaterialTheme.colorScheme.background.red
     val isDark = bgRed < 0.5f
@@ -265,7 +265,7 @@ fun CalendarScreen(
             onOpenEvent = { event ->
                 val teamId = event.teamId.ifBlank { uiState.activeTeamId }
                 showDayDetail = false
-                onOpenEvent(teamId, event.id, event.name)
+                onOpenEvent(teamId, event.id, event.name, event.endDate)
             },
             onDismiss = { showDayDetail = false }
         )

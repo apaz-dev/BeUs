@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 data class PhotoGalleryUiState(
     val photos: List<PhotoModel> = emptyList(),
@@ -56,11 +59,30 @@ class PhotoViewModel : ViewModel() {
         imageBytes: ByteArray,
         teamId: String,
         eventId: String,
-        caption: String = ""
+        caption: String = "",
+        eventEndDate: String? = null
     ) {
         if (teamId.isBlank() || eventId.isBlank()) {
             _uiState.value = _uiState.value.copy(error = "No hay equipo o evento seleccionado")
             return
+        }
+
+        // Validar que el evento no haya expirado
+        if (!eventEndDate.isNullOrBlank()) {
+            try {
+                val endDate = LocalDate.parse(eventEndDate)
+                val todayDate = Clock.System.now().toEpochMilliseconds().let { ms ->
+                    @Suppress("DEPRECATION")
+                    kotlinx.datetime.Instant.fromEpochMilliseconds(ms)
+                        .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                }
+                if (todayDate > endDate) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Este evento ya ha finalizado. No se pueden subir más fotos."
+                    )
+                    return
+                }
+            } catch (_: Exception) { /* formato inválido, dejar pasar */ }
         }
         viewModelScope.launch {
             val userId = authService.getCurrentUserId()

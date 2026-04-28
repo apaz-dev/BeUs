@@ -48,19 +48,38 @@ import com.alpara.beus.resources.no_photos_hint
 import com.alpara.beus.resources.photo_caption_hint
 import com.alpara.beus.resources.upload
 import com.alpara.beus.resources.uploading_photo
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun PhotoGalleryScreen(
     teamId: String,
     eventId: String,
     eventName: String = "Evento",
+    eventEndDate: String? = null,
     onBack: () -> Unit,
     viewModel: PhotoViewModel = remember { PhotoViewModel() }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentUserId = remember { viewModel.getCurrentUserId() }
+
+    // Comprobar si el evento ha expirado
+    val isEventExpired = remember(eventEndDate) {
+        if (eventEndDate.isNullOrBlank()) false
+        else try {
+            val endDate = LocalDate.parse(eventEndDate)
+            @Suppress("DEPRECATION")
+            val today = kotlinx.datetime.Instant.fromEpochMilliseconds(
+                Clock.System.now().toEpochMilliseconds()
+            ).toLocalDateTime(TimeZone.currentSystemDefault()).date
+            today > endDate
+        } catch (_: Exception) { false }
+    }
 
     var photoToDelete by remember { mutableStateOf<PhotoModel?>(null) }
     var showCaptionDialog by remember { mutableStateOf(false) }
@@ -212,6 +231,39 @@ fun PhotoGalleryScreen(
                 .padding(paddingValues)
                 .background(bgColor)
         ) {
+            // ── Banner de evento expirado ───────────────────────────────
+            if (isEventExpired) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .border(1.dp, Color(0xFFFF9966).copy(alpha = 0.4f), RoundedCornerShape(14.dp))
+                        .background(
+                            if (isDark) Color(0xFF2A2010).copy(alpha = 0.9f)
+                            else Color(0xFFFFF8F0).copy(alpha = 0.95f)
+                        )
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .align(Alignment.TopCenter)
+                ) {
+                    Column {
+                        Text(
+                            stringResource(Res.string.event_expired),
+                            color = Color(0xFFFF9966),
+                            fontSize = 14.sp,
+                            style = AppTypo.body().copy(fontWeight = FontWeight.Bold)
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            stringResource(Res.string.event_expired_hint),
+                            color = Color(0xFFFF9966).copy(alpha = 0.8f),
+                            fontSize = 12.sp,
+                            style = AppTypo.body()
+                        )
+                    }
+                }
+            }
+
             when {
                 // ── Loading / Uploading ───────────────────────────────────
                 uiState.isLoading || uiState.isUploading -> {
@@ -402,7 +454,7 @@ fun PhotoGalleryScreen(
                         )
                         .clickable {
                             pendingImageBytes?.let { bytes ->
-                                viewModel.uploadPhoto(bytes, teamId, eventId, captionText)
+                                viewModel.uploadPhoto(bytes, teamId, eventId, captionText, eventEndDate)
                             }
                             showCaptionDialog = false
                             pendingImageBytes = null

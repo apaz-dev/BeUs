@@ -36,10 +36,11 @@ fun NavigationGraph(
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
-                onOpenGallery = { teamId, eventId, eventName ->
+                onOpenGallery = { teamId, eventId, eventName, endDate ->
                     GalleryNavArgs.teamId = teamId
                     GalleryNavArgs.eventId = eventId
                     GalleryNavArgs.eventName = eventName
+                    GalleryNavArgs.eventEndDate = endDate
                     navController.navigate(
                         Screen.PhotoGallery.createRoute(teamId, eventId, eventName)
                     )
@@ -50,10 +51,11 @@ fun NavigationGraph(
             val calendarViewModel = remember { CalendarViewModel() }
             CalendarScreen(
                 calendarViewModel = calendarViewModel,
-                onOpenEvent = { teamId, eventId, eventName ->
+                onOpenEvent = { teamId, eventId, eventName, endDate ->
                     GalleryNavArgs.teamId = teamId
                     GalleryNavArgs.eventId = eventId
                     GalleryNavArgs.eventName = eventName
+                    GalleryNavArgs.eventEndDate = endDate
                     navController.navigate(
                         Screen.PhotoGallery.createRoute(teamId, eventId, eventName)
                     )
@@ -122,6 +124,7 @@ fun NavigationGraph(
                 teamId = GalleryNavArgs.teamId,
                 eventId = GalleryNavArgs.eventId,
                 eventName = GalleryNavArgs.eventName.ifBlank { "Galería" },
+                eventEndDate = GalleryNavArgs.eventEndDate,
                 onBack = { navController.popBackStack() }
             )
         }

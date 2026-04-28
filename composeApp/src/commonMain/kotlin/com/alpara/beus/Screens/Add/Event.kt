@@ -35,6 +35,9 @@ import com.alpara.beus.resources.new_event
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.Clock
 
 // Metadatos por tipo de evento
 private data class EventOption(
@@ -57,7 +60,7 @@ private val eventOptions = listOf(
 @Composable
 @Preview
 fun EventScreenPreview() {
-    EventScreen(onHomeBack = {}, search = {}, onAddEvent = { _, _ -> })
+    EventScreen(onHomeBack = {}, search = {}, onAddEvent = { _, _, _ -> })
 }
 
 @Composable
@@ -69,8 +72,8 @@ fun EventScreenCall(
     EventScreen(
         onHomeBack = onBack,
         search = {},
-        onAddEvent = { typeName, name ->
-            viewModel.createEvent(teamId, name = name, type = typeName)
+        onAddEvent = { typeName, name, endDate ->
+            viewModel.createEvent(teamId, name = name, type = typeName, endDate = endDate)
             onBack()
         }
     )
@@ -80,11 +83,12 @@ fun EventScreenCall(
 fun EventScreen(
     onHomeBack: () -> Unit,
     search: () -> Unit = {},
-    onAddEvent: (String, String) -> Unit
+    onAddEvent: (String, String, String?) -> Unit
 ) {
     var pendingEventType by remember { mutableStateOf<EventType?>(null) }
     var customEventTypeName by remember { mutableStateOf("") }
     var eventName by remember { mutableStateOf("") }
+    var eventEndDate by remember { mutableStateOf("") }  // yyyy-MM-dd
 
     // ── Glassmorphism palette ──────────────────────────────────────────────
     val bgRed       = MaterialTheme.colorScheme.background.red
@@ -241,6 +245,7 @@ fun EventScreen(
                                 pendingEventType = option.type
                                 customEventTypeName = ""
                                 eventName = ""
+                                eventEndDate = ""
                             }
                     ) {
                         // Barra de acento izquierda
@@ -311,9 +316,9 @@ fun EventScreen(
         val meta = eventOptions.find { it.type == selectedType }
         val isCustomEvent = selectedType == EventType.PERSONALIZADO
         val canCreateEvent = if (isCustomEvent) {
-            customEventTypeName.isNotBlank() && eventName.isNotBlank()
+            customEventTypeName.isNotBlank() && eventName.isNotBlank() && eventEndDate.isNotBlank()
         } else {
-            true
+            eventEndDate.isNotBlank()
         }
 
         AlertDialog(
@@ -321,6 +326,7 @@ fun EventScreen(
                 pendingEventType = null
                 customEventTypeName = ""
                 eventName = ""
+                eventEndDate = ""
             },
             containerColor = glassBase,
             shape = RoundedCornerShape(24.dp),
@@ -384,6 +390,82 @@ fun EventScreen(
                         glassBase = glassBase,
                         onSurface = onSurface
                     )
+
+                    Spacer(Modifier.height(4.dp))
+
+                    // ── Fecha de fin del evento ──
+                    Text(
+                        text = stringResource(Res.string.event_end_date_label),
+                        style = AppTypo.body(),
+                        fontSize = 13.sp,
+                        color = textSecondary
+                    )
+                    Text(
+                        text = stringResource(Res.string.event_end_date_hint),
+                        style = AppTypo.body(),
+                        fontSize = 11.sp,
+                        color = textSecondary.copy(alpha = 0.7f)
+                    )
+
+                    // Selector de fecha con 3 desplegables (día, mes, año)
+                    @Suppress("DEPRECATION")
+                    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                    var selectedYear by remember { mutableStateOf(now.year) }
+                    var selectedMonth by remember { mutableStateOf(now.month.ordinal + 1) }
+                    var selectedDay by remember { mutableStateOf(now.dayOfMonth.coerceAtLeast(1)) }
+
+                    // Calcular días válidos para el mes/año seleccionados
+                    val daysInMonth = when (selectedMonth) {
+                        1, 3, 5, 7, 8, 10, 12 -> 31
+                        4, 6, 9, 11 -> 30
+                        2 -> if (selectedYear % 4 == 0 && (selectedYear % 100 != 0 || selectedYear % 400 == 0)) 29 else 28
+                        else -> 31
+                    }
+                    if (selectedDay > daysInMonth) selectedDay = daysInMonth
+
+                    // Actualizar eventEndDate cuando cambian los selectores
+                    LaunchedEffect(selectedYear, selectedMonth, selectedDay) {
+                        eventEndDate = "${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${selectedDay.toString().padStart(2, '0')}"
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Día
+                        GlassDropdown(
+                            modifier = Modifier.weight(1f),
+                            value = selectedDay.toString().padStart(2, '0'),
+                            options = (1..daysInMonth).map { it.toString().padStart(2, '0') },
+                            onSelected = { selectedDay = it.toInt() },
+                            accentColor = accentColor,
+                            borderGlass = borderGlass,
+                            glassBase = glassBase,
+                            onSurface = onSurface
+                        )
+                        // Mes
+                        GlassDropdown(
+                            modifier = Modifier.weight(1f),
+                            value = selectedMonth.toString().padStart(2, '0'),
+                            options = (1..12).map { it.toString().padStart(2, '0') },
+                            onSelected = { selectedMonth = it.toInt() },
+                            accentColor = accentColor,
+                            borderGlass = borderGlass,
+                            glassBase = glassBase,
+                            onSurface = onSurface
+                        )
+                        // Año
+                        GlassDropdown(
+                            modifier = Modifier.weight(1.2f),
+                            value = selectedYear.toString(),
+                            options = (now.year..now.year + 5).map { it.toString() },
+                            onSelected = { selectedYear = it.toInt() },
+                            accentColor = accentColor,
+                            borderGlass = borderGlass,
+                            glassBase = glassBase,
+                            onSurface = onSurface
+                        )
+                    }
                 }
             },
             confirmButton = {
@@ -406,10 +488,11 @@ fun EventScreen(
                                 selectedType.name
                             }
                             val finalName = eventName.trim().ifBlank { finalType }
-                            onAddEvent(finalType, finalName)
+                            onAddEvent(finalType, finalName, eventEndDate.ifBlank { null })
                             pendingEventType = null
                             customEventTypeName = ""
                             eventName = ""
+                            eventEndDate = ""
                         }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
@@ -431,6 +514,7 @@ fun EventScreen(
                             pendingEventType = null
                             customEventTypeName = ""
                             eventName = ""
+                            eventEndDate = ""
                         }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
@@ -445,3 +529,65 @@ fun EventScreen(
         )
     }
 }
+
+/**
+ * Dropdown con estilo glassmorphism para seleccionar valores (día, mes, año).
+ */
+@Composable
+private fun GlassDropdown(
+    modifier: Modifier = Modifier,
+    value: String,
+    options: List<String>,
+    onSelected: (String) -> Unit,
+    accentColor: Color,
+    borderGlass: Color,
+    glassBase: Color,
+    onSurface: Color
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(glassBase.copy(alpha = 0.6f))
+                .border(1.dp, borderGlass, RoundedCornerShape(12.dp))
+                .clickable { expanded = true }
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = value,
+                style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                fontSize = 14.sp,
+                color = onSurface
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .heightIn(max = 200.dp)
+                .background(glassBase)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = option,
+                            fontSize = 14.sp,
+                            color = if (option == value) accentColor else onSurface,
+                            fontWeight = if (option == value) FontWeight.Bold else FontWeight.Normal
+                        )
+                    },
+                    onClick = {
+                        onSelected(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+

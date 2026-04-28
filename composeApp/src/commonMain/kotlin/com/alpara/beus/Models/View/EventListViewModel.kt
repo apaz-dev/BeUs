@@ -73,7 +73,7 @@ class EventListViewModel : ViewModel() {
         }
     }
 
-    fun createEvent(codeOrId: String, name: String, type: String) {
+    fun createEvent(codeOrId: String, name: String, type: String, endDate: String? = null) {
         viewModelScope.launch {
             val userId = authService.getCurrentUserId()
             if (userId == null) {
@@ -96,7 +96,7 @@ class EventListViewModel : ViewModel() {
                 )
             }
 
-            eventService.addEvent(userId, resolvedTeamId, name, type).fold(
+            eventService.addEvent(userId, resolvedTeamId, name, type, endDate).fold(
                 onSuccess = {
                     _uiState.value = _uiState.value.copy(
                         isCreating = false,
