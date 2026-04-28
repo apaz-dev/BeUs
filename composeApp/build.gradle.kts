@@ -86,6 +86,7 @@ kotlin {
             implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
             // Fechas multiplataforma
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             // SPACE
             implementation(compose.runtime)
             implementation(compose.foundation)

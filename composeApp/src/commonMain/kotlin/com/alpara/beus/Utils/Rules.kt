@@ -6,7 +6,8 @@ enum class EventType {
     MONTANA,
     CENA,
     VIAJE,
-    COMPETICION
+    COMPETICION,
+    PERSONALIZADO
 }
 
 enum class RequirementType {
@@ -30,4 +31,3 @@ val eventRequirements: Map<EventType, List<RequirementType>> = mapOf(
         RequirementType.ENCUESTA
     )
 )
-

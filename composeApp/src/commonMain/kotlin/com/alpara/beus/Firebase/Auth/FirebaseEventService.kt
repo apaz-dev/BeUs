@@ -2,11 +2,13 @@ package com.alpara.beus.Firebase.Auth
 
 import com.alpara.beus.Models.EventData
 import com.alpara.beus.Models.EventRCreate
-import com.alpara.beus.Utils.EventType
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.DocumentSnapshot
 import dev.gitlive.firebase.firestore.Timestamp
 import dev.gitlive.firebase.firestore.firestore
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 class FirebaseEventService {
     private val firestore = Firebase.firestore
@@ -16,11 +18,12 @@ class FirebaseEventService {
         userId: String,
         teamId: String,
         name: String,
-        type: EventType
+        type: String
     ): Result<EventRCreate> {
         return try {
             if (teamId.isBlank()) return Result.failure(Exception("No hay equipo seleccionado"))
             if (name.isBlank()) return Result.failure(Exception("El nombre del evento no puede estar vacío"))
+            if (type.isBlank()) return Result.failure(Exception("El tipo de evento no puede estar vacío"))
 
             val eventsCol = firestore
                 .collection("teams")
@@ -28,20 +31,43 @@ class FirebaseEventService {
                 .collection("events")
 
             val docRef = eventsCol.document
+            val today = Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+            val calendarDate = "${today.year}-${today.monthNumber.toString().padStart(2, '0')}-${today.dayOfMonth.toString().padStart(2, '0')}"
             docRef.set(
                 mapOf(
                     "id" to docRef.id,
                     "teamId" to teamId,
                     "name" to name,
-                    "type" to type.toString(),
+                    "type" to type,
                     "user_id" to userId,
-                    "created_at" to Timestamp.now()
+                    "created_at" to Timestamp.now(),
+                    "calendarDate" to calendarDate
                 )
             )
 
             Result.success(EventRCreate(message = "Evento creado correctamente"))
         } catch (e: Exception) {
             Result.failure(Exception("Error al crear evento: ${e.message}"))
+        }
+    }
+
+    suspend fun deleteEvent(teamId: String, eventId: String): Result<Unit> {
+        return try {
+            if (teamId.isBlank()) return Result.failure(Exception("No hay equipo seleccionado"))
+            if (eventId.isBlank()) return Result.failure(Exception("Evento no valido"))
+
+            firestore
+                .collection("teams")
+                .document(teamId)
+                .collection("events")
+                .document(eventId)
+                .delete()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Error al borrar evento: ${e.message}"))
         }
     }
 
@@ -68,7 +94,8 @@ class FirebaseEventService {
                         teamId = teamId,
                         name = doc.get<String>("name"),
                         type = doc.get<String>("type"),
-                        createdAt = createdAt
+                        createdAt = createdAt,
+                        calendarDate = try { doc.get<String>("calendarDate") } catch (_: Exception) { null }
                     )
                 } catch (_: Exception) { null }
             }.sortedByDescending { it.createdAt }
