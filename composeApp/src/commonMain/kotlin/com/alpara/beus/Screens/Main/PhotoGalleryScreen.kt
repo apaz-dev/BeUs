@@ -42,6 +42,8 @@ import com.alpara.beus.resources.close
 import com.alpara.beus.resources.delete
 import com.alpara.beus.resources.delete_photo_title
 import com.alpara.beus.resources.description_optional
+import com.alpara.beus.resources.event_expired
+import com.alpara.beus.resources.event_expired_hint
 import com.alpara.beus.resources.irreversible_action
 import com.alpara.beus.resources.no_photos
 import com.alpara.beus.resources.no_photos_hint

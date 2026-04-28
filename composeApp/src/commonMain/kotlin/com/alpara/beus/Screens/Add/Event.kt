@@ -27,6 +27,8 @@ import com.alpara.beus.Utils.EventType
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.cancel
 import com.alpara.beus.resources.create_event
+import com.alpara.beus.resources.event_end_date_hint
+import com.alpara.beus.resources.event_end_date_label
 import com.alpara.beus.resources.event_name_hint
 import com.alpara.beus.resources.event_subtitle
 import com.alpara.beus.resources.event_title_question
