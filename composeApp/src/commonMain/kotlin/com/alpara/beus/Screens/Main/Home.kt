@@ -11,9 +11,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -82,6 +84,7 @@ fun HomeScreen(
         selectedTeam?.team_id?.takeIf { it.isNotBlank() } ?: selectedTeam?.join_code ?: ""
     }
     var teamDropdownExpanded by remember { mutableStateOf(false) }
+    var eventPendingDeletion by remember { mutableStateOf<EventData?>(null) }
 
     LaunchedEffect(teamId) {
         if (teamId.isNotBlank()) {
@@ -310,23 +313,39 @@ fun HomeScreen(
                     val bottomPadding = 12.dp + 70.dp + 12.dp + navBarInsets.calculateBottomPadding()
 
                     // Estado del filtro de tipo de evento
-                    var selectedEventType by remember { mutableStateOf<EventType?>(null) }
+                    var selectedEventType by remember { mutableStateOf<String?>(null) }
                     var filterDropdownExpanded by remember { mutableStateOf(false) }
 
                     val filteredEvents = remember(uiState.events, selectedEventType) {
                         if (selectedEventType == null) uiState.events
-                        else uiState.events.filter { it.type.equals(selectedEventType!!.name, ignoreCase = true) }
+                        else uiState.events.filter { it.type.equals(selectedEventType, ignoreCase = true) }
                     }
 
                     // Etiquetas con emoji para cada tipo
                     val eventTypeLabels = mapOf(
-                        EventType.FIESTA      to "🎉 Fiesta",
-                        EventType.BAR         to "🍻 Quedada",
-                        EventType.MONTANA     to "🏔️ Montaña",
-                        EventType.CENA        to "🍽️ Cena",
-                        EventType.VIAJE       to "✈️ Viaje",
-                        EventType.COMPETICION to "🏆 Competición"
+                        EventType.FIESTA.name to "🎉 Fiesta",
+                        EventType.BAR.name to "🍻 Quedada",
+                        EventType.MONTANA.name to "🏔️ Montaña",
+                        EventType.CENA.name to "🍽️ Cena",
+                        EventType.VIAJE.name to "✈️ Viaje",
+                        EventType.COMPETICION.name to "🏆 Competición"
                     )
+                    val fixedEventTypes = EventType.entries
+                        .filter { it != EventType.PERSONALIZADO }
+                        .map { it.name }
+                    val filterEventTypes = remember(uiState.events) {
+                        val customEventTypes = uiState.events
+                            .map { it.type.trim() }
+                            .filter { type ->
+                                type.isNotEmpty() &&
+                                    !type.equals(EventType.PERSONALIZADO.name, ignoreCase = true) &&
+                                    fixedEventTypes.none { it.equals(type, ignoreCase = true) }
+                            }
+                            .distinctBy { it.lowercase() }
+                            .sortedBy { it.lowercase() }
+
+                        fixedEventTypes + customEventTypes
+                    }
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -400,7 +419,7 @@ fun HomeScreen(
                                         ) {
                                             Text(
                                                 text = if (selectedEventType != null)
-                                                    eventTypeLabels[selectedEventType] ?: selectedEventType!!.name
+                                                    eventTypeLabels[selectedEventType] ?: selectedEventType.orEmpty()
                                                 else stringResource(Res.string.all),
                                                 color = accentColor,
                                                 style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
@@ -441,12 +460,12 @@ fun HomeScreen(
                                             }
                                         )
                                         // Opciones por tipo
-                                        EventType.entries.forEach { type ->
+                                        filterEventTypes.forEach { type ->
                                             val isSelected = type == selectedEventType
                                             DropdownMenuItem(
                                                 text = {
                                                     Text(
-                                                        text = eventTypeLabels[type] ?: type.name,
+                                                        text = eventTypeLabels[type] ?: type,
                                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                                         color = if (isSelected) accentColor
                                                         else MaterialTheme.colorScheme.onSurface,
@@ -467,6 +486,8 @@ fun HomeScreen(
                             EventCard(
                                 event = event,
                                 onClick = { onOpenGallery(event.teamId, event.id, event.name) },
+                                onDelete = { eventPendingDeletion = event },
+                                isDeleting = uiState.deletingEventId == event.id,
                                 accentColor = accentColor,
                                 accentColor2 = accentColor2,
                                 glassBase = glassBase,
@@ -484,7 +505,7 @@ fun HomeScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = "No hay eventos de tipo \"${eventTypeLabels[selectedEventType] ?: selectedEventType?.name}\"",
+                                        text = "No hay eventos de tipo \"${eventTypeLabels[selectedEventType] ?: selectedEventType}\"",
                                         style = AppTypo.body(),
                                         fontSize = 13.sp,
                                         color = textSecondary
@@ -528,11 +549,110 @@ fun HomeScreen(
             }
         }
     }
+
+    eventPendingDeletion?.let { event ->
+        val isDeleting = uiState.deletingEventId == event.id
+
+        AlertDialog(
+            onDismissRequest = {
+                if (!isDeleting) eventPendingDeletion = null
+            },
+            containerColor = glassBase,
+            shape = RoundedCornerShape(24.dp),
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color(0xFFFF6B6B).copy(alpha = if (isDark) 0.18f else 0.12f))
+                        .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.35f), RoundedCornerShape(14.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = Color(0xFFFF6B6B),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = "Eliminar evento",
+                    style = AppTypo.heading().copy(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFFF6B6B), accentColor2)
+                        )
+                    ),
+                    fontSize = 22.sp
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = event.name,
+                        style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Se eliminaran tambien sus fotos asociadas. Esta accion no se puede deshacer.",
+                        style = AppTypo.body(),
+                        fontSize = 13.sp,
+                        color = textSecondary
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    enabled = !isDeleting,
+                    onClick = {
+                        eventListViewModel.deleteEvent(teamId, event)
+                        eventPendingDeletion = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF6B6B),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (isDeleting) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                            color = Color.White
+                        )
+                    } else {
+                        Text(
+                            text = "Eliminar",
+                            style = AppTypo.body().copy(fontWeight = FontWeight.Bold),
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !isDeleting,
+                    onClick = { eventPendingDeletion = null }
+                ) {
+                    Text(
+                        text = "Cancelar",
+                        color = accentColor,
+                        style = AppTypo.body().copy(fontWeight = FontWeight.Medium),
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        )
+    }
 }
 @Composable
 fun EventCard(
     event: EventData,
     onClick: () -> Unit,
+    onDelete: (() -> Unit)? = null,
+    isDeleting: Boolean = false,
     accentColor: Color = Color(0xFF4F5BFF),
     accentColor2: Color = Color(0xFF8B5CF6),
     glassBase: Color = Color(0xFFFFFFFF),
@@ -558,8 +678,10 @@ fun EventCard(
                     )
                 )
             )
-            .clickable { onClick() }
+            .clickable(enabled = !isDeleting) { onClick() }
     ) {
+        var actionMenuExpanded by remember { mutableStateOf(false) }
+
         // Barra de acento izquierda
         Box(
             modifier = Modifier
@@ -590,7 +712,7 @@ fun EventCard(
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text = event.type,
+                        text = displayEventType(event.type),
                         style = AppTypo.body(),
                         fontSize = 12.sp,
                         color = textSecondary
@@ -604,20 +726,82 @@ fun EventCard(
                     )
                 }
 
-                // Chip de fotos glass
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(accentColor.copy(alpha = 0.12f))
-                        .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
-                        .padding(horizontal = 9.dp, vertical = 4.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text(
-                        text = "${event.previewPhotos.size} fotos",
-                        style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
-                        fontSize = 11.sp,
-                        color = accentColor
-                    )
+                    // Chip de fotos glass
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(accentColor.copy(alpha = 0.12f))
+                            .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 9.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "${event.previewPhotos.size} fotos",
+                            style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                            fontSize = 11.sp,
+                            color = accentColor
+                        )
+                    }
+
+                    if (onDelete != null) {
+                        Box {
+                            IconButton(
+                                enabled = !isDeleting,
+                                onClick = { actionMenuExpanded = true },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                if (isDeleting) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(18.dp),
+                                        strokeWidth = 2.dp,
+                                        color = accentColor
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "Mas opciones",
+                                        tint = textSecondary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = actionMenuExpanded,
+                                onDismissRequest = { actionMenuExpanded = false },
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(glassBase)
+                                    .border(1.dp, borderGlass, RoundedCornerShape(14.dp))
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = "Eliminar",
+                                            color = Color(0xFFFF6B6B),
+                                            fontSize = 14.sp,
+                                            style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold)
+                                        )
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = null,
+                                            tint = Color(0xFFFF6B6B),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        actionMenuExpanded = false
+                                        onDelete()
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
@@ -677,6 +861,14 @@ fun EventCard(
                 }
             }
         }
+    }
+}
+
+private fun displayEventType(type: String): String {
+    return if (type.equals(EventType.PERSONALIZADO.name, ignoreCase = true)) {
+        "Personalizado"
+    } else {
+        type
     }
 }
 

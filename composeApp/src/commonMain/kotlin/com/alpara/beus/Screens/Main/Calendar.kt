@@ -725,7 +725,7 @@ fun EventDetailCard(
                     color = textColor
                 )
                 Text(
-                    text = event.type,
+                    text = displayEventType(event.type),
                     fontSize = 12.sp,
                     color = subTextColor
                 )
@@ -766,6 +766,14 @@ fun EventDetailCard(
                 }
             }
         }
+    }
+}
+
+private fun displayEventType(type: String): String {
+    return if (type.equals("PERSONALIZADO", ignoreCase = true)) {
+        "Personalizado"
+    } else {
+        type
     }
 }
 

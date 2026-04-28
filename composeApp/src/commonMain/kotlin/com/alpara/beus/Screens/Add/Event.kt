@@ -51,6 +51,7 @@ private val eventOptions = listOf(
     EventOption(EventType.CENA,       "🍽️", "Cena o tapas",        "Buena mesa, mejor compañía"),
     EventOption(EventType.VIAJE,      "✈️", "Viaje o vacaciones",  "Nuevos destinos, nuevos recuerdos"),
     EventOption(EventType.COMPETICION,"🏆", "Competición",         "Que gane el mejor"),
+    EventOption(EventType.PERSONALIZADO, "✨", "Personalizado",     "Ponle el nombre que quieras"),
 )
 
 @Composable
@@ -68,8 +69,8 @@ fun EventScreenCall(
     EventScreen(
         onHomeBack = onBack,
         search = {},
-        onAddEvent = { type, name ->
-            viewModel.createEvent(teamId, name = name, type = type)
+        onAddEvent = { typeName, name ->
+            viewModel.createEvent(teamId, name = name, type = typeName)
             onBack()
         }
     )
@@ -79,9 +80,10 @@ fun EventScreenCall(
 fun EventScreen(
     onHomeBack: () -> Unit,
     search: () -> Unit = {},
-    onAddEvent: (EventType, String) -> Unit
+    onAddEvent: (String, String) -> Unit
 ) {
     var pendingEventType by remember { mutableStateOf<EventType?>(null) }
+    var customEventTypeName by remember { mutableStateOf("") }
     var eventName by remember { mutableStateOf("") }
 
     // ── Glassmorphism palette ──────────────────────────────────────────────
@@ -237,6 +239,7 @@ fun EventScreen(
                             )
                             .clickable {
                                 pendingEventType = option.type
+                                customEventTypeName = ""
                                 eventName = ""
                             }
                     ) {
@@ -306,9 +309,19 @@ fun EventScreen(
     // ── Diálogo: nombre del evento ─────────────────────────────────────────
     pendingEventType?.let { selectedType ->
         val meta = eventOptions.find { it.type == selectedType }
+        val isCustomEvent = selectedType == EventType.PERSONALIZADO
+        val canCreateEvent = if (isCustomEvent) {
+            customEventTypeName.isNotBlank() && eventName.isNotBlank()
+        } else {
+            true
+        }
 
         AlertDialog(
-            onDismissRequest = { pendingEventType = null },
+            onDismissRequest = {
+                pendingEventType = null
+                customEventTypeName = ""
+                eventName = ""
+            },
             containerColor = glassBase,
             shape = RoundedCornerShape(24.dp),
             title = {
@@ -339,6 +352,23 @@ fun EventScreen(
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (isCustomEvent) {
+                        Text(
+                            text = "Tipo de evento",
+                            style = AppTypo.body(),
+                            fontSize = 13.sp,
+                            color = textSecondary
+                        )
+                        GlassTextField(
+                            value = customEventTypeName,
+                            onValueChange = { customEventTypeName = it },
+                            placeholder = "Ej: Karaoke",
+                            accentColor = accentColor,
+                            borderGlass = borderGlass,
+                            glassBase = glassBase,
+                            onSurface = onSurface
+                        )
+                    }
                     Text(
                         text = stringResource(Res.string.event_name_hint),
                         style = AppTypo.body(),
@@ -361,12 +391,25 @@ fun EventScreen(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .background(
-                            brush = Brush.linearGradient(colors = listOf(accentColor, accentColor2))
+                            brush = Brush.linearGradient(
+                                colors = if (canCreateEvent) {
+                                    listOf(accentColor, accentColor2)
+                                } else {
+                                    listOf(textSecondary.copy(alpha = 0.35f), textSecondary.copy(alpha = 0.25f))
+                                }
+                            )
                         )
-                        .clickable {
-                            val finalName = eventName.trim().ifBlank { selectedType.name }
-                            onAddEvent(selectedType, finalName)
+                        .clickable(enabled = canCreateEvent) {
+                            val finalType = if (isCustomEvent) {
+                                customEventTypeName.trim()
+                            } else {
+                                selectedType.name
+                            }
+                            val finalName = eventName.trim().ifBlank { finalType }
+                            onAddEvent(finalType, finalName)
                             pendingEventType = null
+                            customEventTypeName = ""
+                            eventName = ""
                         }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
@@ -384,7 +427,11 @@ fun EventScreen(
                         .clip(RoundedCornerShape(12.dp))
                         .background(accentColor.copy(alpha = 0.10f))
                         .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-                        .clickable { pendingEventType = null }
+                        .clickable {
+                            pendingEventType = null
+                            customEventTypeName = ""
+                            eventName = ""
+                        }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
                     Text(
