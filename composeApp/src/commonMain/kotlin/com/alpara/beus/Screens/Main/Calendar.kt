@@ -1,27 +1,23 @@
 package com.alpara.beus.Screens.Main
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -84,6 +80,40 @@ fun CalendarScreen(
         }
     }
 
+    val navBarInsets = WindowInsets.navigationBars.asPaddingValues()
+    val calendarBottomMargin = 12.dp + 70.dp + 12.dp + navBarInsets.calculateBottomPadding()
+    val currentMonthIndex = remember(uiState.currentYear, uiState.currentMonth) {
+        getMonthIndex(uiState.currentYear, uiState.currentMonth)
+    }
+    val previousMonthsCount = remember(currentMonthIndex, uiState.dayEvents) {
+        val oldestEventMonthIndex = uiState.dayEvents.keys
+            .minOfOrNull { date -> getMonthIndex(date.year, date.monthNumber) }
+            ?: currentMonthIndex
+
+        maxOf(12, currentMonthIndex - oldestEventMonthIndex)
+    }
+    val nextMonthsCount = 18
+    val visibleMonths = remember(uiState.currentYear, uiState.currentMonth, previousMonthsCount) {
+        List(previousMonthsCount + 1 + nextMonthsCount) { index ->
+            getMonthStartFromOffset(
+                year = uiState.currentYear,
+                month = uiState.currentMonth,
+                offset = index - previousMonthsCount
+            )
+        }
+    }
+    val calendarListState = rememberLazyListState(initialFirstVisibleItemIndex = previousMonthsCount)
+    var returnToCurrentMonthRequest by remember { mutableStateOf(0) }
+
+    LaunchedEffect(uiState.currentYear, uiState.currentMonth, previousMonthsCount) {
+        calendarListState.scrollToItem(previousMonthsCount)
+    }
+    LaunchedEffect(returnToCurrentMonthRequest) {
+        if (returnToCurrentMonthRequest > 0) {
+            calendarListState.animateScrollToItem(previousMonthsCount)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -95,16 +125,39 @@ fun CalendarScreen(
                 .windowInsetsPadding(WindowInsets.statusBars)
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.calendar),
-                style = AppTypo.heading().copy(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(accentColor, accentColor2)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(Res.string.calendar),
+                    style = AppTypo.heading().copy(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(accentColor, accentColor2)
+                        )
+                    ),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.weight(1f)
+                )
+
+                FilledTonalButton(
+                    onClick = { returnToCurrentMonthRequest++ },
+                    modifier = Modifier.height(34.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = accentColor.copy(alpha = if (isDark) 0.18f else 0.12f),
+                        contentColor = accentColor
                     )
-                ),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
+                ) {
+                    Text(
+                        text = "Hoy",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
 
         if (!uiState.error.isNullOrEmpty()) {
@@ -136,32 +189,59 @@ fun CalendarScreen(
                 CircularProgressIndicator(color = accentColor)
             }
         } else {
+            val calendarSurface = if (isDark) Color(0xFF1C1E26) else Color.White
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(horizontal = 20.dp, vertical = 4.dp),
+                    .padding(
+                        start = 20.dp,
+                        top = 4.dp,
+                        end = 20.dp,
+                        bottom = calendarBottomMargin
+                    ),
                 contentAlignment = Alignment.TopCenter
             ) {
-                CalendarMonthView(
+                Box(
                     modifier = Modifier
                         .widthIn(max = 440.dp)
-                        .padding(top = 6.dp),
-                    year = uiState.currentYear,
-                    month = uiState.currentMonth,
-                    today = uiState.today,
-                    onPreviousMonth = { calendarViewModel.goToPreviousMonth() },
-                    onNextMonth = { calendarViewModel.goToNextMonth() },
-                    onDateSelected = { date ->
-                        selectedDateForDetail = date
-                        showDayDetail = true
-                        calendarViewModel.loadPhotosForDate(date)
-                    },
-                    hasEventsOnDate = { date -> calendarViewModel.hasEventsOnDate(date) },
-                    hasPhotosOnDate = { date -> calendarViewModel.hasPhotosOnDate(date) },
-                    accentColor = accentColor,
-                    accentColor2 = accentColor2
-                )
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(calendarSurface)
+                ) {
+                    LazyColumn(
+                        state = calendarListState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = 18.dp,
+                            top = 12.dp,
+                            end = 18.dp,
+                            bottom = 18.dp
+                        )
+                    ) {
+                        items(
+                            items = visibleMonths,
+                            key = { monthStart -> "${monthStart.year}-${monthStart.monthNumber}" }
+                        ) { monthStart ->
+                            CalendarMonthView(
+                                modifier = Modifier.fillMaxWidth(),
+                                year = monthStart.year,
+                                month = monthStart.monthNumber,
+                                today = uiState.today,
+                                onDateSelected = { date ->
+                                    selectedDateForDetail = date
+                                    showDayDetail = true
+                                    calendarViewModel.loadPhotosForDate(date)
+                                },
+                                hasEventsOnDate = { date -> uiState.dayEvents.containsKey(date) },
+                                hasPhotosOnDate = { date -> !uiState.calendarDayPhotos[date].isNullOrEmpty() },
+                                accentColor = accentColor,
+                                accentColor2 = accentColor2
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -276,8 +356,6 @@ fun CalendarMonthView(
     year: Int,
     month: Int,
     today: LocalDate,
-    onPreviousMonth: () -> Unit,
-    onNextMonth: () -> Unit,
     onDateSelected: (LocalDate) -> Unit,
     hasEventsOnDate: (LocalDate) -> Boolean,
     hasPhotosOnDate: (LocalDate) -> Boolean,
@@ -288,217 +366,148 @@ fun CalendarMonthView(
     val isDark = bgRed < 0.5f
     val textColor = if (isDark) Color.White else Color.Black
     val subTextColor = if (isDark) Color(0xFFB0B0B0) else Color(0xFF666666)
-    val cardBase = if (isDark) Color(0xFF1C1E26) else Color.White
-    val cardBorder = if (isDark) Color(0x44FFFFFF) else Color(0x55FFFFFF)
 
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
-            .shadow(
-                elevation = 14.dp,
-                shape = RoundedCornerShape(24.dp),
-                ambientColor = accentColor.copy(alpha = if (isDark) 0.28f else 0.16f),
-                spotColor = accentColor2.copy(alpha = if (isDark) 0.32f else 0.18f)
-            )
-            .clip(RoundedCornerShape(24.dp))
-            .border(
-                width = 1.dp,
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        cardBorder,
-                        accentColor.copy(alpha = 0.25f),
-                        cardBorder
-                    )
-                ),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        cardBase.copy(alpha = 0.95f),
-                        accentColor.copy(alpha = if (isDark) 0.12f else 0.06f),
-                        accentColor2.copy(alpha = if (isDark) 0.08f else 0.04f)
-                    )
-                )
-            )
-            .animateContentSize()
-            .padding(horizontal = 14.dp, vertical = 10.dp)
+            .padding(top = 18.dp, bottom = 8.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
+        Text(
+            text = getMonthYearString(year, month),
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = textColor,
+            modifier = Modifier.padding(start = 2.dp, bottom = 14.dp)
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onPreviousMonth) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "Mes anterior",
-                        tint = accentColor
-                    )
-                }
-
+            val daysOfWeek = listOf("L", "M", "X", "J", "V", "S", "D")
+            for (day in daysOfWeek) {
                 Text(
-                    text = getMonthYearString(year, month),
-                    fontSize = 21.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = textColor
+                    text = day,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = subTextColor,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
                 )
-
-                IconButton(onClick = onNextMonth) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "Mes siguiente",
-                        tint = accentColor
-                    )
-                }
             }
+        }
 
+        val daysInMonth = getDaysInMonth(year, month)
+        val firstDayOfWeek = getFirstDayOfMonth(year, month)
+
+        val weeks = mutableListOf<List<Int?>>()
+        var currentWeek = MutableList<Int?>(7) { null }
+
+        for (day in 1..daysInMonth) {
+            val absolutePosition = firstDayOfWeek + (day - 1)
+            val dayIndex = absolutePosition % 7
+
+            currentWeek[dayIndex] = day
+
+            if (dayIndex == 6 || day == daysInMonth) {
+                weeks.add(currentWeek.toList())
+                currentWeek = MutableList<Int?>(7) { null }
+            }
+        }
+
+        for (week in weeks) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = 6.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                val daysOfWeek = listOf("Lun", "Mar", "Mié", "Jue", "Vie", "Sab", "Dom")
-                for (day in daysOfWeek) {
-                    Text(
-                        text = day,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = subTextColor,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+                for (day in week) {
+                    if (day != null) {
+                        val date = LocalDate(year, month, day)
+                        val hasEvents = hasEventsOnDate(date)
+                        val hasPhotos = hasPhotosOnDate(date)
+                        val isToday = date == today
+                        val hasActivity = hasEvents || hasPhotos
 
-            val daysInMonth = getDaysInMonth(year, month)
-            val firstDayOfWeek = getFirstDayOfMonth(year, month)
-
-            val weeks = mutableListOf<List<Int?>>()
-            var currentWeek = MutableList<Int?>(7) { null }
-
-            for (day in 1..daysInMonth) {
-                val absolutePosition = firstDayOfWeek + (day - 1)
-                val dayIndex = absolutePosition % 7
-
-                currentWeek[dayIndex] = day
-
-                if (dayIndex == 6 || day == daysInMonth) {
-                    weeks.add(currentWeek.toList())
-                    currentWeek = MutableList<Int?>(7) { null }
-                }
-            }
-
-            for (week in weeks) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    for (day in week) {
-                        if (day != null) {
-                            val date = LocalDate(year, month, day)
-                            val hasEvents = hasEventsOnDate(date)
-                            val hasPhotos = hasPhotosOnDate(date)
-                            val isToday = date == today
-
-                            val baseBackground =
-                                if (hasEvents || hasPhotos) {
-                                    Brush.linearGradient(
-                                        colors = listOf(
-                                            accentColor.copy(alpha = 0.22f),
-                                            accentColor2.copy(alpha = 0.2f)
-                                        )
-                                    )
-                                } else {
-                                    Brush.linearGradient(
-                                        colors = listOf(
-                                            if (isDark) Color(0xFF2A2A2A) else Color(0xFFF6F6FA),
-                                            if (isDark) Color(0xFF23252E) else Color(0xFFF8F8FC)
-                                        )
-                                    )
-                                }
-
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .padding(4.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(baseBackground)
-                                    .clickable {
-                                        onDateSelected(date)
-                                    },
-                                contentAlignment = Alignment.Center
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f)
+                                .padding(2.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    when {
+                                        isToday -> accentColor
+                                        hasActivity -> accentColor.copy(alpha = if (isDark) 0.18f else 0.12f)
+                                        else -> Color.Transparent
+                                    }
+                                )
+                                .clickable {
+                                    onDateSelected(date)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxSize()
                             ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxSize()
+                                Text(
+                                    text = day.toString(),
+                                    fontSize = 17.sp,
+                                    fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isToday) Color.White else textColor
+                                )
+
+                                Spacer(modifier = Modifier.height(3.dp))
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(3.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.height(5.dp)
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(34.dp)
-                                            .clip(CircleShape)
-                                            .background(
-                                                if (isToday) accentColor.copy(alpha = 0.28f)
-                                                else Color.Transparent
-                                            ),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = day.toString(),
-                                            fontSize = 16.sp,
-                                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.SemiBold,
-                                            color = if (isToday) accentColor else textColor
+                                    if (hasEvents) {
+                                        Box(
+                                            modifier = Modifier
+                                                .width(16.dp)
+                                                .height(4.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(if (isToday) Color.White else accentColor)
                                         )
                                     }
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        if (hasEvents) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(5.dp)
-                                                    .clip(CircleShape)
-                                                    .background(accentColor)
-                                            )
-                                        }
-                                        if (hasPhotos) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(5.dp)
-                                                    .clip(CircleShape)
-                                                    .background(accentColor2)
-                                            )
-                                        }
+                                    if (hasPhotos) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(4.dp)
+                                                .clip(CircleShape)
+                                                .background(if (isToday) Color.White else accentColor2)
+                                        )
+                                    }
+                                    if (!hasActivity) {
+                                        Spacer(modifier = Modifier.size(4.dp))
                                     }
                                 }
                             }
-                        } else {
-                            Spacer(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .padding(4.dp)
-                            )
                         }
+                    } else {
+                        Spacer(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f)
+                                .padding(2.dp)
+                        )
                     }
                 }
             }
         }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 10.dp),
+            color = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.08f)
+        )
     }
 }
 
@@ -828,6 +837,17 @@ private fun getMonthYearString(year: Int, month: Int): String {
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     )
     return "${months[month - 1]} $year"
+}
+
+private fun getMonthStartFromOffset(year: Int, month: Int, offset: Int): LocalDate {
+    val totalMonths = getMonthIndex(year, month) + offset
+    val targetYear = totalMonths / 12
+    val targetMonth = (totalMonths % 12) + 1
+    return LocalDate(targetYear, targetMonth, 1)
+}
+
+private fun getMonthIndex(year: Int, month: Int): Int {
+    return (year * 12) + (month - 1)
 }
 
 private fun formatDate(date: LocalDate): String {

@@ -114,7 +114,7 @@ class CalendarViewModel : ViewModel() {
 
                 _uiState.value = _uiState.value.copy(activeTeamId = teamId)
 
-                loadEventsForCurrentMonth(teamId)
+                loadEventsForTeam(teamId)
                 loadCalendarPhotosForCurrentMonth(teamId)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -125,12 +125,9 @@ class CalendarViewModel : ViewModel() {
         }
     }
 
-    private fun loadEventsForCurrentMonth(teamId: String) {
+    private fun loadEventsForTeam(teamId: String) {
         viewModelScope.launch {
             try {
-                val year = _uiState.value.currentYear
-                val month = _uiState.value.currentMonth
-
                 val eventsResult = eventService.getEventsForTeam(teamId)
                 val events = eventsResult.getOrNull() ?: emptyList()
 
@@ -142,13 +139,12 @@ class CalendarViewModel : ViewModel() {
                             // Prioriza la fecha explícita guardada con el evento.
                             parseEventCalendarDate(event.calendarDate)
                         } catch (_: Exception) {
+                            // Eventos antiguos no siempre tienen calendarDate.
                             kotlinx.datetime.Instant
                                 .fromEpochMilliseconds(event.createdAt)
                                 .toLocalDateTime(TimeZone.currentSystemDefault())
                                 .date
                         }
-
-                        if (eventDate.year != year || eventDate.monthNumber != month) continue
 
                         val photosResult = photoService.getPhotos(teamId, event.id)
                         val photos = photosResult.getOrNull() ?: emptyList()
@@ -406,7 +402,7 @@ class CalendarViewModel : ViewModel() {
             calendarDayPhotos = emptyMap()
         )
 
-        loadEventsForCurrentMonth(teamId)
+        loadEventsForTeam(teamId)
         loadCalendarPhotosForCurrentMonth(teamId)
     }
 
