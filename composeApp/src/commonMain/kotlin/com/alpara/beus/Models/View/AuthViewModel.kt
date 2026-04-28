@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alpara.beus.Firebase.Auth.FirebaseAuthService
 import com.alpara.beus.Firebase.Auth.FirebaseProfileService
+import com.alpara.beus.Firebase.Auth.FcmTokenRegistrar
 import com.alpara.beus.Security.TokenManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
     private val authService = FirebaseAuthService()
     private val firebaseProfileService = FirebaseProfileService()
+    private val fcmTokenRegistrar = FcmTokenRegistrar()
     private val _isAuthenticated = MutableStateFlow(false)
     val isAuthenticated = _isAuthenticated.asStateFlow()
 
@@ -37,6 +39,8 @@ class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
                     tokenManager.saveAccessToken(response.accessToken)
                     tokenManager.saveRefreshToken(response.refreshToken)
                     _isAuthenticated.value = true
+                    // Registrar token FCM para push notifications
+                    registerFcmToken()
                 }
                 .onFailure { error ->
                     _authError.value = error.message ?: "Error al iniciar sesión"
@@ -69,11 +73,24 @@ class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
                         tokenManager.saveRefreshToken(userId ?: "")
                     }
                     _isAuthenticated.value = true
+                    // Registrar token FCM para push notifications
+                    registerFcmToken()
                 }
                 .onFailure { error ->
                     _authError.value = error.message ?: "Error al registrarse"
                 }
             _isLoading.value = false
+        }
+    }
+
+    private fun registerFcmToken() {
+        viewModelScope.launch {
+            val userId = authService.getCurrentUserId() ?: return@launch
+            try {
+                fcmTokenRegistrar.registerToken(userId)
+            } catch (_: Exception) {
+                // No bloquear el flujo si falla el registro del token
+            }
         }
     }
 
@@ -87,7 +104,9 @@ class AuthViewModel(private val tokenManager: TokenManager) : ViewModel() {
     fun checkAuthStatus() {
         viewModelScope.launch {
             _isCheckingAuth.value = true
-            _isAuthenticated.value = authService.checkAuthStatus()
+            val isAuth = authService.checkAuthStatus()
+            _isAuthenticated.value = isAuth
+            if (isAuth) registerFcmToken()
             _isCheckingAuth.value = false
         }
     }

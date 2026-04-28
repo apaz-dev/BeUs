@@ -61,6 +61,9 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.androidx.security.crypto)
+            // Firebase Cloud Messaging para notificaciones push
+            implementation("com.google.firebase:firebase-messaging-ktx")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
         }
         commonMain.dependencies {
             implementation("dev.gitlive:firebase-auth:1.12.0")

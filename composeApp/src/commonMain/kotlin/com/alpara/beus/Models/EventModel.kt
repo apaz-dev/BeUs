@@ -19,6 +19,14 @@ data class EventData(
     val name: String = "",
     val type: String = "",
     val createdAt: Long = 0L,
-    val previewPhotos: List<String> = emptyList()  // URLs de las 3 últimas fotos
+    val previewPhotos: List<String> = emptyList(),  // URLs de las 3 últimas fotos
+    val currentUserRole: String? = null               // Rol asignado al usuario actual
+)
+
+@Serializable
+data class RoleAssignment(
+    val userId: String = "",
+    val username: String = "",
+    val role: String = ""
 )
 

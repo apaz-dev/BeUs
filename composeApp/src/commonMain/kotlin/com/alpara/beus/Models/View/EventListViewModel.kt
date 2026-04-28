@@ -6,6 +6,7 @@ import com.alpara.beus.Firebase.Auth.FirebaseAuthService
 import com.alpara.beus.Firebase.Auth.FirebaseEventService
 import com.alpara.beus.Firebase.Auth.FirebaseTeamService
 import com.alpara.beus.Models.EventData
+import com.alpara.beus.Models.RoleAssignment
 import com.alpara.beus.Utils.EventType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +29,10 @@ class EventListViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(EventListUiState())
     val uiState: StateFlow<EventListUiState> = _uiState.asStateFlow()
+
+    // Roles del evento seleccionado
+    private val _eventRoles = MutableStateFlow<List<RoleAssignment>>(emptyList())
+    val eventRoles: StateFlow<List<RoleAssignment>> = _eventRoles.asStateFlow()
 
     // Cache del teamId real una vez resuelto
     private var resolvedTeamId: String = ""
@@ -54,7 +59,9 @@ class EventListViewModel : ViewModel() {
                 )
             }
 
-            eventService.getEventsForTeam(resolvedTeamId).fold(
+            val currentUserId = authService.getCurrentUserId()
+
+            eventService.getEventsForTeam(resolvedTeamId, currentUserId).fold(
                 onSuccess = { events ->
                     _uiState.value = _uiState.value.copy(events = events, isLoading = false)
                 },
@@ -64,6 +71,15 @@ class EventListViewModel : ViewModel() {
                         error = e.message ?: "Error al cargar eventos"
                     )
                 }
+            )
+        }
+    }
+
+    fun loadRolesForEvent(teamId: String, eventId: String) {
+        viewModelScope.launch {
+            eventService.getRolesForEvent(teamId, eventId).fold(
+                onSuccess = { roles -> _eventRoles.value = roles },
+                onFailure = { _eventRoles.value = emptyList() }
             )
         }
     }
@@ -95,7 +111,7 @@ class EventListViewModel : ViewModel() {
                 onSuccess = {
                     _uiState.value = _uiState.value.copy(
                         isCreating = false,
-                        successMessage = "¡Evento creado!"
+                        successMessage = "¡Evento creado! Roles asignados 🎲"
                     )
                     loadEvents(resolvedTeamId)
                 },

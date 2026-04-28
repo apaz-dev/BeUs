@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -156,6 +157,15 @@ fun ConfigurationScreenContent(
 
     val isUpdating by viewModel.isUpdating.collectAsState()
     val updateError by viewModel.updateError.collectAsState()
+    val testNotifResult by viewModel.testNotifResult.collectAsState()
+
+    // Mostrar resultado de notificación de prueba
+    LaunchedEffect(testNotifResult) {
+        if (testNotifResult != null) {
+            kotlinx.coroutines.delay(3000)
+            viewModel.clearTestNotifResult()
+        }
+    }
 
     // Glassmorphism palette
     val bgRed       = MaterialTheme.colorScheme.background.red
@@ -371,6 +381,48 @@ fun ConfigurationScreenContent(
                     onCheckedChange = onDarkModeChange,
                     isDark = isDark
                 )
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            // Administración — Notificaciones de prueba
+            GlassSectionLabel("ADMINISTRACIÓN", accentColor)
+            GlassSection(glassBase, borderGlass) {
+                GlassRow(
+                    icon = Icons.Filled.Notifications,
+                    text = "Notificación push de prueba",
+                    accentColor = accentColor,
+                    onSurface = onSurface,
+                    showChevron = false,
+                    onClick = { viewModel.sendTestNotification() }
+                )
+            }
+
+            // Resultado de la notificación de prueba
+            testNotifResult?.let { msg ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            if (msg.startsWith("✅")) accentColor.copy(alpha = if (isDark) 0.15f else 0.1f)
+                            else Color(0xFFFF6B6B).copy(alpha = if (isDark) 0.15f else 0.1f)
+                        )
+                        .border(
+                            1.dp,
+                            if (msg.startsWith("✅")) accentColor.copy(alpha = 0.3f)
+                            else Color(0xFFFF6B6B).copy(alpha = 0.3f),
+                            RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    Text(
+                        text = msg,
+                        style = AppTypo.body(),
+                        fontSize = 13.sp,
+                        color = if (msg.startsWith("✅")) accentColor else Color(0xFFFF6B6B)
+                    )
+                }
             }
 
             Spacer(Modifier.height(4.dp))
