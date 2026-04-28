@@ -48,6 +48,8 @@ import com.alpara.beus.resources.no_photos_hint
 import com.alpara.beus.resources.photo_caption_hint
 import com.alpara.beus.resources.upload
 import com.alpara.beus.resources.uploading_photo
+import com.alpara.beus.Models.View.EventListViewModel
+import com.alpara.beus.Utils.EventRole
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,11 +58,14 @@ fun PhotoGalleryScreen(
     teamId: String,
     eventId: String,
     eventName: String = "Evento",
+    currentUserRole: String? = null,
     onBack: () -> Unit,
-    viewModel: PhotoViewModel = remember { PhotoViewModel() }
+    viewModel: PhotoViewModel = remember { PhotoViewModel() },
+    eventListViewModel: EventListViewModel = remember { EventListViewModel() }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentUserId = remember { viewModel.getCurrentUserId() }
+    val eventRoles by eventListViewModel.eventRoles.collectAsStateWithLifecycle()
 
     var photoToDelete by remember { mutableStateOf<PhotoModel?>(null) }
     var showCaptionDialog by remember { mutableStateOf(false) }
@@ -74,7 +79,10 @@ fun PhotoGalleryScreen(
         }
     }
 
-    LaunchedEffect(teamId, eventId) { viewModel.loadPhotos(teamId, eventId) }
+    LaunchedEffect(teamId, eventId) {
+        viewModel.loadPhotos(teamId, eventId)
+        eventListViewModel.loadRolesForEvent(teamId, eventId)
+    }
     LaunchedEffect(uiState.successMessage) {
         if (uiState.successMessage != null) {
             kotlinx.coroutines.delay(2000)
@@ -164,6 +172,31 @@ fun PhotoGalleryScreen(
                                 style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
                                 fontSize = 12.sp
                             )
+                        }
+                    }
+
+                    // Badge del rol del usuario actual
+                    currentUserRole?.let { roleName ->
+                        val role = try { EventRole.valueOf(roleName) } catch (_: Exception) { null }
+                        if (role != null) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(
+                                        brush = Brush.horizontalGradient(
+                                            listOf(accentColor.copy(alpha = 0.18f), accentColor2.copy(alpha = 0.12f))
+                                        )
+                                    )
+                                    .border(1.dp, accentColor2.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                                    .padding(horizontal = 10.dp, vertical = 5.dp)
+                            ) {
+                                Text(
+                                    text = "${role.emoji} ${role.displayName}",
+                                    color = accentColor2,
+                                    style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                                    fontSize = 12.sp
+                                )
+                            }
                         }
                     }
                 }
@@ -288,21 +321,106 @@ fun PhotoGalleryScreen(
 
                 // ── Grid de fotos ─────────────────────────────────────────
                 else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        contentPadding = PaddingValues(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(uiState.photos) { photo ->
-                            PhotoGridItem(
-                                photo = photo,
-                                isOwner = currentUserId == photo.uploadedBy,
-                                onDeleteClick = { photoToDelete = photo },
-                                accentColor = accentColor,
-                                borderGlass = borderGlass
-                            )
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // ── Roles del evento ────────────────────────────────
+                        if (eventRoles.isNotEmpty()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.padding(bottom = 6.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(3.dp)
+                                            .height(16.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .background(
+                                                brush = Brush.verticalGradient(
+                                                    colors = listOf(accentColor, accentColor2)
+                                                )
+                                            )
+                                    )
+                                    Text(
+                                        text = "ROLES",
+                                        style = AppTypo.body().copy(
+                                            fontWeight = FontWeight.SemiBold,
+                                            letterSpacing = 1.2.sp
+                                        ),
+                                        fontSize = 11.sp,
+                                        color = accentColor
+                                    )
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    eventRoles.forEach { assignment ->
+                                        val roleEnum = try { EventRole.valueOf(assignment.role) } catch (_: Exception) { null }
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(
+                                                    brush = Brush.linearGradient(
+                                                        listOf(
+                                                            glassBase.copy(alpha = 0.78f),
+                                                            glassBase.copy(alpha = 0.55f)
+                                                        )
+                                                    )
+                                                )
+                                                .border(
+                                                    1.dp,
+                                                    Brush.linearGradient(listOf(borderGlass, Color.Transparent, borderGlass)),
+                                                    RoundedCornerShape(12.dp)
+                                                )
+                                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                                        ) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text(
+                                                    text = roleEnum?.emoji ?: "❓",
+                                                    fontSize = 18.sp
+                                                )
+                                                Text(
+                                                    text = assignment.username.take(8),
+                                                    style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                                                    fontSize = 10.sp,
+                                                    color = onSurface,
+                                                    maxLines = 1
+                                                )
+                                                Text(
+                                                    text = roleEnum?.displayName ?: assignment.role,
+                                                    style = AppTypo.body(),
+                                                    fontSize = 9.sp,
+                                                    color = accentColor
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // ── Grid de fotos ───────────────────────────────────
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            contentPadding = PaddingValues(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(uiState.photos) { photo ->
+                                PhotoGridItem(
+                                    photo = photo,
+                                    isOwner = currentUserId == photo.uploadedBy,
+                                    onDeleteClick = { photoToDelete = photo },
+                                    accentColor = accentColor,
+                                    borderGlass = borderGlass
+                                )
+                            }
                         }
                     }
                 }

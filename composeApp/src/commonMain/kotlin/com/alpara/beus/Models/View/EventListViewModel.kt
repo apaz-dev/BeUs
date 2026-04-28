@@ -9,6 +9,8 @@ import com.alpara.beus.Firebase.Auth.FirebaseTeamService
 import com.alpara.beus.Models.EventData
 import com.alpara.beus.Supabase.SupabaseStorageService
 import com.alpara.beus.Supabase.createSupabaseHttpEngine
+import com.alpara.beus.Models.RoleAssignment
+import com.alpara.beus.Utils.EventType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +35,10 @@ class EventListViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(EventListUiState())
     val uiState: StateFlow<EventListUiState> = _uiState.asStateFlow()
+
+    // Roles del evento seleccionado
+    private val _eventRoles = MutableStateFlow<List<RoleAssignment>>(emptyList())
+    val eventRoles: StateFlow<List<RoleAssignment>> = _eventRoles.asStateFlow()
 
     // Cache del teamId real una vez resuelto
     private var resolvedTeamId: String = ""
@@ -59,7 +65,9 @@ class EventListViewModel : ViewModel() {
                 )
             }
 
-            eventService.getEventsForTeam(resolvedTeamId).fold(
+            val currentUserId = authService.getCurrentUserId()
+
+            eventService.getEventsForTeam(resolvedTeamId, currentUserId).fold(
                 onSuccess = { events ->
                     _uiState.value = _uiState.value.copy(events = events, isLoading = false)
                 },
@@ -73,7 +81,16 @@ class EventListViewModel : ViewModel() {
         }
     }
 
-    fun createEvent(codeOrId: String, name: String, type: String) {
+    fun loadRolesForEvent(teamId: String, eventId: String) {
+        viewModelScope.launch {
+            eventService.getRolesForEvent(teamId, eventId).fold(
+                onSuccess = { roles -> _eventRoles.value = roles },
+                onFailure = { _eventRoles.value = emptyList() }
+            )
+        }
+    }
+
+    fun createEvent(codeOrId: String, name: String, type: EventType) {
         viewModelScope.launch {
             val userId = authService.getCurrentUserId()
             if (userId == null) {
@@ -100,7 +117,7 @@ class EventListViewModel : ViewModel() {
                 onSuccess = {
                     _uiState.value = _uiState.value.copy(
                         isCreating = false,
-                        successMessage = "¡Evento creado!"
+                        successMessage = "¡Evento creado! Roles asignados 🎲"
                     )
                     loadEvents(resolvedTeamId)
                 },

@@ -36,10 +36,11 @@ fun NavigationGraph(
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
-                onOpenGallery = { teamId, eventId, eventName ->
+                onOpenGallery = { teamId, eventId, eventName, currentUserRole ->
                     GalleryNavArgs.teamId = teamId
                     GalleryNavArgs.eventId = eventId
                     GalleryNavArgs.eventName = eventName
+                    GalleryNavArgs.currentUserRole = currentUserRole
                     navController.navigate(
                         Screen.PhotoGallery.createRoute(teamId, eventId, eventName)
                     )
@@ -122,6 +123,7 @@ fun NavigationGraph(
                 teamId = GalleryNavArgs.teamId,
                 eventId = GalleryNavArgs.eventId,
                 eventName = GalleryNavArgs.eventName.ifBlank { "Galería" },
+                currentUserRole = GalleryNavArgs.currentUserRole,
                 onBack = { navController.popBackStack() }
             )
         }

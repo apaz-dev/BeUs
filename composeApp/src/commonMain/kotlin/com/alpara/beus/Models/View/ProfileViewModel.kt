@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alpara.beus.Firebase.Auth.FirebaseProfileService
 import com.alpara.beus.Firebase.Auth.FirebaseAuthService
+import com.alpara.beus.Firebase.Auth.FirebaseEventService
 import com.alpara.beus.Models.ProfilePrivate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 class ProfileViewModel : ViewModel() {
     private val firebaseProfileService = FirebaseProfileService()
     private val authService = FirebaseAuthService()
+    private val eventService = FirebaseEventService()
 
     private val _profileState = MutableStateFlow<ProfileState>(ProfileState.Loading)
     val profileState: StateFlow<ProfileState> = _profileState.asStateFlow()
@@ -22,6 +24,9 @@ class ProfileViewModel : ViewModel() {
 
     private val _updateError = MutableStateFlow<String?>(null)
     val updateError: StateFlow<String?> = _updateError.asStateFlow()
+
+    private val _testNotifResult = MutableStateFlow<String?>(null)
+    val testNotifResult: StateFlow<String?> = _testNotifResult.asStateFlow()
 
     init {
         loadProfile()
@@ -106,6 +111,29 @@ class ProfileViewModel : ViewModel() {
 
             _isUpdating.value = false
         }
+    }
+
+    fun sendTestNotification() {
+        viewModelScope.launch {
+            val userId = authService.getCurrentUserId()
+            if (userId == null) {
+                _testNotifResult.value = "Usuario no autenticado"
+                return@launch
+            }
+
+            eventService.sendTestNotification(userId).fold(
+                onSuccess = {
+                    _testNotifResult.value = "✅ Notificación de prueba enviada"
+                },
+                onFailure = { error ->
+                    _testNotifResult.value = "❌ ${error.message}"
+                }
+            )
+        }
+    }
+
+    fun clearTestNotifResult() {
+        _testNotifResult.value = null
     }
 }
 

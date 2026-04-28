@@ -10,6 +10,12 @@ enum class EventType {
     PERSONALIZADO
 }
 
+enum class EventRole(val displayName: String, val emoji: String) {
+    POLICIA("Policía", "🚔"),
+    VLOGGER("Vlogger", "🎥"),
+    CONTADOR("Contador", "📊")
+}
+
 enum class RequirementType {
     VLOG,
     FOTOS,

@@ -40,6 +40,7 @@ import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Themes.AppTheme
 import com.alpara.beus.Themes.textSecondary
 import com.alpara.beus.Utils.EventType
+import com.alpara.beus.Utils.EventRole
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.all
 import com.alpara.beus.resources.home
@@ -58,7 +59,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onOpenGallery: (teamId: String, eventId: String, eventName: String) -> Unit = { _, _, _ -> },
+    onOpenGallery: (teamId: String, eventId: String, eventName: String, currentUserRole: String?) -> Unit = { _, _, _, _ -> },
     profileViewModel: ProfileViewModel = remember { ProfileViewModel() },
     eventListViewModel: EventListViewModel = remember { EventListViewModel() }
 ) {
@@ -485,9 +486,9 @@ fun HomeScreen(
                         items(filteredEvents) { event ->
                             EventCard(
                                 event = event,
-                                onClick = { onOpenGallery(event.teamId, event.id, event.name) },
                                 onDelete = { eventPendingDeletion = event },
                                 isDeleting = uiState.deletingEventId == event.id,
+                                onClick = { onOpenGallery(event.teamId, event.id, event.name, event.currentUserRole) },
                                 accentColor = accentColor,
                                 accentColor2 = accentColor2,
                                 glassBase = glassBase,
@@ -718,6 +719,51 @@ fun EventCard(
                         color = textSecondary
                     )
                     Spacer(Modifier.height(2.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = event.type,
+                            style = AppTypo.body(),
+                            fontSize = 12.sp,
+                            color = textSecondary
+                        )
+                        // Badge del rol asignado al usuario
+                        event.currentUserRole?.let { roleName ->
+                            val role = try { EventRole.valueOf(roleName) } catch (_: Exception) { null }
+                            if (role != null) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(
+                                            brush = Brush.horizontalGradient(
+                                                listOf(accentColor.copy(alpha = 0.18f), accentColor2.copy(alpha = 0.12f))
+                                            )
+                                        )
+                                        .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                                        .padding(horizontal = 7.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "${role.emoji} ${role.displayName}",
+                                        style = AppTypo.body().copy(fontWeight = FontWeight.SemiBold),
+                                        fontSize = 10.sp,
+                                        color = accentColor
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Chip de fotos glass
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(accentColor.copy(alpha = 0.12f))
+                        .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                        .padding(horizontal = 9.dp, vertical = 4.dp)
+                ) {
                     Text(
                         text = "Creado: ${formatCreatedDate(event.createdAt)}",
                         style = AppTypo.body(),
