@@ -95,7 +95,14 @@ class FirebaseEventService {
                         name = doc.get<String>("name"),
                         type = doc.get<String>("type"),
                         createdAt = createdAt,
-                        calendarDate = try { doc.get<String>("calendarDate") } catch (_: Exception) { null }
+                        calendarDate = optionalCalendarDate(
+                            doc = doc,
+                            keys = listOf("calendarDate", "startDate", "fecha_inicio", "fechaInicio")
+                        ),
+                        calendarEndDate = optionalCalendarDate(
+                            doc = doc,
+                            keys = listOf("calendarEndDate", "endDate", "dateEnd", "fecha_fin", "fechaFin")
+                        )
                     )
                 } catch (_: Exception) { null }
             }.sortedByDescending { it.createdAt }
@@ -121,5 +128,28 @@ class FirebaseEventService {
         } catch (e: Exception) {
             Result.failure(Exception("Error al obtener eventos: ${e.message}"))
         }
+    }
+
+    private fun optionalCalendarDate(doc: DocumentSnapshot, keys: List<String>): String? {
+        for (key in keys) {
+            try {
+                val value = doc.get<String>(key)
+                if (value.isNotBlank()) return value
+            } catch (_: Exception) {
+            }
+
+            try {
+                val value = doc.get<Timestamp>(key)
+                val date = kotlinx.datetime.Instant
+                    .fromEpochMilliseconds(value.seconds * 1000L + value.nanoseconds / 1_000_000L)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
+
+                return "${date.year}-${date.monthNumber.toString().padStart(2, '0')}-${date.dayOfMonth.toString().padStart(2, '0')}"
+            } catch (_: Exception) {
+            }
+        }
+
+        return null
     }
 }

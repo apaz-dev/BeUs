@@ -17,8 +17,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
 
@@ -146,15 +148,18 @@ class CalendarViewModel : ViewModel() {
                                 .date
                         }
 
+                        val eventEndDate = parseEventEndDate(event.calendarEndDate, eventDate)
                         val photosResult = photoService.getPhotos(teamId, event.id)
                         val photos = photosResult.getOrNull() ?: emptyList()
 
-                        val currentDayEvent = dayEventsMap[eventDate] ?: DayEvents(date = eventDate)
+                        for (date in getEventDates(eventDate, eventEndDate)) {
+                            val currentDayEvent = dayEventsMap[date] ?: DayEvents(date = date)
 
-                        dayEventsMap[eventDate] = currentDayEvent.copy(
-                            events = currentDayEvent.events + event,
-                            photos = currentDayEvent.photos + (event.id to photos)
-                        )
+                            dayEventsMap[date] = currentDayEvent.copy(
+                                events = currentDayEvent.events + event,
+                                photos = currentDayEvent.photos + (event.id to photos)
+                            )
+                        }
                     } catch (_: Exception) {
                     }
                 }
@@ -429,7 +434,30 @@ class CalendarViewModel : ViewModel() {
 
     private fun parseEventCalendarDate(calendarDate: String?): LocalDate {
         if (calendarDate.isNullOrBlank()) throw IllegalArgumentException("Sin fecha de calendario")
-        return LocalDate.parse(calendarDate)
+        val normalizedDate = calendarDate.trim().take(10)
+        return LocalDate.parse(normalizedDate)
+    }
+
+    private fun parseEventEndDate(calendarEndDate: String?, startDate: LocalDate): LocalDate {
+        val endDate = try {
+            parseEventCalendarDate(calendarEndDate)
+        } catch (_: Exception) {
+            startDate
+        }
+
+        return if (endDate < startDate) startDate else endDate
+    }
+
+    private fun getEventDates(startDate: LocalDate, endDate: LocalDate): List<LocalDate> {
+        val dates = mutableListOf<LocalDate>()
+        var current = startDate
+
+        while (current <= endDate) {
+            dates.add(current)
+            current = current.plus(DatePeriod(days = 1))
+        }
+
+        return dates
     }
 
     private fun getDaysInMonthInternal(year: Int, month: Int): Int {

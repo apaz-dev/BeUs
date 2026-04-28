@@ -36,8 +36,16 @@ import com.alpara.beus.Themes.AppTypo
 import com.alpara.beus.Utils.rememberImagePickerLauncher
 import com.alpara.beus.resources.Res
 import com.alpara.beus.resources.calendar
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 import org.jetbrains.compose.resources.stringResource
+
+private data class CalendarEventRangeMarker(
+    val hasRange: Boolean,
+    val continuesFromPreviousDay: Boolean,
+    val continuesToNextDay: Boolean
+)
 
 @Composable
 fun CalendarScreen(
@@ -236,6 +244,9 @@ fun CalendarScreen(
                                 },
                                 hasEventsOnDate = { date -> uiState.dayEvents.containsKey(date) },
                                 hasPhotosOnDate = { date -> !uiState.calendarDayPhotos[date].isNullOrEmpty() },
+                                eventRangeMarkerForDate = { date ->
+                                    getEventRangeMarker(uiState.dayEvents, date)
+                                },
                                 accentColor = accentColor,
                                 accentColor2 = accentColor2
                             )
@@ -351,7 +362,7 @@ fun CalendarScreen(
 }
 
 @Composable
-fun CalendarMonthView(
+private fun CalendarMonthView(
     modifier: Modifier = Modifier,
     year: Int,
     month: Int,
@@ -359,6 +370,7 @@ fun CalendarMonthView(
     onDateSelected: (LocalDate) -> Unit,
     hasEventsOnDate: (LocalDate) -> Boolean,
     hasPhotosOnDate: (LocalDate) -> Boolean,
+    eventRangeMarkerForDate: (LocalDate) -> CalendarEventRangeMarker,
     accentColor: Color,
     accentColor2: Color
 ) {
@@ -431,25 +443,64 @@ fun CalendarMonthView(
                         val hasPhotos = hasPhotosOnDate(date)
                         val isToday = date == today
                         val hasActivity = hasEvents || hasPhotos
+                        val rangeMarker = eventRangeMarkerForDate(date)
+                        val rangeColor = accentColor.copy(alpha = if (isDark) 0.28f else 0.18f)
+                        val leftRadius = if (rangeMarker.continuesFromPreviousDay) 0.dp else 18.dp
+                        val rightRadius = if (rangeMarker.continuesToNextDay) 0.dp else 18.dp
 
                         Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .aspectRatio(1f)
-                                .padding(2.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    when {
-                                        isToday -> accentColor
-                                        hasActivity -> accentColor.copy(alpha = if (isDark) 0.18f else 0.12f)
-                                        else -> Color.Transparent
-                                    }
-                                )
                                 .clickable {
                                     onDateSelected(date)
                                 },
                             contentAlignment = Alignment.Center
                         ) {
+                            if (rangeMarker.hasRange) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .fillMaxWidth()
+                                        .height(36.dp)
+                                        .clip(
+                                            RoundedCornerShape(
+                                                topStart = leftRadius,
+                                                bottomStart = leftRadius,
+                                                topEnd = rightRadius,
+                                                bottomEnd = rightRadius
+                                            )
+                                        )
+                                        .background(rangeColor)
+                                )
+                            }
+
+                            if (!rangeMarker.hasRange && (isToday || hasActivity)) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(2.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            when {
+                                                isToday -> accentColor
+                                                hasActivity -> accentColor.copy(alpha = if (isDark) 0.18f else 0.12f)
+                                                else -> Color.Transparent
+                                            }
+                                        )
+                                )
+                            }
+
+                            if (rangeMarker.hasRange && isToday) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(7.dp)
+                                        .clip(CircleShape)
+                                        .background(accentColor)
+                                )
+                            }
+
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center,
@@ -458,7 +509,7 @@ fun CalendarMonthView(
                                 Text(
                                     text = day.toString(),
                                     fontSize = 17.sp,
-                                    fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = if (isToday || rangeMarker.hasRange) FontWeight.Bold else FontWeight.Medium,
                                     color = if (isToday) Color.White else textColor
                                 )
 
@@ -472,7 +523,7 @@ fun CalendarMonthView(
                                     if (hasEvents) {
                                         Box(
                                             modifier = Modifier
-                                                .width(16.dp)
+                                                .width(if (rangeMarker.hasRange) 22.dp else 16.dp)
                                                 .height(4.dp)
                                                 .clip(RoundedCornerShape(2.dp))
                                                 .background(if (isToday) Color.White else accentColor)
@@ -856,6 +907,51 @@ private fun getMonthStartFromOffset(year: Int, month: Int, offset: Int): LocalDa
 
 private fun getMonthIndex(year: Int, month: Int): Int {
     return (year * 12) + (month - 1)
+}
+
+private fun getEventRangeMarker(
+    dayEvents: Map<LocalDate, DayEvents>,
+    date: LocalDate
+): CalendarEventRangeMarker {
+    val eventIds = dayEvents[date]?.events
+        ?.map { it.id }
+        ?.filter { it.isNotBlank() }
+        ?.toSet()
+        .orEmpty()
+
+    if (eventIds.isEmpty()) {
+        return CalendarEventRangeMarker(
+            hasRange = false,
+            continuesFromPreviousDay = false,
+            continuesToNextDay = false
+        )
+    }
+
+    val previousDate = date.plus(DatePeriod(days = -1))
+    val nextDate = date.plus(DatePeriod(days = 1))
+    val previousEventIds = dayEvents[previousDate]?.events
+        ?.map { it.id }
+        ?.filter { it.isNotBlank() }
+        ?.toSet()
+        .orEmpty()
+    val nextEventIds = dayEvents[nextDate]?.events
+        ?.map { it.id }
+        ?.filter { it.isNotBlank() }
+        ?.toSet()
+        .orEmpty()
+
+    val continuesFromPreviousDay = previousDate.monthNumber == date.monthNumber &&
+        date.dayOfWeek.ordinal != 0 &&
+        eventIds.any { it in previousEventIds }
+    val continuesToNextDay = nextDate.monthNumber == date.monthNumber &&
+        date.dayOfWeek.ordinal != 6 &&
+        eventIds.any { it in nextEventIds }
+
+    return CalendarEventRangeMarker(
+        hasRange = continuesFromPreviousDay || continuesToNextDay,
+        continuesFromPreviousDay = continuesFromPreviousDay,
+        continuesToNextDay = continuesToNextDay
+    )
 }
 
 private fun formatDate(date: LocalDate): String {
