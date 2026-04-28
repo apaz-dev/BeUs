@@ -7,4 +7,5 @@ object GalleryNavArgs {
     var teamId: String = ""
     var eventId: String = ""
     var eventName: String = ""
+    var eventEndDate: String? = null
 }

@@ -18,7 +18,8 @@ class FirebaseEventService {
         userId: String,
         teamId: String,
         name: String,
-        type: String
+        type: String,
+        endDate: String? = null
     ): Result<EventRCreate> {
         return try {
             if (teamId.isBlank()) return Result.failure(Exception("No hay equipo seleccionado"))
@@ -35,17 +36,19 @@ class FirebaseEventService {
                 .toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
             val calendarDate = "${today.year}-${today.monthNumber.toString().padStart(2, '0')}-${today.dayOfMonth.toString().padStart(2, '0')}"
-            docRef.set(
-                mapOf(
-                    "id" to docRef.id,
-                    "teamId" to teamId,
-                    "name" to name,
-                    "type" to type,
-                    "user_id" to userId,
-                    "created_at" to Timestamp.now(),
-                    "calendarDate" to calendarDate
-                )
+            val data = mutableMapOf<String, Any>(
+                "id" to docRef.id,
+                "teamId" to teamId,
+                "name" to name,
+                "type" to type,
+                "user_id" to userId,
+                "created_at" to Timestamp.now(),
+                "calendarDate" to calendarDate
             )
+            if (!endDate.isNullOrBlank()) {
+                data["endDate"] = endDate
+            }
+            docRef.set(data)
 
             Result.success(EventRCreate(message = "Evento creado correctamente"))
         } catch (e: Exception) {
@@ -95,7 +98,8 @@ class FirebaseEventService {
                         name = doc.get<String>("name"),
                         type = doc.get<String>("type"),
                         createdAt = createdAt,
-                        calendarDate = try { doc.get<String>("calendarDate") } catch (_: Exception) { null }
+                        calendarDate = try { doc.get<String>("calendarDate") } catch (_: Exception) { null },
+                        endDate = try { doc.get<String>("endDate") } catch (_: Exception) { null }
                     )
                 } catch (_: Exception) { null }
             }.sortedByDescending { it.createdAt }

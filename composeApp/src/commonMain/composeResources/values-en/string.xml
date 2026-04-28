@@ -91,6 +91,10 @@
     <string name="event_subtitle">Choose the event type to start</string>
     <string name="event_name_hint">Give the event a name:</string>
     <string name="create_event">Create event</string>
+    <string name="event_end_date_label">Event end date:</string>
+    <string name="event_end_date_hint">After this date, no more photos can be uploaded</string>
+    <string name="event_expired">Event ended</string>
+    <string name="event_expired_hint">Photos can no longer be uploaded to this event</string>
 
     <!-- Photo Gallery -->
     <string name="uploading_photo">Uploading photo…</string>

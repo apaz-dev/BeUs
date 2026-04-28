@@ -58,7 +58,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onOpenGallery: (teamId: String, eventId: String, eventName: String) -> Unit = { _, _, _ -> },
+    onOpenGallery: (teamId: String, eventId: String, eventName: String, endDate: String?) -> Unit = { _, _, _, _ -> },
     profileViewModel: ProfileViewModel = remember { ProfileViewModel() },
     eventListViewModel: EventListViewModel = remember { EventListViewModel() }
 ) {
@@ -485,7 +485,7 @@ fun HomeScreen(
                         items(filteredEvents) { event ->
                             EventCard(
                                 event = event,
-                                onClick = { onOpenGallery(event.teamId, event.id, event.name) },
+                                onClick = { onOpenGallery(event.teamId, event.id, event.name, event.endDate) },
                                 onDelete = { eventPendingDeletion = event },
                                 isDeleting = uiState.deletingEventId == event.id,
                                 accentColor = accentColor,
